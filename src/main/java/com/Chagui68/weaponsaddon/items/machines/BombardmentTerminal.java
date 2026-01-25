@@ -23,8 +23,8 @@ import org.bukkit.inventory.ItemStack;
 
 public class BombardmentTerminal extends SlimefunItem implements EnergyNetComponent {
 
-    private static final int ENERGY_CAPACITY = 2000000;
-    private static final int ENERGY_PER_USE = 1000000;
+    private static final int ENERGY_CAPACITY = 4000000;
+    private static final int ENERGY_PER_USE = 2000000;
 
     public static final SlimefunItemStack BOMBARDMENT_TERMINAL = new SlimefunItemStack(
             "BOMBARDMENT_TERMINAL",
@@ -34,7 +34,7 @@ public class BombardmentTerminal extends SlimefunItem implements EnergyNetCompon
             "&7GPS-targeted airstrike system",
             "&7Drops TNT bombs at coordinates",
             "",
-            "&6Energy: &e1,000,000 J per attack",
+            "&6Energy: &e2,000,000 J per attack",
             "&6Fuel: &e10 TNT + 5 Nether Stars",
             "&6Attack: &e2 waves × 4 bombs",
             "&6Radius: &e10 blocks",
@@ -93,7 +93,7 @@ public class BombardmentTerminal extends SlimefunItem implements EnergyNetCompon
                 ChatColor.GRAY + "Requires:",
                 ChatColor.YELLOW + "  • 10 TNT",
                 ChatColor.YELLOW + "  • 5 Nether Stars",
-                ChatColor.AQUA + "  • 1M J energy",
+                ChatColor.AQUA + "  • 2M J energy",
                 "",
                 energyStatus));
 

@@ -40,9 +40,11 @@ public class AirstrikeExecutor {
                         tnt.setYield(4.0f);
                         tnt.setVelocity(new Vector(0, -1, 0));
 
-                        // CORRECCIÓN: Usar partículas 1.20.6
+
                         world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, spawnLoc, 20, 0.5, 0.5, 0.5, 0.01);
                         world.playSound(spawnLoc, Sound.ENTITY_TNT_PRIMED, 1.0f, 0.6f);
+
+                        trackExplosion(tnt, world);
 
                     }, bomb * 3L);
                 }
@@ -51,4 +53,30 @@ public class AirstrikeExecutor {
 
         initiator.sendMessage("§c§l[BOMBARDMENT] §7Impact in " + (waves * delayBetweenWaves / 20) + " seconds...");
     }
+    private static void trackExplosion(TNTPrimed tnt, World world) {
+        Bukkit.getScheduler().runTaskTimer(WeaponsAddon.getInstance(), task -> {
+
+            if (tnt.isDead() || !tnt.isValid()) {
+                Location explosionLoc = tnt.getLocation();
+                generateExplosionSmoke(explosionLoc, world);
+                task.cancel();
+            }
+
+        }, 0L, 1L);
+    }
+
+    private static void generateExplosionSmoke(Location loc, World world) {
+
+        world.spawnParticle(
+                Particle.CAMPFIRE_COSY_SMOKE,
+                loc.clone().add(0, 0.5, 0),
+                40,
+                2.5, 1.5, 2.5,
+                0.03
+        );
+
+        world.spawnParticle(Particle.EXPLOSION_EMITTER, loc, 1);
+        world.playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, 2.5f, 0.6f);
+    }
+
 }
