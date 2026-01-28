@@ -51,7 +51,6 @@ public class MachineGun {
                 MilitaryComponents.REINFORCED_FRAME, SlimefunItems.ELECTRIC_MOTOR, SlimefunItems.ELECTRIC_MOTOR, MilitaryComponents.REINFORCED_FRAME
         };
 
-        // Crear el item con su recipe
         CustomRecipeItem machineGunItem = new CustomRecipeItem(
                 category,
                 MACHINE_GUN,
@@ -60,10 +59,8 @@ public class MachineGun {
                 CustomRecipeItem.RecipeGridSize.GRID_4x4
         );
 
-        // Registrar en Slimefun
         machineGunItem.register(addon);
 
-        // ¡LÍNEA CRÍTICA! Registrar en MilitaryCraftingHandler
         MilitaryCraftingHandler.registerRecipe(machineGunItem);
     }
 }
