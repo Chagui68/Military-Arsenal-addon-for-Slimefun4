@@ -1,0 +1,40 @@
+package com.Chagui68.weaponsaddon.items.machines;
+
+import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
+import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
+import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
+import com.Chagui68.weaponsaddon.items.components.MilitaryComponents;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+public class AntimatterPedestal extends SlimefunItem {
+
+    public static final SlimefunItemStack ANTIMATTER_PEDESTAL = new SlimefunItemStack(
+            "ANTIMATTER_PEDESTAL",
+            Material.DISPENSER,
+            "&4☢ &cAntimatter Pedestal",
+            "",
+            "&7Part of 9×9 Antimatter Ritual Array",
+            "&7Right-click to place catalyst items",
+            "",
+            "&6Status: &eWaiting for catalyst",
+            "",
+            "&c⚠ Requires complete 9×9 structure",
+            "&c⚠ Must be placed in ritual pattern"
+    );
+
+    public AntimatterPedestal(ItemGroup itemGroup, SlimefunItemStack item, RecipeType recipeType, ItemStack[] recipe) {
+        super(itemGroup, item, recipeType, recipe);
+    }
+
+    public static void register(SlimefunAddon addon, ItemGroup category) {
+        ItemStack[] recipe = new ItemStack[]{
+                new ItemStack(Material.NETHERITE_BLOCK), new ItemStack(Material.BEACON), new ItemStack(Material.NETHERITE_BLOCK),
+                MilitaryComponents.ADVANCED_CIRCUIT, new ItemStack(Material.DISPENSER), MilitaryComponents.ADVANCED_CIRCUIT,
+                new ItemStack(Material.CRYING_OBSIDIAN), new ItemStack(Material.NETHER_STAR), new ItemStack(Material.CRYING_OBSIDIAN)
+        };
+        new AntimatterPedestal(category, ANTIMATTER_PEDESTAL, RecipeType.ENHANCED_CRAFTING_TABLE, recipe).register(addon);
+    }
+}

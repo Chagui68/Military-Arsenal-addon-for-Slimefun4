@@ -5,6 +5,7 @@ import com.Chagui68.weaponsaddon.items.machines.BombardmentTerminal;
 import com.Chagui68.weaponsaddon.items.machines.BombardmentTerminalRecipeDisplay;
 import com.Chagui68.weaponsaddon.items.MachineGun;
 import com.Chagui68.weaponsaddon.items.MachineGunAmmo;
+import com.Chagui68.weaponsaddon.items.AntimatterRifle;
 import com.Chagui68.weaponsaddon.items.components.MilitaryComponents;
 import com.Chagui68.weaponsaddon.items.machines.AmmunitionWorkshop;
 import com.Chagui68.weaponsaddon.items.machines.AmmunitionWorkshopHandler;
@@ -159,6 +160,7 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
         getLogger().info("========================================");
         getLogger().info("Registering Weapons...");
         MachineGun.register(this, weaponsGroup);
+        AntimatterRifle.register(this, weaponsGroup);
         getLogger().info("✓ All weapons registered");
 
 
@@ -168,14 +170,8 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
         BombardmentTerminalRecipeDisplay.register(this, machinesGroup);
         getLogger().info("✓ All machines registered");
 
-
         getLogger().info("========================================");
         getLogger().info("✓ WeaponsAddon enabled successfully!");
-        getLogger().info("========================================");
-        getLogger().info("Main Category: 1 | Subcategories: 3");
-        getLogger().info("Crafting Stations: 3 (3×3 + 4×4 + 6×6)");
-        getLogger().info("Recipe Viewer: ENABLED");
-        getLogger().info("Inventory Persistence: ENABLED");
         getLogger().info("========================================");
     }
 

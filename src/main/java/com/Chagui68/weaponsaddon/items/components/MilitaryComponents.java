@@ -312,6 +312,39 @@ public class MilitaryComponents {
             "&8⇨ Level 10"
     );
 
+    public static final SlimefunItemStack ADVANCED_CIRCUIT = new SlimefunItemStack(
+            "ADVANCED_CIRCUIT",
+            Material.COMPARATOR,
+            "&6Advanced Circuit",
+            "",
+            "&7High-performance circuit board",
+            "&7For advanced military systems",
+            "",
+            "&c⚠ Requires 4×4 Military Crafting Table",
+            "",
+            "&e⇨ SHIFT + RIGHT-CLICK in Guide",
+            "&e  to view FULL 4×4 recipe",
+            "",
+            "&8⇨ Level 4"
+    );
+
+    public static final SlimefunItemStack MILITARY_GRADE_CIRCUIT = new SlimefunItemStack(
+            "MILITARY_GRADE_CIRCUIT",
+            Material.REPEATER,
+            "&c&lMilitary Grade Circuit",
+            "",
+            "&7Top-tier military electronics",
+            "&7Maximum processing power",
+            "",
+            "&c⚠ Requires 4×4 Military Crafting Table",
+            "",
+            "&e⇨ SHIFT + RIGHT-CLICK in Guide",
+            "&e  to view FULL 4×4 recipe",
+            "",
+            "&8⇨ Level 8"
+    );
+
+
     public static void register(SlimefunAddon addon, ItemGroup category) {
 
         new SlimefunItem(category, BASIC_CIRCUIT, MilitaryRecipeTypes.AMMUNITION_WORKSHOP, new ItemStack[]{
@@ -607,5 +640,39 @@ public class MilitaryComponents {
         );
         antimatterCell.register(addon);
         MilitaryCraftingHandler.registerRecipe(antimatterCell);
+
+
+        ItemStack[] advancedCircuitRecipe = new ItemStack[]{
+                MILITARY_CIRCUIT, ADVANCED_PROCESSOR, ADVANCED_PROCESSOR, MILITARY_CIRCUIT,
+                ADVANCED_PROCESSOR, SlimefunItems.ADVANCED_CIRCUIT_BOARD, SlimefunItems.BLISTERING_INGOT, ADVANCED_PROCESSOR,
+                ADVANCED_PROCESSOR, SlimefunItems.BLISTERING_INGOT, SlimefunItems.ADVANCED_CIRCUIT_BOARD, ADVANCED_PROCESSOR,
+                MILITARY_CIRCUIT, ADVANCED_PROCESSOR, ADVANCED_PROCESSOR, MILITARY_CIRCUIT
+        };
+        CustomRecipeItem advancedCircuit = new CustomRecipeItem(
+                category,
+                ADVANCED_CIRCUIT,
+                MilitaryRecipeTypes.MILITARY_CRAFTING_TABLE,
+                advancedCircuitRecipe,
+                CustomRecipeItem.RecipeGridSize.GRID_4x4
+        );
+        advancedCircuit.register(addon);
+        MilitaryCraftingHandler.registerRecipe(advancedCircuit);
+
+        ItemStack[] militaryGradeCircuitRecipe = new ItemStack[]{
+                QUANTUM_PROCESSOR, ADVANCED_CIRCUIT, ADVANCED_CIRCUIT, QUANTUM_PROCESSOR,
+                ADVANCED_CIRCUIT, ENERGY_MATRIX, POWER_CORE, ADVANCED_CIRCUIT,
+                ADVANCED_CIRCUIT, POWER_CORE, ENERGY_MATRIX, ADVANCED_CIRCUIT,
+                QUANTUM_PROCESSOR, ADVANCED_CIRCUIT, ADVANCED_CIRCUIT, QUANTUM_PROCESSOR
+        };
+        CustomRecipeItem militaryGradeCircuit = new CustomRecipeItem(
+                category,
+                MILITARY_GRADE_CIRCUIT,
+                MilitaryRecipeTypes.MILITARY_CRAFTING_TABLE,
+                militaryGradeCircuitRecipe,
+                CustomRecipeItem.RecipeGridSize.GRID_4x4
+        );
+        militaryGradeCircuit.register(addon);
+        MilitaryCraftingHandler.registerRecipe(militaryGradeCircuit);
+
     }
 }
