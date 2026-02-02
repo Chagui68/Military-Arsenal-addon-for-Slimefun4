@@ -46,9 +46,9 @@ public class AntimatterPedestal extends SlimefunItem {
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
         ItemStack[] recipe = new ItemStack[]{
-                new ItemStack(Material.NETHERITE_BLOCK), new ItemStack(Material.BEACON), new ItemStack(Material.NETHERITE_BLOCK),
-                MilitaryComponents.ADVANCED_CIRCUIT, new ItemStack(Material.DISPENSER), MilitaryComponents.ADVANCED_CIRCUIT,
-                new ItemStack(Material.CRYING_OBSIDIAN), new ItemStack(Material.NETHER_STAR), new ItemStack(Material.CRYING_OBSIDIAN)
+                MilitaryComponents.ANTIMATTER_PARTICLE, MilitaryComponents.DIMENSIONAL_STABILIZER, MilitaryComponents.ANTIMATTER_PARTICLE,
+                MilitaryComponents.ADVANCED_CIRCUIT,MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ADVANCED_CIRCUIT,
+                MilitaryComponents.ANTIMATTER_PARTICLE, MilitaryComponents.ANTIMATTER_CRYSTAL, MilitaryComponents.ANTIMATTER_PARTICLE
         };
 
         new AntimatterPedestal(category, ANTIMATTER_PEDESTAL, RecipeType.ENHANCED_CRAFTING_TABLE, recipe).register(addon);

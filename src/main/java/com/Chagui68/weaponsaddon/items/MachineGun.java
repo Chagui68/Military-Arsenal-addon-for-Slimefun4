@@ -30,9 +30,7 @@ public class MachineGun {
             "&e to view FULL 4×4 recipe",
             "",
             "&eRight-Click to fire burst",
-            "&cRequires Machine Gun Bullets",
-            "",
-            "&a✓ Unbreakable"
+            "&cRequires Machine Gun Bullets"
     );
 
     static {
