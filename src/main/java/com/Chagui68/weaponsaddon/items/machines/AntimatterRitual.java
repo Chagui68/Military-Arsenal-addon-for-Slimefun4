@@ -2,17 +2,23 @@ package com.Chagui68.weaponsaddon.items.machines;
 
 import com.Chagui68.weaponsaddon.items.AntimatterRifle;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
-import io.github.thebusybiscuit.slimefun4.core.multiblocks.MultiBlockMachine;
+import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
+import io.github.thebusybiscuit.slimefun4.core.handlers.BlockUseHandler;
+import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler;
+import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class AntimatterRitual extends MultiBlockMachine {
+public class AntimatterRitual extends SlimefunItem {
 
     public static final SlimefunItemStack ANTIMATTER_RITUAL_CORE = new SlimefunItemStack(
             "ANTIMATTER_RITUAL_CORE",
@@ -29,62 +35,131 @@ public class AntimatterRitual extends MultiBlockMachine {
             "&7- 16 Antimatter Pedestals (odd positions)",
             "&7- Crying obsidian filler",
             "",
+            "&c⚠ Ritual destroys the altar after use",
             "&eClick core to begin annihilation process"
     );
 
-    public AntimatterRitual(ItemGroup itemGroup) {
-        super(itemGroup, ANTIMATTER_RITUAL_CORE, build9x9Pattern(), BlockFace.SELF);
+    private static class RitualStructure {
+        private static boolean validateStructure(Block core, Player p) {
+
+            Material[][] expected = {
+                    {Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK},
+                    {Material.IRON_BLOCK, null, Material.CRYING_OBSIDIAN, null, Material.CRYING_OBSIDIAN, null, Material.CRYING_OBSIDIAN, null, Material.IRON_BLOCK},
+                    {Material.IRON_BLOCK, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.IRON_BLOCK},
+                    {Material.IRON_BLOCK, null, Material.CRYING_OBSIDIAN, null, Material.NETHERITE_BLOCK, null, Material.CRYING_OBSIDIAN, null, Material.IRON_BLOCK},
+                    {Material.IRON_BLOCK, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.NETHERITE_BLOCK, Material.BEACON, Material.NETHERITE_BLOCK, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.IRON_BLOCK},
+                    {Material.IRON_BLOCK, null, Material.CRYING_OBSIDIAN, null, Material.NETHERITE_BLOCK, null, Material.CRYING_OBSIDIAN, null, Material.IRON_BLOCK},
+                    {Material.IRON_BLOCK, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.CRYING_OBSIDIAN, Material.IRON_BLOCK},
+                    {Material.IRON_BLOCK, null, Material.CRYING_OBSIDIAN, null, Material.CRYING_OBSIDIAN, null, Material.CRYING_OBSIDIAN, null, Material.IRON_BLOCK},
+                    {Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK, Material.IRON_BLOCK}
+            };
+
+            for (int row = 0; row < 9; row++) {
+                for (int col = 0; col < 9; col++) {
+                    // Saltear el centro donde está el beacon clickeado
+                    if (row == 4 && col == 4) {
+                        continue;
+                    }
+
+                    int offsetX = col - 4;
+                    int offsetZ = row - 4;
+                    Block checkBlock = core.getRelative(offsetX, 0, offsetZ);
+                    Material expectedMat = expected[row][col];
+
+                    if (expectedMat == null) {
+                        SlimefunItem sfItem = BlockStorage.check(checkBlock);
+                        if (sfItem == null || !sfItem.getId().equals("ANTIMATTER_PEDESTAL")) {
+                            p.sendMessage(ChatColor.RED + "Missing pedestal at Row:" + row + " Col:" + col);
+                            p.sendMessage(ChatColor.GRAY + "Position: X:" + checkBlock.getX() + " Y:" + checkBlock.getY() + " Z:" + checkBlock.getZ());
+                            p.sendMessage(ChatColor.GRAY + "Found: " + (sfItem != null ? sfItem.getId() : checkBlock.getType()));
+                            return false;
+                        }
+                    } else {
+                        if (checkBlock.getType() != expectedMat) {
+                            p.sendMessage(ChatColor.RED + "Wrong block at Row:" + row + " Col:" + col);
+                            p.sendMessage(ChatColor.GRAY + "Position: X:" + checkBlock.getX() + " Y:" + checkBlock.getY() + " Z:" + checkBlock.getZ());
+                            p.sendMessage(ChatColor.GRAY + "Expected: " + expectedMat + " | Found: " + checkBlock.getType());
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private static void destroyRitual(Block core) {
+            for (int row = 0; row < 9; row++) {
+                for (int col = 0; col < 9; col++) {
+                    int offsetX = col - 4;
+                    int offsetZ = row - 4;
+                    Block checkBlock = core.getRelative(offsetX, 0, offsetZ);
+
+                    // Efecto de partículas antes de destruir
+                    checkBlock.getWorld().spawnParticle(
+                            Particle.SOUL_FIRE_FLAME,
+                            checkBlock.getLocation().add(0.5, 0.5, 0.5),
+                            10, 0.3, 0.3, 0.3, 0.05
+                    );
+
+                    // Eliminar de BlockStorage si es Slimefun item
+                    BlockStorage.clearBlockInfo(checkBlock);
+
+                    // Destruir el bloque
+                    checkBlock.setType(Material.AIR);
+                }
+            }
+
+            // Efecto final en el centro
+            core.getWorld().spawnParticle(Particle.EXPLOSION, core.getLocation().add(0.5, 0.5, 0.5), 20, 2, 2, 2, 0.1);
+            core.getWorld().playSound(core.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 3.0f, 0.8f);
+        }
     }
 
-    private static ItemStack[] build9x9Pattern() {
-        ItemStack I = new ItemStack(Material.IRON_BLOCK);
-        ItemStack N = new ItemStack(Material.NETHERITE_BLOCK);
-        ItemStack B = new ItemStack(Material.BEACON);
-        ItemStack P = AntimatterPedestal.ANTIMATTER_PEDESTAL.clone();
-        ItemStack O = new ItemStack(Material.CRYING_OBSIDIAN);
-
-        ItemStack[] pattern = new ItemStack[81];
-
-        for (int i = 0; i < 9; i++) pattern[i] = I;
-
-        pattern[9] = I; pattern[10] = P; pattern[11] = O; pattern[12] = P;
-        pattern[13] = O; pattern[14] = P; pattern[15] = O; pattern[16] = P; pattern[17] = I;
-
-        pattern[18] = I;
-        for (int i = 19; i < 26; i++) pattern[i] = O;
-        pattern[26] = I;
-
-        pattern[27] = I; pattern[28] = P; pattern[29] = O; pattern[30] = P;
-        pattern[31] = N; pattern[32] = P; pattern[33] = O; pattern[34] = P; pattern[35] = I;
-
-        pattern[36] = I; pattern[37] = O; pattern[38] = O; pattern[39] = N;
-        pattern[40] = B; pattern[41] = N; pattern[42] = O; pattern[43] = O; pattern[44] = I;
-
-        pattern[45] = I; pattern[46] = P; pattern[47] = O; pattern[48] = P;
-        pattern[49] = N; pattern[50] = P; pattern[51] = O; pattern[52] = P; pattern[53] = I;
-
-        pattern[54] = I;
-        for (int i = 55; i < 62; i++) pattern[i] = O;
-        pattern[62] = I;
-
-        pattern[63] = I; pattern[64] = P; pattern[65] = O; pattern[66] = P;
-        pattern[67] = O; pattern[68] = P; pattern[69] = O; pattern[70] = P; pattern[71] = I;
-
-        for (int i = 72; i < 81; i++) pattern[i] = I;
-
-        return pattern;
+    public AntimatterRitual(ItemGroup itemGroup, SlimefunItemStack item, RecipeType recipeType, ItemStack[] recipe) {
+        super(itemGroup, item, recipeType, recipe);
     }
 
     @Override
-    public void onInteract(Player p, Block b) {
-        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&4☢ &fAntimatter Ritual &4ACTIVATED"));
-        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Annihilating matter... &c⚠"));
-        p.getInventory().addItem(AntimatterRifle.ANTIMATTER_RIFLE.clone());
-        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a✓ &fAntimatter Rifle created successfully!"));
-        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Right-click entities for instant annihilation"));
+    public void preRegister() {
+        addItemHandler(new BlockPlaceHandler(false) {
+            @Override
+            public void onPlayerPlace(BlockPlaceEvent e) {
+                Block b = e.getBlock();
+                BlockStorage.addBlockInfo(b, "id", "ANTIMATTER_RITUAL_CORE");
+            }
+        });
+
+        addItemHandler((BlockUseHandler) e -> {
+            e.cancel();
+            Player p = e.getPlayer();
+            Block block = e.getClickedBlock().get();
+
+            if (!RitualStructure.validateStructure(block, p)) {
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&4☢ &cInvalid ritual structure!"));
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Check the required pattern"));
+                return;
+            }
+
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&4☢ &fAntimatter Ritual &4ACTIVATED"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Annihilating matter... &c⚠"));
+            p.getInventory().addItem(AntimatterRifle.ANTIMATTER_RIFLE.clone());
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a✓ &fAntimatter Rifle created successfully!"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Right-click entities for instant annihilation"));
+
+            // Destruir el altar después de usarlo
+            RitualStructure.destroyRitual(block);
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c⚠ &7Ritual altar consumed by antimatter"));
+        });
     }
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
-        new AntimatterRitual(category).register(addon);
+        ItemStack[] recipe = new ItemStack[]{
+                new ItemStack(Material.IRON_BLOCK), new ItemStack(Material.NETHERITE_BLOCK), new ItemStack(Material.IRON_BLOCK),
+                new ItemStack(Material.NETHERITE_BLOCK), new ItemStack(Material.BEACON), new ItemStack(Material.NETHERITE_BLOCK),
+                new ItemStack(Material.IRON_BLOCK), new ItemStack(Material.NETHERITE_BLOCK), new ItemStack(Material.IRON_BLOCK)
+        };
+
+        new AntimatterRitual(category, ANTIMATTER_RITUAL_CORE, RecipeType.ENHANCED_CRAFTING_TABLE, recipe).register(addon);
     }
 }

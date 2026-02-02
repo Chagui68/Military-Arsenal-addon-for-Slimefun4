@@ -12,11 +12,9 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -39,23 +37,12 @@ public class MachineFabricatorHandler implements Listener {
         RECIPE_CACHE.add(item);
     }
 
-    @EventHandler
-    public void onFabricatorClick(PlayerInteractEvent e) {
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-
-        Block block = e.getClickedBlock();
-        if (block == null) return;
-
-        SlimefunItem sfItem = BlockStorage.check(block);
-        if (sfItem == null || !sfItem.getId().equals("MILITARY_MACHINE_FABRICATOR")) return;
-
-        e.setCancelled(true);
-        Player p = e.getPlayer();
-        Location blockLoc = block.getLocation();
+    // MÉTODO ESTÁTICO PÚBLICO
+    public static void openFabricatorGuiStatic(Player p, Location blockLoc) {
         openFabricatorGUI(p, blockLoc);
     }
 
-    private void openFabricatorGUI(Player p, Location blockLoc) {
+    private static void openFabricatorGUI(Player p, Location blockLoc) {
         Inventory inv = Bukkit.createInventory(null, 54, ChatColor.DARK_RED + "Machine Fabricator");
 
         ItemStack background = new CustomItemStack(Material.BLACK_STAINED_GLASS_PANE, " ");
@@ -119,10 +106,9 @@ public class MachineFabricatorHandler implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
         if (!(e.getPlayer() instanceof Player)) return;
-
-        Player p = (Player) e.getPlayer();
         if (!e.getView().getTitle().equals(ChatColor.DARK_RED + "Machine Fabricator")) return;
 
+        Player p = (Player) e.getPlayer();
         Location blockLoc = openFabricators.remove(p.getUniqueId());
         if (blockLoc == null) return;
 
@@ -170,7 +156,7 @@ public class MachineFabricatorHandler implements Listener {
         }
     }
 
-    private void attemptCraft(Player p, Inventory inv) {
+    private static void attemptCraft(Player p, Inventory inv) {
         int[] gridSlots = {1, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 19, 20, 21, 22, 23, 24,
                 28, 29, 30, 31, 32, 33, 37, 38, 39, 40, 41, 42, 46, 47, 48, 49, 50, 51};
 
@@ -219,7 +205,7 @@ public class MachineFabricatorHandler implements Listener {
         p.sendMessage(ChatColor.RED + "✗ Invalid recipe!");
     }
 
-    private boolean matchesRecipe(ItemStack[] grid, ItemStack[] recipe) {
+    private static boolean matchesRecipe(ItemStack[] grid, ItemStack[] recipe) {
         if (grid.length != recipe.length) return false;
 
         for (int i = 0; i < grid.length; i++) {
@@ -231,7 +217,7 @@ public class MachineFabricatorHandler implements Listener {
         return true;
     }
 
-    private boolean itemsMatch(ItemStack item1, ItemStack item2) {
+    private static boolean itemsMatch(ItemStack item1, ItemStack item2) {
         if (isEmpty(item1) && isEmpty(item2)) return true;
         if (isEmpty(item1) || isEmpty(item2)) return false;
 
@@ -249,7 +235,7 @@ public class MachineFabricatorHandler implements Listener {
         return false;
     }
 
-    private boolean isEmpty(ItemStack item) {
+    private static boolean isEmpty(ItemStack item) {
         return item == null || item.getType() == Material.AIR;
     }
 
@@ -273,7 +259,7 @@ public class MachineFabricatorHandler implements Listener {
         }
     }
 
-    private String serializeItemStack(ItemStack item) {
+    private static String serializeItemStack(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) return "";
 
         SlimefunItem sfItem = SlimefunItem.getByItem(item);
@@ -284,7 +270,7 @@ public class MachineFabricatorHandler implements Listener {
         return "VANILLA:" + item.getType() + ":" + item.getAmount();
     }
 
-    private ItemStack deserializeItemStack(String data) {
+    private static ItemStack deserializeItemStack(String data) {
         if (data == null || data.isEmpty()) return null;
 
         try {

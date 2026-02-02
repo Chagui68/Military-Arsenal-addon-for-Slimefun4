@@ -28,19 +28,37 @@ public class BombardmentTerminalRecipeDisplay {
     );
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
+        // RECETA COMPLETA 6x6 (36 items)
         ItemStack[] fullRecipe = new ItemStack[]{
-                MilitaryComponents.REINFORCED_FRAME, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.ENERGY_MATRIX,
-                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.REINFORCED_FRAME,
-                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM,
-                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
-                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.EXPLOSIVE_CORE,
-                MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
-                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.EXPLOSIVE_CORE,
-                MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
-                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM,
-                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
-                MilitaryComponents.REINFORCED_FRAME, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.HYDRAULIC_SYSTEM,
-                MilitaryComponents.COOLANT_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.REINFORCED_FRAME
+                // FILA 1
+                MilitaryComponents.REINFORCED_FRAME, MilitaryComponents.QUANTUM_PROCESSOR,
+                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX,
+                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.REINFORCED_FRAME,
+
+                // FILA 2
+                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
+
+                // FILA 3
+                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.EXPLOSIVE_CORE,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
+
+                // FILA 4
+                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.EXPLOSIVE_CORE,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
+
+                // FILA 5
+                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
+
+                // FILA 6
+                MilitaryComponents.REINFORCED_FRAME, MilitaryComponents.QUANTUM_PROCESSOR,
+                MilitaryComponents.HYDRAULIC_SYSTEM, MilitaryComponents.COOLANT_SYSTEM,
+                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.REINFORCED_FRAME
         };
 
         CustomRecipeItem recipeDisplay = new CustomRecipeItem(

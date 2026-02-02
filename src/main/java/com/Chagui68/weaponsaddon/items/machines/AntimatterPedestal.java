@@ -5,8 +5,12 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
+import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler;
 import com.Chagui68.weaponsaddon.items.components.MilitaryComponents;
+import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class AntimatterPedestal extends SlimefunItem {
@@ -29,12 +33,24 @@ public class AntimatterPedestal extends SlimefunItem {
         super(itemGroup, item, recipeType, recipe);
     }
 
+    @Override
+    public void preRegister() {
+        addItemHandler(new BlockPlaceHandler(false) {
+            @Override
+            public void onPlayerPlace(BlockPlaceEvent e) {
+                Block b = e.getBlock();
+                BlockStorage.addBlockInfo(b, "id", "ANTIMATTER_PEDESTAL");
+            }
+        });
+    }
+
     public static void register(SlimefunAddon addon, ItemGroup category) {
         ItemStack[] recipe = new ItemStack[]{
                 new ItemStack(Material.NETHERITE_BLOCK), new ItemStack(Material.BEACON), new ItemStack(Material.NETHERITE_BLOCK),
                 MilitaryComponents.ADVANCED_CIRCUIT, new ItemStack(Material.DISPENSER), MilitaryComponents.ADVANCED_CIRCUIT,
                 new ItemStack(Material.CRYING_OBSIDIAN), new ItemStack(Material.NETHER_STAR), new ItemStack(Material.CRYING_OBSIDIAN)
         };
+
         new AntimatterPedestal(category, ANTIMATTER_PEDESTAL, RecipeType.ENHANCED_CRAFTING_TABLE, recipe).register(addon);
     }
 }

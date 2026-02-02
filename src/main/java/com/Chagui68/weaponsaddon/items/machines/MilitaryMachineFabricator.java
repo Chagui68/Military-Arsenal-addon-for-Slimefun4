@@ -7,8 +7,14 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
+import io.github.thebusybiscuit.slimefun4.core.handlers.BlockUseHandler;
+import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
+import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class MilitaryMachineFabricator extends SlimefunItem {
@@ -33,6 +39,20 @@ public class MilitaryMachineFabricator extends SlimefunItem {
 
     @Override
     public void preRegister() {
+        addItemHandler(new BlockPlaceHandler(false) {
+            @Override
+            public void onPlayerPlace(BlockPlaceEvent e) {
+                Block b = e.getBlock();
+                BlockStorage.addBlockInfo(b, "id", "MILITARY_MACHINE_FABRICATOR");
+            }
+        });
+
+        addItemHandler((BlockUseHandler) e -> {
+            e.cancel();
+            Player p = e.getPlayer();
+            Block block = e.getClickedBlock().get();
+            MachineFabricatorHandler.openFabricatorGuiStatic(p, block.getLocation());
+        });
     }
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
@@ -42,6 +62,7 @@ public class MilitaryMachineFabricator extends SlimefunItem {
                 MilitaryComponents.MILITARY_CIRCUIT, SlimefunItems.CARGO_MANAGER, SlimefunItems.CARGO_MANAGER, MilitaryComponents.MILITARY_CIRCUIT,
                 MilitaryComponents.REINFORCED_PLATING, MilitaryComponents.MILITARY_CIRCUIT, MilitaryComponents.MILITARY_CIRCUIT, MilitaryComponents.REINFORCED_PLATING
         };
+
         new MilitaryMachineFabricator(category, MILITARY_MACHINE_FABRICATOR, MilitaryRecipeTypes.MILITARY_CRAFTING_TABLE, recipe).register(addon);
     }
 }

@@ -1,6 +1,5 @@
 package com.Chagui68.weaponsaddon.items.machines;
 
-import com.Chagui68.weaponsaddon.items.MachineGunAmmo;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import org.bukkit.Bukkit;
@@ -12,11 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -28,22 +25,16 @@ import java.util.UUID;
 public class AmmunitionWorkshopHandler implements Listener {
 
     private static final Map<UUID, Location> openWorkshops = new HashMap<>();
-    private final int[] gridSlots = {10, 11, 12, 19, 20, 21, 28, 29, 30};
-    private final int resultSlot = 23;
-    private final int craftButtonSlot = 25;
+    private static final int[] gridSlots = {10, 11, 12, 19, 20, 21, 28, 29, 30};
+    private static final int resultSlot = 23;
+    private static final int craftButtonSlot = 25;
 
-    @EventHandler
-    public void onWorkshopClick(PlayerInteractEvent e) {
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-
-        Block b = e.getClickedBlock();
-        if (b != null && "AMMUNITION_WORKSHOP".equals(BlockStorage.getLocationInfo(b.getLocation(), "id"))) {
-            e.setCancelled(true);
-            openGui(e.getPlayer(), b.getLocation());
-        }
+    // MÉTODO ESTÁTICO PÚBLICO
+    public static void openGuiStatic(Player p, Location loc) {
+        openGui(p, loc);
     }
 
-    private void openGui(Player p, Location loc) {
+    private static void openGui(Player p, Location loc) {
         Inventory inv = Bukkit.createInventory(null, 45, ChatColor.DARK_GRAY + "Ammunition Workshop");
 
         ItemStack glass = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
@@ -74,7 +65,8 @@ public class AmmunitionWorkshopHandler implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (!openWorkshops.containsKey(e.getWhoClicked().getUniqueId())) return;
+        if (!(e.getWhoClicked() instanceof Player)) return;
+        if (!e.getView().getTitle().equals(ChatColor.DARK_GRAY + "Ammunition Workshop")) return;
 
         int slot = e.getRawSlot();
         if (slot < 0 || slot >= e.getInventory().getSize()) return;
@@ -139,7 +131,12 @@ public class AmmunitionWorkshopHandler implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
-        UUID uuid = e.getPlayer().getUniqueId();
+        if (!(e.getPlayer() instanceof Player)) return;
+        if (!e.getView().getTitle().equals(ChatColor.DARK_GRAY + "Ammunition Workshop")) return;
+
+        Player p = (Player) e.getPlayer();
+        UUID uuid = p.getUniqueId();
+
         if (openWorkshops.containsKey(uuid)) {
             Location loc = openWorkshops.get(uuid);
             saveInventory(e.getInventory(), loc);
@@ -180,7 +177,7 @@ public class AmmunitionWorkshopHandler implements Listener {
         BlockStorage.addBlockInfo(loc, "result_slot", serializeItemStack(inv.getItem(resultSlot)));
     }
 
-    private String serializeItemStack(ItemStack item) {
+    private static String serializeItemStack(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) return "";
 
         SlimefunItem sfItem = SlimefunItem.getByItem(item);
@@ -189,7 +186,7 @@ public class AmmunitionWorkshopHandler implements Listener {
         return "V:" + item.getType().name() + ":" + item.getAmount();
     }
 
-    private ItemStack deserializeItemStack(String data) {
+    private static ItemStack deserializeItemStack(String data) {
         if (data == null || data.isEmpty()) return null;
 
         try {

@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class MilitaryComponents {
 
-    // ========== TIER 1: BASIC COMPONENTS ==========
+    // ========== TIER 1: BASIC COMPONENTS (Base para todo) ==========
     public static final SlimefunItemStack BASIC_CIRCUIT = new SlimefunItemStack(
             "BASIC_CIRCUIT",
             Material.REDSTONE_TORCH,
@@ -126,7 +126,7 @@ public class MilitaryComponents {
 
     public static final SlimefunItemStack STABILIZER_UNIT = new SlimefunItemStack(
             "STABILIZER_UNIT",
-            Material.COMPASS,
+            Material.DIAMOND,
             "&b◎ &3Stabilizer Unit",
             "",
             "&7Gyroscopic stabilization",
@@ -247,9 +247,71 @@ public class MilitaryComponents {
             "&8⇨ Tier 4 Ultimate"
     );
 
-    // ========== REGISTRATION METHOD ==========
+    // ========== TIER 5: ANTIMATTER COMPONENTS (EXTREMADAMENTE COSTOSOS) ==========
+    public static final SlimefunItemStack ANTIMATTER_PARTICLE = new SlimefunItemStack(
+            "ANTIMATTER_PARTICLE",
+            Material.AMETHYST_SHARD,
+            "&5◆ &dAntimatter Particle",
+            "",
+            "&7Unstable subatomic particles",
+            "&7Annihilates on contact with matter",
+            "",
+            "&c⚠ EXTREME DANGER",
+            "&8⇨ Tier 5 Antimatter"
+    );
+
+    public static final SlimefunItemStack ANTIMATTER_CRYSTAL = new SlimefunItemStack(
+            "ANTIMATTER_CRYSTAL",
+            Material.DRAGON_BREATH,
+            "&5⬢ &dAntimatter Crystal",
+            "",
+            "&7Crystallized antimatter",
+            "&7Stabilized in quantum field",
+            "",
+            "&c⚠ Contains massive energy",
+            "&8⇨ Tier 5 Antimatter"
+    );
+
+    public static final SlimefunItemStack CONTAINMENT_FIELD_GENERATOR = new SlimefunItemStack(
+            "CONTAINMENT_FIELD_GENERATOR",
+            Material.RESPAWN_ANCHOR,
+            "&b⬡ &3Containment Field Generator",
+            "",
+            "&7Quantum field projector",
+            "&7Prevents antimatter decay",
+            "",
+            "&6Power: &eInfinite",
+            "&8⇨ Tier 5 Antimatter"
+    );
+
+    public static final SlimefunItemStack DIMENSIONAL_STABILIZER = new SlimefunItemStack(
+            "DIMENSIONAL_STABILIZER",
+            Material.LODESTONE,
+            "&d▦ &5Dimensional Stabilizer",
+            "",
+            "&7Anchors matter in spacetime",
+            "&7Prevents dimensional collapse",
+            "",
+            "&6Stability: &eMaximum",
+            "&8⇨ Tier 5 Antimatter"
+    );
+
+    public static final SlimefunItemStack VOID_ESSENCE = new SlimefunItemStack(
+            "VOID_ESSENCE",
+            Material.ECHO_SHARD,
+            "&0◉ &8Void Essence",
+            "",
+            "&7Pure nothingness extracted",
+            "&7From the void dimension",
+            "",
+            "&c⚠ Handle with extreme care",
+            "&8⇨ Tier 5 Antimatter"
+    );
+
+    // ========== REGISTRATION METHOD - RECETAS SUPER COMPLEJAS ==========
     public static void register(SlimefunAddon addon, ItemGroup category) {
-        // TIER 1: BASIC COMPONENTS
+
+        // ========== TIER 1: BASIC COMPONENTS (Relativamente fáciles) ==========
         new SlimefunItem(category, BASIC_CIRCUIT, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
                 new ItemStack(Material.REDSTONE), new ItemStack(Material.COPPER_INGOT), new ItemStack(Material.REDSTONE),
                 new ItemStack(Material.COPPER_INGOT), new ItemStack(Material.GOLD_INGOT), new ItemStack(Material.COPPER_INGOT),
@@ -257,111 +319,111 @@ public class MilitaryComponents {
         }).register(addon);
 
         new SlimefunItem(category, STEEL_FRAME, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
-                SlimefunItems.STEEL_INGOT, null, SlimefunItems.STEEL_INGOT,
-                null, SlimefunItems.STEEL_INGOT, null,
-                SlimefunItems.STEEL_INGOT, null, SlimefunItems.STEEL_INGOT
+                SlimefunItems.STEEL_INGOT, new ItemStack(Material.IRON_BLOCK), SlimefunItems.STEEL_INGOT,
+                new ItemStack(Material.IRON_BLOCK), SlimefunItems.HARDENED_METAL_INGOT, new ItemStack(Material.IRON_BLOCK),
+                SlimefunItems.STEEL_INGOT, new ItemStack(Material.IRON_BLOCK), SlimefunItems.STEEL_INGOT
         }).register(addon);
 
         new SlimefunItem(category, COPPER_COIL, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
-                null, new ItemStack(Material.COPPER_INGOT), null,
-                new ItemStack(Material.COPPER_INGOT), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.COPPER_INGOT),
-                null, new ItemStack(Material.COPPER_INGOT), null
+                new ItemStack(Material.COPPER_INGOT), new ItemStack(Material.COPPER_INGOT), new ItemStack(Material.COPPER_INGOT),
+                new ItemStack(Material.COPPER_INGOT), new ItemStack(Material.REDSTONE_BLOCK), new ItemStack(Material.COPPER_INGOT),
+                new ItemStack(Material.COPPER_INGOT), new ItemStack(Material.COPPER_INGOT), new ItemStack(Material.COPPER_INGOT)
         }).register(addon);
 
         new SlimefunItem(category, MECHANICAL_PARTS, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
-                new ItemStack(Material.IRON_NUGGET), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.IRON_NUGGET),
-                new ItemStack(Material.IRON_INGOT), new ItemStack(Material.GOLD_INGOT), new ItemStack(Material.IRON_INGOT),
-                new ItemStack(Material.IRON_NUGGET), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.IRON_NUGGET)
+                new ItemStack(Material.IRON_NUGGET), SlimefunItems.STEEL_INGOT, new ItemStack(Material.IRON_NUGGET),
+                SlimefunItems.STEEL_INGOT, new ItemStack(Material.CLOCK), SlimefunItems.STEEL_INGOT,
+                new ItemStack(Material.IRON_NUGGET), SlimefunItems.STEEL_INGOT, new ItemStack(Material.IRON_NUGGET)
         }).register(addon);
 
-        // TIER 2: INTERMEDIATE COMPONENTS
+        // ========== TIER 2: INTERMEDIATE COMPONENTS (Requieren Tier 1) ==========
         new SlimefunItem(category, ADVANCED_CIRCUIT, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
                 BASIC_CIRCUIT, SlimefunItems.ELECTRO_MAGNET, BASIC_CIRCUIT,
-                SlimefunItems.ELECTRO_MAGNET, new ItemStack(Material.REDSTONE_BLOCK), SlimefunItems.ELECTRO_MAGNET,
-                BASIC_CIRCUIT, SlimefunItems.ELECTRO_MAGNET, BASIC_CIRCUIT
+                SlimefunItems.SYNTHETIC_SAPPHIRE, SlimefunItems.CARBONADO, SlimefunItems.SYNTHETIC_EMERALD,
+                BASIC_CIRCUIT, SlimefunItems.ELECTRIC_MOTOR, BASIC_CIRCUIT
         }).register(addon);
 
         new SlimefunItem(category, REINFORCED_PLATING, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
-                SlimefunItems.HARDENED_METAL_INGOT, SlimefunItems.STEEL_PLATE, SlimefunItems.HARDENED_METAL_INGOT,
-                SlimefunItems.STEEL_PLATE, new ItemStack(Material.NETHERITE_INGOT), SlimefunItems.STEEL_PLATE,
-                SlimefunItems.HARDENED_METAL_INGOT, SlimefunItems.STEEL_PLATE, SlimefunItems.HARDENED_METAL_INGOT
+                SlimefunItems.REINFORCED_ALLOY_INGOT, SlimefunItems.HARDENED_METAL_INGOT, SlimefunItems.REINFORCED_ALLOY_INGOT,
+                STEEL_FRAME, new ItemStack(Material.NETHERITE_INGOT), STEEL_FRAME,
+                SlimefunItems.DAMASCUS_STEEL_INGOT, SlimefunItems.HARDENED_METAL_INGOT, SlimefunItems.DAMASCUS_STEEL_INGOT
         }).register(addon);
 
         new SlimefunItem(category, SERVO_MOTOR, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
-                COPPER_COIL, MECHANICAL_PARTS, COPPER_COIL,
+                COPPER_COIL, BASIC_CIRCUIT, COPPER_COIL,
                 MECHANICAL_PARTS, SlimefunItems.ELECTRIC_MOTOR, MECHANICAL_PARTS,
-                COPPER_COIL, MECHANICAL_PARTS, COPPER_COIL
+                SlimefunItems.REDSTONE_ALLOY, MECHANICAL_PARTS, SlimefunItems.REDSTONE_ALLOY
         }).register(addon);
 
         new SlimefunItem(category, POWER_CELL, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
                 SlimefunItems.BATTERY, COPPER_COIL, SlimefunItems.BATTERY,
-                COPPER_COIL, new ItemStack(Material.REDSTONE_BLOCK), COPPER_COIL,
-                SlimefunItems.BATTERY, COPPER_COIL, SlimefunItems.BATTERY
+                ADVANCED_CIRCUIT, new ItemStack(Material.REDSTONE_BLOCK), ADVANCED_CIRCUIT,
+                SlimefunItems.SOLAR_PANEL, COPPER_COIL, SlimefunItems.SOLAR_PANEL
         }).register(addon);
 
-        // TIER 3: WEAPON COMPONENTS
+        // ========== TIER 3: WEAPON COMPONENTS (Requieren Tier 2) ==========
         new SlimefunItem(category, WEAPON_BARREL, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
-                null, SlimefunItems.HARDENED_METAL_INGOT, null,
-                null, SlimefunItems.HARDENED_METAL_INGOT, null,
-                null, SlimefunItems.HARDENED_METAL_INGOT, null
+                SlimefunItems.DAMASCUS_STEEL_INGOT, SlimefunItems.HARDENED_METAL_INGOT, SlimefunItems.DAMASCUS_STEEL_INGOT,
+                REINFORCED_PLATING, new ItemStack(Material.LIGHTNING_ROD), REINFORCED_PLATING,
+                SlimefunItems.REINFORCED_ALLOY_INGOT, SlimefunItems.HARDENED_METAL_INGOT, SlimefunItems.REINFORCED_ALLOY_INGOT
         }).register(addon);
 
         new SlimefunItem(category, TRIGGER_MECHANISM, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
-                null, MECHANICAL_PARTS, null,
                 MECHANICAL_PARTS, ADVANCED_CIRCUIT, MECHANICAL_PARTS,
-                null, new ItemStack(Material.GOLD_INGOT), null
+                SERVO_MOTOR, new ItemStack(Material.TRIPWIRE_HOOK), SERVO_MOTOR,
+                SlimefunItems.GOLD_24K, MECHANICAL_PARTS, SlimefunItems.GOLD_24K
         }).register(addon);
 
         new SlimefunItem(category, STABILIZER_UNIT, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
                 SERVO_MOTOR, ADVANCED_CIRCUIT, SERVO_MOTOR,
-                STEEL_FRAME, new ItemStack(Material.COMPASS), STEEL_FRAME,
-                SERVO_MOTOR, ADVANCED_CIRCUIT, SERVO_MOTOR
+                POWER_CELL, new ItemStack(Material.DIAMOND), POWER_CELL,
+                STEEL_FRAME, SlimefunItems.ELECTRIC_MOTOR, STEEL_FRAME
         }).register(addon);
 
         new SlimefunItem(category, TARGETING_SYSTEM, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
                 ADVANCED_CIRCUIT, new ItemStack(Material.ENDER_EYE), ADVANCED_CIRCUIT,
-                new ItemStack(Material.OBSERVER), POWER_CELL, new ItemStack(Material.OBSERVER),
-                ADVANCED_CIRCUIT, new ItemStack(Material.ENDER_PEARL), ADVANCED_CIRCUIT
+                new ItemStack(Material.SPYGLASS), POWER_CELL, new ItemStack(Material.SPYGLASS),
+                SERVO_MOTOR, new ItemStack(Material.OBSERVER), SERVO_MOTOR
         }).register(addon);
 
         new SlimefunItem(category, RADAR_MODULE, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
                 COPPER_COIL, ADVANCED_CIRCUIT, COPPER_COIL,
-                ADVANCED_CIRCUIT, new ItemStack(Material.SCULK_SENSOR), ADVANCED_CIRCUIT,
-                COPPER_COIL, POWER_CELL, COPPER_COIL
+                POWER_CELL, new ItemStack(Material.SCULK_SENSOR), POWER_CELL,
+                SERVO_MOTOR, SlimefunItems.GPS_TRANSMITTER, SERVO_MOTOR
         }).register(addon);
 
-        // TIER 3: MACHINE COMPONENTS
+        // ========== TIER 3: MACHINE COMPONENTS (Requieren Tier 2) ==========
         new SlimefunItem(category, REINFORCED_FRAME, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
                 REINFORCED_PLATING, STEEL_FRAME, REINFORCED_PLATING,
                 STEEL_FRAME, new ItemStack(Material.NETHERITE_BLOCK), STEEL_FRAME,
-                REINFORCED_PLATING, STEEL_FRAME, REINFORCED_PLATING
+                REINFORCED_PLATING, SlimefunItems.HARDENED_METAL_INGOT, REINFORCED_PLATING
         }).register(addon);
 
         new SlimefunItem(category, POWER_CORE, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
-                POWER_CELL, COPPER_COIL, POWER_CELL,
-                COPPER_COIL, new ItemStack(Material.NETHER_STAR), COPPER_COIL,
-                POWER_CELL, COPPER_COIL, POWER_CELL
+                POWER_CELL, ADVANCED_CIRCUIT, POWER_CELL,
+                COPPER_COIL, SlimefunItems.ENERGIZED_CAPACITOR, COPPER_COIL,
+                POWER_CELL, new ItemStack(Material.NETHER_STAR), POWER_CELL
         }).register(addon);
 
         new SlimefunItem(category, MILITARY_CIRCUIT, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
-                ADVANCED_CIRCUIT, SlimefunItems.BLISTERING_INGOT, ADVANCED_CIRCUIT,
+                ADVANCED_CIRCUIT, SlimefunItems.CARBONADO, ADVANCED_CIRCUIT,
                 SlimefunItems.REINFORCED_ALLOY_INGOT, POWER_CORE, SlimefunItems.REINFORCED_ALLOY_INGOT,
                 ADVANCED_CIRCUIT, SlimefunItems.BLISTERING_INGOT, ADVANCED_CIRCUIT
         }).register(addon);
 
         new SlimefunItem(category, HYDRAULIC_SYSTEM, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
                 SERVO_MOTOR, new ItemStack(Material.PISTON), SERVO_MOTOR,
-                new ItemStack(Material.WATER_BUCKET), POWER_CELL, new ItemStack(Material.WATER_BUCKET),
+                POWER_CELL, new ItemStack(Material.CAULDRON), POWER_CELL,
                 SERVO_MOTOR, new ItemStack(Material.STICKY_PISTON), SERVO_MOTOR
         }).register(addon);
 
         new SlimefunItem(category, COOLANT_SYSTEM, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
                 new ItemStack(Material.POWDER_SNOW_BUCKET), COPPER_COIL, new ItemStack(Material.POWDER_SNOW_BUCKET),
-                new ItemStack(Material.ICE), new ItemStack(Material.CAULDRON), new ItemStack(Material.ICE),
-                new ItemStack(Material.PACKED_ICE), SERVO_MOTOR, new ItemStack(Material.PACKED_ICE)
+                SERVO_MOTOR, new ItemStack(Material.BLUE_ICE), SERVO_MOTOR,
+                new ItemStack(Material.PACKED_ICE), POWER_CELL, new ItemStack(Material.PACKED_ICE)
         }).register(addon);
 
-        // TIER 4: ULTIMATE COMPONENTS
+        // ========== TIER 4: ULTIMATE COMPONENTS (Requieren TODO lo anterior) ==========
         new SlimefunItem(category, QUANTUM_PROCESSOR, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
                 MILITARY_CIRCUIT, new ItemStack(Material.END_CRYSTAL), MILITARY_CIRCUIT,
                 new ItemStack(Material.ENDER_EYE), POWER_CORE, new ItemStack(Material.ENDER_EYE),
@@ -369,15 +431,52 @@ public class MilitaryComponents {
         }).register(addon);
 
         new SlimefunItem(category, ENERGY_MATRIX, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
-                POWER_CORE, new ItemStack(Material.CONDUIT), POWER_CORE,
+                POWER_CORE, SlimefunItems.ENERGIZED_CAPACITOR, POWER_CORE,
                 new ItemStack(Material.CONDUIT), new ItemStack(Material.BEACON), new ItemStack(Material.CONDUIT),
-                POWER_CORE, new ItemStack(Material.CONDUIT), POWER_CORE
+                POWER_CORE, SlimefunItems.ENERGIZED_CAPACITOR, POWER_CORE
         }).register(addon);
 
         new SlimefunItem(category, EXPLOSIVE_CORE, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
-                new ItemStack(Material.TNT), new ItemStack(Material.GUNPOWDER), new ItemStack(Material.TNT),
+                new ItemStack(Material.TNT), MILITARY_CIRCUIT, new ItemStack(Material.TNT),
                 new ItemStack(Material.GUNPOWDER), new ItemStack(Material.NETHER_STAR), new ItemStack(Material.GUNPOWDER),
-                new ItemStack(Material.TNT), new ItemStack(Material.GUNPOWDER), new ItemStack(Material.TNT)
+                new ItemStack(Material.TNT), POWER_CORE, new ItemStack(Material.TNT)
+        }).register(addon);
+
+        // ========== TIER 5: ANTIMATTER COMPONENTS (Cadena de crafteo extremadamente larga) ==========
+
+        // Paso 1: Antimatter Particle (requiere todos los Tier 4)
+        new SlimefunItem(category, ANTIMATTER_PARTICLE, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
+                QUANTUM_PROCESSOR, ENERGY_MATRIX, QUANTUM_PROCESSOR,
+                SlimefunItems.CARBONADO_EDGED_CAPACITOR, new ItemStack(Material.NETHER_STAR), SlimefunItems.CARBONADO_EDGED_CAPACITOR,
+                EXPLOSIVE_CORE, ENERGY_MATRIX, EXPLOSIVE_CORE
+        }).register(addon);
+
+        // Paso 2: Void Essence (muy costoso)
+        new SlimefunItem(category, VOID_ESSENCE, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
+                new ItemStack(Material.ECHO_SHARD), SlimefunItems.ENDER_LUMP_3, new ItemStack(Material.ECHO_SHARD),
+                new ItemStack(Material.SCULK_CATALYST), new ItemStack(Material.END_CRYSTAL), new ItemStack(Material.SCULK_CATALYST),
+                QUANTUM_PROCESSOR, SlimefunItems.WITHER_PROOF_OBSIDIAN, QUANTUM_PROCESSOR
+        }).register(addon);
+
+        // Paso 3: Containment Field Generator
+        new SlimefunItem(category, CONTAINMENT_FIELD_GENERATOR, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
+                ENERGY_MATRIX, QUANTUM_PROCESSOR, ENERGY_MATRIX,
+                POWER_CORE, new ItemStack(Material.RESPAWN_ANCHOR), POWER_CORE,
+                ANTIMATTER_PARTICLE, VOID_ESSENCE, ANTIMATTER_PARTICLE
+        }).register(addon);
+
+        // Paso 4: Dimensional Stabilizer
+        new SlimefunItem(category, DIMENSIONAL_STABILIZER, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
+                new ItemStack(Material.CRYING_OBSIDIAN), REINFORCED_FRAME, new ItemStack(Material.CRYING_OBSIDIAN),
+                ANTIMATTER_PARTICLE, CONTAINMENT_FIELD_GENERATOR, ANTIMATTER_PARTICLE,
+                QUANTUM_PROCESSOR, VOID_ESSENCE, QUANTUM_PROCESSOR
+        }).register(addon);
+
+        // Paso 5: Antimatter Crystal (combina todo)
+        new SlimefunItem(category, ANTIMATTER_CRYSTAL, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
+                ANTIMATTER_PARTICLE, DIMENSIONAL_STABILIZER, ANTIMATTER_PARTICLE,
+                CONTAINMENT_FIELD_GENERATOR, new ItemStack(Material.DRAGON_BREATH), CONTAINMENT_FIELD_GENERATOR,
+                ANTIMATTER_PARTICLE, VOID_ESSENCE, ANTIMATTER_PARTICLE
         }).register(addon);
     }
 }
