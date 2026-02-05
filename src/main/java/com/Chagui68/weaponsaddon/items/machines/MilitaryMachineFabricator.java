@@ -59,7 +59,7 @@ public class MilitaryMachineFabricator extends SlimefunItem {
         ItemStack[] recipe = new ItemStack[] {
                 MilitaryComponents.REINFORCED_PLATING, MilitaryComponents.MILITARY_CIRCUIT,
                 MilitaryComponents.MILITARY_CIRCUIT, MilitaryComponents.REINFORCED_PLATING,
-                MilitaryComponents.MILITARY_CIRCUIT, SlimefunItems.ENHANCED_CRAFTING_TABLE, SlimefunItems.ARMOR_FORGE,
+                MilitaryComponents.MILITARY_CIRCUIT, MilitaryComponents.STABILIZER_UNIT, MilitaryComponents.REINFORCED_PLATING,
                 MilitaryComponents.MILITARY_CIRCUIT,
                 MilitaryComponents.MILITARY_CIRCUIT, SlimefunItems.CARGO_MANAGER, SlimefunItems.CARGO_MANAGER,
                 MilitaryComponents.MILITARY_CIRCUIT,
