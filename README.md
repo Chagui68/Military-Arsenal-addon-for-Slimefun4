@@ -2,7 +2,7 @@
 
 [![Minecraft Version](https://img.shields.io/badge/Minecraft-1.20.6-brightgreen.svg)](https://www.spigotmc.org/)
 [![Slimefun](https://img.shields.io/badge/Slimefun4-RC--37-blue.svg)](https://github.com/Slimefun/Slimefun4)
-[![Java Version](https://img.shields.io/badge/Java-17-orange.svg)](https://www.java.com/)
+[![Java Version](https://img.shields.io/badge/Java-21-orange.svg)](https://www.java.com/)
 
 A military weapons addon for Slimefun4 featuring advanced weaponry, ammunition systems, and coordinate-based bombardment capabilities.
 
