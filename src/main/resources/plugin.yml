@@ -1,5 +1,5 @@
 name: WeaponsAddon
-version: 3.4.DEV
+version: 3.5.DEV
 main: com.Chagui68.weaponsaddon.WeaponsAddon
 api-version: 1.20
 depend: [Slimefun]
