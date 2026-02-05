@@ -27,32 +27,27 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
 
         NestedItemGroup mainGroup = new NestedItemGroup(
                 new NamespacedKey(this, "military_arsenal"),
-                new CustomItemStack(Material.NETHERITE_SWORD, "&4⚔ &cMilitary Arsenal")
-        );
+                new CustomItemStack(Material.NETHERITE_SWORD, "&4⚔ &cMilitary Arsenal"));
 
         SubItemGroup componentsGroup = new SubItemGroup(
                 new NamespacedKey(this, "military_components"),
                 mainGroup,
-                new CustomItemStack(Material.REDSTONE, "&6⚙ &eMilitary Components")
-        );
+                new CustomItemStack(Material.REDSTONE, "&6⚙ &eMilitary Components"));
 
         SubItemGroup weaponsGroup = new SubItemGroup(
                 new NamespacedKey(this, "military_weapons"),
                 mainGroup,
-                new CustomItemStack(Material.DIAMOND_SWORD, "&c⚔ &4Military Weapons")
-        );
+                new CustomItemStack(Material.DIAMOND_SWORD, "&c⚔ &4Military Weapons"));
 
         SubItemGroup ammunitionGroup = new SubItemGroup(
                 new NamespacedKey(this, "military_ammunition"),
                 mainGroup,
-                new CustomItemStack(Material.FIREWORK_STAR, "&e🔸 &6Military Ammunition")
-        );
+                new CustomItemStack(Material.FIREWORK_STAR, "&e🔸 &6Military Ammunition"));
 
         SubItemGroup machinesGroup = new SubItemGroup(
                 new NamespacedKey(this, "military_machines"),
                 mainGroup,
-                new CustomItemStack(Material.BLAST_FURNACE, "&4⚙ &cMilitary Machines")
-        );
+                new CustomItemStack(Material.BLAST_FURNACE, "&4⚙ &cMilitary Machines"));
 
         mainGroup.register(this);
         componentsGroup.register(this);
@@ -83,6 +78,10 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
         getServer().getPluginManager().registerEvents(new MilitaryCraftingHandler(), this);
         getServer().getPluginManager().registerEvents(new MachineFabricatorHandler(), this);
         getServer().getPluginManager().registerEvents(new AmmunitionWorkshopHandler(), this);
+
+        // Integración con Networks (si está disponible)
+        // DESACTIVADO: Networks tiene un bug en esta versión que causa crashes
+        // com.Chagui68.weaponsaddon.integrations.NetworksIntegration.register();
 
         getLogger().info("Military Arsenal addon enabled successfully!");
     }
