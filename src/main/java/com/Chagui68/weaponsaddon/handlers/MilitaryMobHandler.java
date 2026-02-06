@@ -59,7 +59,6 @@ public class MilitaryMobHandler implements Listener {
         else if (e.getEntityType() == EntityType.ZOMBIE) {
             Zombie zombie = (Zombie) e.getEntity();
             
-            // Ejemplo: Elite Killer con 2% de probabilidad de aparición natural
             if (roll < ELITE_CHANCE) {
                 equipEliteKiller(zombie);
 
@@ -113,6 +112,7 @@ public class MilitaryMobHandler implements Listener {
         miniboss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(999999.0); // Instakill ( Posiblemente ) :V
         miniboss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(1000.0);
         miniboss.setHealth(1000.0); // Vida del enemigo 500 corazones
+        miniboss.setBaby(false);
 
         miniboss.addScoreboardTag("EliteKiller");
 

@@ -647,27 +647,26 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 /
 
     # 10. Invocación detrás del Jugador (Vectores)
-
-    # Para que un mini-jefe invoque a un aliado (como un "Pusher") 
-    # justo detrás del jugador, usamos matemáticas de vectores:
-
-    # 1. Obtenemos la ubicación y dirección del jugador.
-    # 2. Multiplicamos la dirección por un valor negativo (atrás).
-    # 3. Sumamos ese vector a la ubicación original.
-
-    # Código de ejemplo:
-    Location playerLoc = player.getLocation();
-    Vector detras = playerLoc.getDirection().multiply(-2); // 2 bloques atrás
-    Location spawnLoc = playerLoc.clone().add(detras);
-
-    # Finalmente, spawneamos la entidad:
-    player.getWorld().spawnEntity(spawnLoc, EntityType.ZOMBIE);
+ 
+     # Para que un mini-jefe invoque a un grupo de aliados (como 3 "Pushers") 
+     # justo detrás del jugador, usamos matemáticas de vectores en un bucle:
+ 
+     # 1. Obtenemos la ubicación y dirección del jugador.
+     # 2. Multiplicamos la dirección por un valor negativo (atrás).
+     # 3. Sumamos ese vector a la ubicación original.
+ 
+     # Código conceptual (3 invocaciones):
+     for (int i = 0; i < 3; i++) {
+        Location playerLoc = player.getLocation();
+        Vector detras = playerLoc.getDirection().multiply(-2); // 2 bloques atrás
+        Location spawnLoc = playerLoc.clone().add(detras);
+        player.getWorld().spawnEntity(spawnLoc, EntityType.ZOMBIE);
+     }
 
 /
 
     # 11. Tiempos de Espera (Cooldowns) con Metadata
 
-    # Para evitar que un mob use una habilidad demasiado rápido, 
     # usamos "Metadata" para guardar el tiempo del próximo uso:
 
     # 1. Guardar el tiempo:
@@ -680,3 +679,44 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
     }
 
 **
+ 
+ ## 12. Drops Personalizados (Botín al morir)
+ 
+     # Tienes dos formas de hacer que una entidad suelte un ítem específico:
+ 
+ /
+ 
+     # A) Método Automático (Probabilidad del Equipo)
+     
+     # Si el mob ya TIENE el ítem en la mano o armadura, puedes decidir 
+     # si lo suelta al morir con una probabilidad (0.0 a 1.0):
+     
+     EntityEquipment equip = boss.getEquipment();
+     equip.setItemInMainHandDropChance(0.05f); // 5% de probabilidad de soltar su arma
+     equip.setHelmetDropChance(1.0f);          // 100% de probabilidad (Siempre lo suelta)
+ 
+ /
+ 
+     # B) Método Manual (EntityDeathEvent)
+     
+     # Si quieres que suelte un ítem que NO tiene puesto (como un diamante 
+     # o un componente), debes usar el evento de muerte:
+     
+     @EventHandler
+     public void onDeath(EntityDeathEvent e) {
+         // 1. Identificar a nuestra entidad por su TAG
+         if (e.getEntity().getScoreboardTags().contains("EliteKiller")) {
+             
+             // 2. Limpiar los drops normales si quieres (Opcional)
+             e.getDrops().clear(); 
+             
+             // 3. Añadir el ítem específico al botín
+             ItemStack recompensa = new ItemStack(Material.NETHERITE_INGOT);
+             e.getDrops().add(recompensa);
+             
+             // 4. (Opcional) Soltar un ítem de Slimefun
+             // e.getDrops().add(MilitaryComponents.STEEL_PLATE.clone());
+         }
+     }
+ 
+ **

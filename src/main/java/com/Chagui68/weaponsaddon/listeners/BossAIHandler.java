@@ -58,7 +58,7 @@ public class BossAIHandler implements Listener {
                     handleShooting(skeleton);
                 }
             }
-            
+
             // Escanear ZOMBIES (Elite Killer)
             for (Zombie zombie : world.getEntitiesByClass(Zombie.class)) {
                 if (zombie.getScoreboardTags().contains("EliteKiller") && !zombie.isDead()) {
@@ -76,7 +76,8 @@ public class BossAIHandler implements Listener {
         double distance = killer.getLocation().distance(target.getLocation());
 
         // 1. Verificar RANGO (Radio de 20 bloques)
-        if (distance > 20) return;
+        if (distance > 20)
+            return;
 
         // 2. Verificar COOLDOWN (30 segundos)
         if (killer.hasMetadata("killer_cooldown")) {
@@ -86,26 +87,28 @@ public class BossAIHandler implements Listener {
             }
         }
 
-        // Habilidad: Aparecer un "Pusher" detrás del jugador
-        spawnPusherBehind(target);
+        // Habilidad: Aparecer 3 "Pushers" detrás del jugador
+        for (int i = 0; i < 3; i++) {
+            spawnPusherBehind(target);
+        }
 
-        // Establecer nuevo cooldown (Ahora + 30000 ms)
+        // Establecer nuevo cooldown (30 segundos)
         killer.setMetadata("killer_cooldown", new FixedMetadataValue(plugin, System.currentTimeMillis() + 30000));
     }
 
     private void spawnPusherBehind(LivingEntity target) {
         Location targetLoc = target.getLocation();
         Vector direction = targetLoc.getDirection();
-        
+
         // Calcular ubicación 2 bloques atrás
         Location spawnLoc = targetLoc.clone().add(direction.multiply(-2));
-        
+
         Zombie pusher = (Zombie) target.getWorld().spawnEntity(spawnLoc, EntityType.ZOMBIE);
-        
+
         MilitaryMobHandler.equipPusher(pusher);
-        
+
         pusher.setTarget(target);
-        
+
         target.getWorld().playSound(spawnLoc, Sound.ENTITY_ZOMBIE_AMBIENT, 1.0f, 2.0f);
     }
 
