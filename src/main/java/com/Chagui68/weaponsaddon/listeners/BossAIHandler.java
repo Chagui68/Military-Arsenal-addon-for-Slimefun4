@@ -1,5 +1,6 @@
 package com.Chagui68.weaponsaddon.listeners;
 
+import com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -8,6 +9,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -50,13 +52,61 @@ public class BossAIHandler implements Listener {
 
     private void scanAndShoot() {
         for (World world : Bukkit.getWorlds()) {
+            // Escanear SKELETONS (Heavy Gunner)
             for (Skeleton skeleton : world.getEntitiesByClass(Skeleton.class)) {
-
                 if (skeleton.getScoreboardTags().contains("HeavyGunner") && !skeleton.isDead()) {
                     handleShooting(skeleton);
                 }
             }
+            
+            // Escanear ZOMBIES (Elite Killer)
+            for (Zombie zombie : world.getEntitiesByClass(Zombie.class)) {
+                if (zombie.getScoreboardTags().contains("EliteKiller") && !zombie.isDead()) {
+                    handleEliteKillerAI(zombie);
+                }
+            }
         }
+    }
+
+    private void handleEliteKillerAI(Zombie killer) {
+        LivingEntity target = killer.getTarget();
+        if (target == null || target.isDead() || target.getWorld() != killer.getWorld())
+            return;
+
+        double distance = killer.getLocation().distance(target.getLocation());
+
+        // 1. Verificar RANGO (Radio de 20 bloques)
+        if (distance > 20) return;
+
+        // 2. Verificar COOLDOWN (30 segundos)
+        if (killer.hasMetadata("killer_cooldown")) {
+            long cooldownTime = killer.getMetadata("killer_cooldown").get(0).asLong();
+            if (System.currentTimeMillis() < cooldownTime) {
+                return; // Todavía en tiempo de espera
+            }
+        }
+
+        // Habilidad: Aparecer un "Pusher" detrás del jugador
+        spawnPusherBehind(target);
+
+        // Establecer nuevo cooldown (Ahora + 30000 ms)
+        killer.setMetadata("killer_cooldown", new FixedMetadataValue(plugin, System.currentTimeMillis() + 30000));
+    }
+
+    private void spawnPusherBehind(LivingEntity target) {
+        Location targetLoc = target.getLocation();
+        Vector direction = targetLoc.getDirection();
+        
+        // Calcular ubicación 2 bloques atrás
+        Location spawnLoc = targetLoc.clone().add(direction.multiply(-2));
+        
+        Zombie pusher = (Zombie) target.getWorld().spawnEntity(spawnLoc, EntityType.ZOMBIE);
+        
+        MilitaryMobHandler.equipPusher(pusher);
+        
+        pusher.setTarget(target);
+        
+        target.getWorld().playSound(spawnLoc, Sound.ENTITY_ZOMBIE_AMBIENT, 1.0f, 2.0f);
     }
 
     private void handleShooting(Skeleton boss) {

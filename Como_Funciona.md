@@ -55,10 +55,11 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
     # que "WeaponsAddon.java" necesita utilizar directamente en
     # su código. Java requiere que declares explícitamente qué clases
     # vas a usar, excepto las del paquete "java.lang" que se importan
-    # automáticamente. Cada línea "import" le dice al compilador dónde
+    # automáticamente.    # Cada línea "import" le dice al compilador dónde
     # encontrar una clase específica cuando la menciones en el código,
     # evitando tener que escribir la ruta completa cada vez (por ejemplo,
-    # escribir solo "Material" en lugar de "org.bukkit.Material" repetidamente).
+    # escribir solo "MilitaryMobHandler" en lugar de "com.Chagui68.handlers.MilitaryMobHandler" repetidamente).
+    # Esto hace que el código sea mucho más corto y fácil de leer.
 
 /
 
@@ -443,3 +444,239 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 **
 
+## Añadir Efectos de Poción a Entidades
+
+    Para añadir efectos de poción a una entidad (como un Jefe o un Mob personalizado), 
+    se utiliza el método **addPotionEffect()**. Este método se aplica directamente 
+    sobre el objeto de la entidad (por ejemplo, un Skeleton, Zombie, etc.).
+
+/
+
+    # Código de ejemplo para aplicar un efecto:
+    
+    boss.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 999999, 1));
+
+/
+
+    # Explicación de los parámetros de PotionEffect:
+
+    1. **PotionEffectType**: Es el tipo de efecto que quieres aplicar 
+       (SPEED, INCREASE_DAMAGE, INVISIBILITY, etc.).
+    2. **Duration**: La duración en "ticks" (20 ticks = 1 segundo). 
+       Usar un número muy grande como 999999 hace que el efecto sea prácticamente infinito.
+    3. **Amplifier**: El nivel del efecto (0 es nivel I, 1 es nivel II, etc.).
+
+/
+
+    # Ejemplo avanzado con partículas ocultas:
+    
+    boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999999, 1, false, false));
+
+    # El cuarto parámetro (false) indica si es un efecto de ambiente.
+    # El quinto parámetro (false) indica si se deben mostrar partículas. 
+    # Al ponerlo en false, el mob tendrá el efecto pero NO soltará burbujitas de colores.
+
+**
+
+## MilitaryMobHandler: Gestión de Mobs Militares
+
+    Esta clase es el "armero" y "reclutador" de tu plugin. Se encarga de dos cosas:
+    detectar cuando aparece un mob en el mundo y ponerle el equipo militar.
+
+/
+
+    # 1. El Evento de Spawn (onSpawn)
+    
+    @EventHandler
+    public void onSpawn(CreatureSpawnEvent e) { ... }
+    
+    # Aquí es donde ocurre la magia del "Spawn Natural". 
+    # El código revisa si el mob es un Esqueleto y si apareció de forma natural.
+    # Si quieres añadir una NUEVA entidad natural, este es el lugar.
+
+/
+
+    # 2. Cómo añadir una nueva entidad con Spawn Natural:
+    
+    # Dentro del método onSpawn, verás un "roll" (un dado virtual):
+    double roll = random.nextDouble();
+    
+    # Para añadir tu entidad, simplemente añade una probabilidad:
+    if (roll < 0.10) { // 10% de probabilidad
+        equipTuNuevaEntidad(skeleton);
+    } else if (roll < 0.50) { // 50% de probabilidad
+        equipEliteRanger(skeleton);
+    }
+
+/
+
+    # 3. Los Métodos de Equipamiento (equipHeavyGunner, etc.)
+    
+    # Estos métodos sirven para "transformar" un mob normal en uno militar:
+    - boss.setCustomName(...): Cambia el nombre visual.
+    - boss.getAttribute(...).setBaseValue(...): Cambia vida, daño o velocidad.
+    - boss.addScoreboardTag(...): Le pone una "etiqueta" invisible para que 
+      la IA (BossAIHandler) sepa qué disparos o habilidades usar.
+    - equip.setHelmet/Chestplate(...): Le pone la armadura.
+
+/
+
+    # 4. Probabilidades y Dificultad
+    
+    # El MilitaryMobHandler también ajusta la fuerza según la dificultad 
+    # del servidor (EASY, NORMAL, HARD) para que los enemigos no sean 
+    # imposibles para jugadores nuevos pero sí un reto para veteranos.
+
+/
+
+    # 5. Dónde se definen los Nombres
+
+    # El NOMBRE DE LA CLASE se define al principio del archivo:
+    public class MilitaryMobHandler { ... }
+    # Recuerda: En Java, el nombre de la clase DEBE ser idéntico al 
+    # nombre del archivo (MilitaryMobHandler.java).
+
+    # El NOMBRE DE LA ENTIDAD (el que ven los jugadores) se define 
+    # dentro de los métodos de equipamiento usando:
+    boss.setCustomName(ChatColor.RED + "Nombre del Mob");
+    boss.setCustomNameVisible(true); // Hace que el nombre se vea siempre
+
+/
+
+    # 5.1 Caso Práctico: Elite Killer
+    # Para el "Elite Killer", usamos un Zombie. El código se divide en:
+    # 1. El import de Zombie al principio del archivo.
+    # 2. La lógica en onSpawn para detectar EntityType.ZOMBIE.
+    # 3. El método equipEliteKiller que define su armadura blanca y 
+    #    daño extremo (instakill).
+
+**
+
+    # 6. Control de Velocidad (Atributos vs Pociones)
+
+    # Tienes dos formas de hacer que un mob sea extremadamente lento:
+
+    # A) Por ATRIBUTOS (Cambio real del mob):
+    # La velocidad normal es 0.25. Para hacerlo muy lento, usa valores bajos:
+    boss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.05);
+
+    # B) Por EFECTO DE POCIÓN (Como guía o penalización):
+    # Cada nivel de SLOWNESS (Lentitud) reduce la velocidad un 15%.
+    # - Nivel 1 (amplificador 0): -15% de velocidad.
+    # - Nivel 6 (amplificador 5): -90% de velocidad (Casi estático).
+    # - Nivel 255: ¡CONGELADO TOTAL! No se puede mover.
+
+/
+
+    # 7. Equivalencia Matemática (Convertir Pociones a Atributos)
+
+    # Si quieres que un mob tenga la velocidad de "Lentitud 3" de forma permanente:
+    # 1. Lentitud 3 reduce un 45% (15% x 3).
+    # 2. Solo queda el 55% de la velocidad original.
+    # 3. Base (0.25) x 0.55 = 0.1375.
+
+    # Código equivalente a Lentitud 3:
+    boss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.1375);
+
+    # Guía rápida de conversión (Base 0.25):
+    # - Lentitud 1 -> 0.2125
+    # - Lentitud 2 -> 0.1750
+    # - Lentitud 3 -> 0.1375
+    # - Lentitud 4 -> 0.1000
+
+/
+
+    # 7.1 Velocidad (Speed) comparado con Atributos
+    
+    # Cada nivel de Speed (Velocidad) AUMENTA un 20% la base:
+    # - Velocidad 1 -> 0.30  (+20%)
+    # - Velocidad 2 -> 0.35  (+40%)
+    # - Velocidad 3 -> 0.40  (+60%)
+    # - Velocidad 4 -> 0.45  (+80%)
+
+    # Consejo: Un valor de 0.35 (Velocidad 2) ya es bastante rápido 
+    # para un mob y lo hace difícil de esquivar.
+
+/
+    # Consejo: Si quieres que sea un poco más rápido que un caracol 
+    # pero más lento que un humano, 0.13 es el valor perfecto.
+
+/
+
+    # 8. Límites de Daño (GENERIC_ATTACK_DAMAGE)
+
+    # El valor máximo técnico en Minecraft moderno es 2048.0.
+    # Pero cuidado: ¡Eso mataría a cualquier jugador de un solo golpe!
+
+    # Guía de Daño (En puntos de daño, 2 puntos = 1 corazón):
+    # - 2.0  -> 1 Corazón (Como un golpe de mano)
+    # - 10.0 -> 5 Corazones (Como una espada de diamante)
+    # - 20.0 -> 10 Corazones (Mata a un jugador sin armadura)
+    # - 40.0 -> 20 Corazones (Mata a un jugador con armadura decente)
+
+    # El límite que recomendamos NO pasar es 100.0, a menos que sea 
+    # un jefe final extremadamente difícil (como el Wither o el Warden).
+
+    # Código de ejemplo para un daño letal:
+    boss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(18.0);
+
+/
+
+    # 8.1 Daño Cero (Entidades Pacíficas)
+    
+    # Si pones el valor en 0.0, la entidad NO hará daño con sus golpes básicos.
+    boss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(0.0);
+
+    # ¡CUIDADO!: Si le das una ESPADA o cualquier ARMA a la entidad, 
+    # el daño del arma se SUMARÁ al valor base. Si quieres que no 
+    # haga daño de ninguna forma, asegúrate de que no tenga armas 
+    # o de que sus armas sean ítems decorativos sin daño.
+
+/
+
+    # 9. Forzar Entidades Bebé (Mini Mobs)
+
+    # Si quieres que un Zombie, Piglin o entidad similar sea 
+    # forzadamente un "Mini" (bebé), usa este método:
+    zombie.setBaby(true);
+
+    # Nota: Las entidades bebé son naturalmente más rápidas y 
+    # tienen una "hitbox" más pequeña, lo que las hace mucho 
+    # más difíciles de golpear para los jugadores.
+
+/
+
+    # 10. Invocación detrás del Jugador (Vectores)
+
+    # Para que un mini-jefe invoque a un aliado (como un "Pusher") 
+    # justo detrás del jugador, usamos matemáticas de vectores:
+
+    # 1. Obtenemos la ubicación y dirección del jugador.
+    # 2. Multiplicamos la dirección por un valor negativo (atrás).
+    # 3. Sumamos ese vector a la ubicación original.
+
+    # Código de ejemplo:
+    Location playerLoc = player.getLocation();
+    Vector detras = playerLoc.getDirection().multiply(-2); // 2 bloques atrás
+    Location spawnLoc = playerLoc.clone().add(detras);
+
+    # Finalmente, spawneamos la entidad:
+    player.getWorld().spawnEntity(spawnLoc, EntityType.ZOMBIE);
+
+/
+
+    # 11. Tiempos de Espera (Cooldowns) con Metadata
+
+    # Para evitar que un mob use una habilidad demasiado rápido, 
+    # usamos "Metadata" para guardar el tiempo del próximo uso:
+
+    # 1. Guardar el tiempo:
+    mob.setMetadata("cooldown", new FixedMetadataValue(plugin, System.currentTimeMillis() + 30000));
+
+    # 2. Comprobar el tiempo:
+    if (mob.hasMetadata("cooldown")) {
+        long fin = mob.getMetadata("cooldown").get(0).asLong();
+        if (System.currentTimeMillis() < fin) return; // Aún esperando
+    }
+
+**
