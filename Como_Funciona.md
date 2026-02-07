@@ -623,6 +623,70 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /
 
+    # 8.2 Atributos de Empuje (Knockback)
+
+    # Existen dos atributos principales para controlar el empuje:
+
+    # A) GENERIC_KNOCKBACK_RESISTANCE (Resistencia al recibir golpes)
+    # Define qué tanto se mueve el mob cuando tú le pegas.
+    # - 0.0 -> Empuje normal (vuela como un mob común).
+    # - 1.0 -> 100% de resistencia (es una "pared", no se mueve nada).
+    boss.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0);
+
+    # B) GENERIC_ATTACK_KNOCKBACK (Fuerza de empuje al atacar)
+    # Define qué tan lejos lanza el mob al jugador cuando le pega.
+    # - 0.0 -> Empuje normal.
+    # - 1.0 -> Empuje fuerte (como el encantamiento Knockback I).
+    # - 5.0 -> ¡Lanza al jugador por los aires!
+    boss.getAttribute(Attribute.GENERIC_ATTACK_KNOCKBACK).setBaseValue(1.5);
+
+/
+
+    # 8.3 Refuerzos de Zombie (ZOMBIE_SPAWN_REINFORCEMENTS)
+
+    # Este es un atributo exclusivo de los Zombies. 
+    # Controla la probabilidad de que el zombie "pida ayuda" 
+    # y aparezcan otros zombies cerca cuando recibe daño.
+
+    # - 0.0 -> Nunca aparecen refuerzos.
+    # - 0.5 -> 50% de probabilidad de generar un refuerzo al ser golpeado.
+    # - 1.0 -> ¡Casi siempre aparecerán refuerzos!
+
+    # Código de ejemplo:
+    zombie.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0.1);
+
+    # Nota: Es una buena forma de crear una "horda" sin necesidad 
+    # de programar una IA compleja de invocación.
+
+/
+
+    # 8.3.1 Personalizar Refuerzos
+
+    # Por defecto, los refuerzos son zombies normales. 
+    # Para que sean "Custom", debemos permitir el motivo 
+    # de spawn REINFORCEMENTS en nuestro Handler.
+
+    # 1. En onSpawn, añadimos el filtro:
+    if (e.getSpawnReason() == SpawnReason.REINFORCEMENTS) {
+        equipPusher((Zombie) e.getEntity()); // Todos los refuerzos serán Pushers
+    }
+
+/
+
+    # 8.3.2 ¿Vanilla Reinforcements o IA Custom? (IMPORTANTE)
+
+    # El atributo vanilla (8.3) es "ciego": si un zombie normal 
+    # llama a refuerzos, nuestro plugin los convertirá en custom 
+    # también, porque no sabe quién los llamó.
+
+    # Recomendación:
+    # 1. Si quieres CONTROL TOTAL (ej: que solo el Elite Killer invoque), 
+    #    NO uses el atributo vanilla. Usa la IA Custom (Sección 10).
+    # 2. Si quieres CAOS total (que cualquier zombie pueda llamar a 
+    #    tus entidades custom), usa el atributo vanilla.
+
+/
+
     # 8.1 Daño Cero (Entidades Pacíficas)
     
     # Si pones el valor en 0.0, la entidad NO hará daño con sus golpes básicos.
@@ -695,6 +759,32 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
      EntityEquipment equip = boss.getEquipment();
      equip.setItemInMainHandDropChance(0.05f); // 5% de probabilidad de soltar su arma
      equip.setHelmetDropChance(1.0f);          // 100% de probabilidad (Siempre lo suelta)
+     equip.setBootsDropChance(0.0f);           // 0% de probabilidad (NUNCA lo suelta)
+
+/
+
+     # 12.1 Errores Comunes en Drop Chances:
+     
+     # 1. Confundir SET con GET:
+     # - INCORRECTO: equip.getBootsDropChance(0.0f); (Intentar usar el "obtenedor" para "poner")
+     # - CORRECTO:   equip.setBootsDropChance(0.0f); (Usar el "ponedor")
+     
+     # 2. Usar Booleans (true/false) en lugar de Floats (números):
+     # - INCORRECTO: equip.setBootsDropChance(false);
+     # - CORRECTO:   equip.setBootsDropChance(0.0f); // 0.0 es como "falso" (no cae)
+ 
+ /
+ 
+      # 12.2 ¿Antes o después de definir la armadura?
+      
+      # En Java, puedes poner la probabilidad antes o después, pero es 
+      # mucho mejor ponerla DESPUÉS por orden lógico:
+      
+      # 1. Pones la bota (Define el ítem)
+      equip.setBoots(new ItemStack(Material.GOLDEN_BOOTS));
+      
+      # 2. Defines su probabilidad (Define qué pasa con ese ítem)
+      equip.setBootsDropChance(0.0f);
  
  /
  
@@ -846,5 +936,351 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
      # 2. Sin Conflictos: Un Zombie nunca intentará tener dos nombres a la vez.
      # 3. Rareza Real: El Elite Killer tiene prioridad absoluta por estar arriba.
      # 4. Limpieza: Todo lo relacionado con Zombies vive en el mismo bloque `{ }`.
- 
- **
+
+/
+
+    # 16. Bloques como Cascos (Cabezas Personalizadas)
+
+    # En Minecraft, puedes poner casi cualquier bloque o ítem en el 
+    # espacio del casco (`setHelmet`) de un mob. Esto es ideal para 
+    # crear mobs con apariencias únicas:
+
+    # 1. Bloques de Cristal (Cápsulas):
+    equip.setHelmet(new ItemStack(Material.YELLOW_STAINED_GLASS));
+
+    # 2. Bloques de Construcción:
+    equip.setHelmet(new ItemStack(Material.TNT)); // ¡Un mob con cabeza de TNT!
+
+    # 3. Cabezas de Jugadores (Skins):
+    # Se usa para poner caras humanas o decoraciones detalladas.
+
+    # Nota: Los bloques en la cabeza no proporcionan puntos de 
+    # armadura (protección) por sí solos, son puramente estéticos.
+
+/
+
+    # 16.1 Protección Solar Automática
+
+    # ¡Buenas noticias!: En Minecraft, CUALQUIER ítem que pongas 
+    # en el espacio del casco protege a los Zombies y Esqueletos 
+    # de quemarse con el sol.
+    
+    # - Si usas cristal, bloque de oro o incluso un palo, el mob 
+    #   NO se quemará durante el día.
+    # - A diferencia de los cascos normales de armadura, los bloques 
+    #   no tienen durabilidad, por lo que nunca se romperán por el sol.
+
+/
+
+    # 17. Saqueo (Looting) vs Drop Chance
+
+    # El encantamiento Saqueo (Looting) SÍ afecta al equipamiento:
+    
+    # 1. El Incremento:
+    # Por defecto, cada nivel de Looting añade un 1% (0.01) a la 
+    # probabilidad de que un mob suelte su armadura o arma.
+    
+    # 2. El Riesgo (0.0f no siempre es 0%):
+    # Si pones `setBootsDropChance(0.0f)`, un jugador con Looting III 
+    # tendría un 3% de probabilidad de conseguir las botas.
+    
+    # 3. Solución (Garantizar 0%):
+    # Si quieres que sea IMPOSIBLE que el ítem caiga (incluso con Looting), 
+    # la mejor forma es usar el `EntityDeathEvent` y limpiar los drops
+
+/
+
+    # 18. Propiedades Avanzadas de Ítems (ItemMeta)
+
+    # Para cambiar cosas como el nombre, el lore (descripción) o hacer que 
+    # un ítem sea irrompible, usamos el `ItemMeta`:
+
+    # 1. Obtener el Meta del ítem:
+    ItemStack item = new ItemStack(Material.DIAMOND_SWORD);
+    ItemMeta meta = item.getItemMeta();
+
+    if (meta != null) {
+        # 2. Hacerlo IRROMPIBLE:
+        # Evita que el arma se gaste o se rompa (útil para jugadores).
+        meta.setUnbreakable(true);
+
+        # 3. Cambiar NOMBRE y LORE:
+        meta.setDisplayName(ChatColor.GOLD + "Espada del Rey");
+        
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.GRAY + "Una reliquia antigua...");
+        meta.setLore(lore);
+
+        # 4. OCULTAR Atributos (Hide Flags):
+        # Sirve para que no se vea el texto de "+7 Daño" o "Irrompible".
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+
+        # 5. Guardar los cambios de vuelta en el ítem:
+        item.setItemMeta(meta);
+    }
+
+/
+
+    # 19. Orden Lógico de Equipamiento
+
+    # 1. Creamos el ítem básico
+    ItemStack item = new ItemStack(Material.GOLDEN_SWORD);
+    
+    # 2. Modificamos sus propiedades avanzadas (Nombre, Irrompible)
+    ItemMeta meta = item.getItemMeta();
+    if (meta != null) {
+        meta.setUnbreakable(true);
+        meta.setDisplayName(ChatColor.GOLD + "Nombre");
+        item.setItemMeta(meta);
+    }
+    
+    # 3. Se lo entregamos al mob
+    equip.setItemInMainHand(item);
+
+/*
+
+    # 20. Ejemplo Arma
+
+    public static void equipWardenGeneral(Skeleton boss) {
+        boss.setCustomName(ChatColor.DARK_PURPLE + "☣ Warden General ☣");
+        boss.setCustomNameVisible(true);
+        
+        boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(500.0);
+        boss.setHealth(500.0);
+        boss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.20);
+        boss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(25.0);
+        boss.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0);
+        
+        EntityEquipment equip = boss.getEquipment();
+        if (equip != null) {
+            ItemStack arma = new ItemStack(Material.NETHERITE_SWORD);
+            ItemMeta metaArma = arma.getItemMeta();
+            if (metaArma != null) {
+                metaArma.setDisplayName(ChatColor.RED + "Espada del Vacío");
+                metaArma.setUnbreakable(true);
+                arma.setItemMeta(metaArma);
+            }
+            equip.setItemInMainHand(arma);
+            equip.setItemInMainHandDropChance(0.0f);
+
+            ItemStack casco = new ItemStack(Material.PURPLE_STAINED_GLASS);
+            equip.setHelmet(casco);
+            equip.setHelmetDropChance(0.0f);
+
+            equip.setChestplate(new ItemStack(Material.NETHERITE_CHESTPLATE));
+            equip.setChestplateDropChance(0.0f);
+        }
+    }
+
+/*
+
+    # 21. Ejemplo Armadura
+
+    ItemStack pechera = new ItemStack(Material.NETHERITE_CHESTPLATE);
+    ItemMeta meta = pechera.getItemMeta();
+    if (meta != null) {
+        meta.setDisplayName(ChatColor.AQUA + "Coraza de Escamas");
+        meta.setUnbreakable(true);
+        pechera.setItemMeta(meta);
+    }
+    equip.setChestplate(pechera);
+    equip.setChestplateDropChance(0.01f);
+
+/
+
+    # 22. Combinación de Colores y Estilos
+
+    # Solo Color:
+    meta.setDisplayName(ChatColor.RED + "Nombre");
+
+    # Color + Negrita (BOLD): Usamos "" para unir correctamente
+    meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Nombre");
+
+    # Color + Itálica (ITALIC):
+    meta.setDisplayName(ChatColor.BLUE + "" + ChatColor.ITALIC + "Nombre");
+
+    # Múltiples estilos juntos:
+    meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "" + ChatColor.UNDERLINE + "Nombre");
+
+/
+
+    # 23. Estilos de Texto (ITALIC y más)
+
+    # Además de colores, existen "modificadores" visuales:
+    
+    # - ITALIC: Hace que la letra esté inclinada (cursiva). 
+    #   Ej: meta.setDisplayName(ChatColor.GRAY + "" + ChatColor.ITALIC + "Susurro...");
+    
+    # Otros estilos útiles:
+    # - BOLD: Negrita (Letra más gruesa).
+    # - UNDERLINE: Subrayado.
+    # - STRIKETHROUGH: Tachado.
+    # - MAGIC: Texto "Matrix" que se mueve y no se puede leer.
+
+/
+
+    # 24. Colores Hexadecimales (RGB - Personalizados)
+
+    # Si los 16 colores básicos de Minecraft no te bastan, puedes 
+    # usar CUALQUIER color del mundo usando códigos Hex (#RRGGBB).
+    
+    # - IMPORTANTE: Requiere Minecraft 1.16 o superior.
+    # - Formato: net.md_5.bungee.api.ChatColor.of("#C0A026")
+    
+    # Ejemplo para un color "Oro Rosado":
+    meta.setDisplayName(net.md_5.bungee.api.ChatColor.of("#FFB6C1") + "Nombre Especial");
+
+/
+
+    # 25. Propiedades de ItemMeta (Lista Completa)
+
+    # Estas propiedades se aplican a través del objeto 'meta' 
+    # de casi cualquier ítem o armadura:
+
+    # 1. Básicas:
+    meta.setDisplayName("Nombre"); # Cambia el nombre visible
+    meta.setLore(listaDeStrings); # Añade descripción (varias líneas)
+    meta.setUnbreakable(true);    # El ítem nunca se rompe
+
+    # 2. Visibilidad (Flags):
+    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);   # Oculta "+7 Daño"
+    meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);     # Oculta lista de encantamientos
+    meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);  # Oculta el texto "Irrompible"
+    meta.addItemFlags(ItemFlag.HIDE_DESTROYS);     # Oculta qué bloques puede romper
+    meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);    # Oculta dónde se puede poner
+
+    # 3. Datos Técnicos:
+    meta.setCustomModelData(123); # Útil para texturas de Resource Packs
+    meta.setRepairCost(999);      # Coste de reparación en yunque
+
+    # 4. Exclusivas de Armadura de Cuero (LeatherArmorMeta):
+    # Requiere: LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
+    # meta.setColor(Color.fromRGB(R, G, B)); # Color exacto del cuero
+
+/
+
+    # 26. Atributos Directos (Daño, Armadura, Resistencia)
+
+    # Si quieres que un ítem dé estadísticas extra MIENTRAS el mob 
+    # lo tiene puesto, usamos AttributeModifiers:
+
+    # Nota: Esto es avanzado. Se usa para que, por ejemplo, una 
+    # pechera dé +20 de Vida extra solo por llevarla puesta.
+
+    # 1. Crear el modificador:
+    AttributeModifier modifier = new AttributeModifier(
+        UUID.randomUUID(), 
+        "bono_stats", 
+        10.0, 
+        AttributeModifier.Operation.ADD_NUMBER, 
+        EquipmentSlot.CHEST
+    );
+
+    # 2. Aplicar al Meta:
+    meta.addAttributeModifier(Attribute.GENERIC_ARMOR, modifier);
+    meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, modifier);
+    
+    # Esto sobreescribe las stats vanilla del ítem. Si le pones esto 
+    # a un palo, el palo daría armadura.
+
+/
+
+    # 27. Encantamientos (Poder Adicional)
+
+    # Puedes añadir cualquier encantamiento de Minecraft:
+    
+    # 1. Añadir encantamiento normal (respeta límites):
+    # item.addEnchantment(Enchantment.SHARPNESS, 5); 
+
+    # 2. Añadir encantamiento inseguro (rompe límites, ej: Filo 10):
+    # item.addUnsafeEnchantment(Enchantment.SHARPNESS, 10);
+
+    # Lista de nombres comunes (Versiones Modernas 1.20+):
+    # - SHARPNESS: Filo (Antes DAMAGE_ALL)
+    # - PROTECTION: Protección (Antes PROTECTION_ENVIRONMENTAL)
+    # - KNOCKBACK: Empuje
+    # - POWER: Poder (Antes ARROW_DAMAGE)
+    # - FIRE_ASPECT: Aspecto Ígneo
+    # - BLAST_PROTECTION: Protecc. Explosiones (Antes PROTECTION_EXPLOSIONS)
+
+/
+
+    # 28. Protecciones por Caso Específico
+
+    # Si quieres que una armadura sea "especialista" en proteger 
+    # contra un tipo de daño, usa estos encantamientos:
+    
+    # 1. Protección contra Proyectiles (Flechas, Balas):
+    # item.addEnchantment(Enchantment.PROJECTILE_PROTECTION, 4);
+
+    # 2. Protección contra Fuego (Lava, Llamas):
+    # item.addEnchantment(Enchantment.FIRE_PROTECTION, 4);
+
+    # 3. Protección contra Explosiones (TNT, Creepers):
+    # item.addEnchantment(Enchantment.BLAST_PROTECTION, 4);
+
+    # 4. Protección contra Caída (Botas):
+    # item.addEnchantment(Enchantment.FEATHER_FALLING, 4);
+
+    # 5. Protección General:
+    # item.addEnchantment(Enchantment.PROTECTION, 4);
+
+    # Nota: Los niveles pueden superar el límite vanilla (IV o V) 
+    # si usas 'addUnsafeEnchantment' como vimos en la Sección 27.
+
+/
+
+    # 29. Drops Personalizados con Encantamientos
+
+    # Si quieres que al morir un mob suelte un ítem con 
+    # propiedades específicas (como Filo 3), se hace así:
+
+    @EventHandler
+    public void onDeath(EntityDeathEvent e) {
+        if (e.getEntity().getScoreboardTags().contains("TheKing")) {
+            
+            # 1. Crear el ítem que queremos dropear
+            ItemStack recompensa = new ItemStack(Material.GOLDEN_SWORD);
+            
+            # 2. Añadir el encantamiento (Filo 3)
+            # SHARPNESS es el nombre moderno para el daño físico
+            recompensa.addEnchantment(Enchantment.SHARPNESS, 3);
+            
+            # 3. Añadir el ítem a la lista de drops del evento
+            e.getDrops().add(recompensa);
+        }
+    }
+
+/
+
+    # 30. Formas de llamar Encantamientos (Estático vs Dinámico)
+
+    # Existen dos formas de pedirle a Bukkit un encantamiento. 
+    # Es importante saber cuándo usar cada una:
+
+    # 1. El Método Estático (Recomendado y Moderno)
+    # Usas directamente el nombre del objeto. Es el más rápido y seguro.
+    # - Si usas 1.20+: Enchantment.SHARPNESS
+    # - Si usas 1.12 a 1.19: Enchantment.DAMAGE_ALL
+
+    # 2. El Método Dinámico (getByName)
+    # Buscas el encantamiento usando un texto (String).
+    # - Ejemplo: Enchantment.getByName("DAMAGE_ALL");
+    
+    # ¿Por qué usar getByName?
+    # - Compatibilidad: Si tu código debe funcionar en muchas versiones 
+    #   distintas del juego a la vez.
+    # - Configuración: Si quieres que el usuario escriba el nombre del 
+    #   encantamiento en un archivo config.yml.
+
+    # Ejemplo de uso seguro con getByName (para evitar errores):
+    Enchantment e = Enchantment.getByName("SHARPNESS");
+    if (e == null) {
+        e = Enchantment.getByName("DAMAGE_ALL"); // Plan B por si es versión vieja
+    }
+    if (e != null) {
+        item.addEnchantment(e, 3);
+    }
+
+**

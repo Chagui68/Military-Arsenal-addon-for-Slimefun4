@@ -4,20 +4,22 @@ import com.Chagui68.weaponsaddon.items.MachineGun;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Zombie;
+import org.bukkit.entity.ZombieVillager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.Color;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-
 import java.util.Random;
 
 public class MilitaryMobHandler implements Listener {
@@ -27,6 +29,7 @@ public class MilitaryMobHandler implements Listener {
     // PROBABILIDADES: Aquí puedes definir qué tan seguido aparecen tus mobs (0.5 =
     private static final double RANGER_CHANCE = 0.2; // 50%
     private static final double ELITE_CHANCE = 0.3; // 30%
+    private static final double KING_CHANCE = 0.25; // 25%
     private static final double PUSHER_CHANCE = 0.8; // 80%
 
     public MilitaryMobHandler(Plugin plugin) {
@@ -34,13 +37,14 @@ public class MilitaryMobHandler implements Listener {
 
     @EventHandler
     public void onSpawn(CreatureSpawnEvent e) {
-        // [SPAWN NATURAL]: Este bloque decide cuándo un mob normal se vuelve militar
+        // [SPAWN NATURAL]
 
         // 1. Filtro: Solo reemplazamos esqueletos y zombies que aparecen naturalmente
-        // Permitir Spawn Natural, Generación de Mundo y HUEVOS (Vanilla)
+        // Permitir Spawn Natural, Generación de Mundo, HUEVOS e INVOCACIONES (Vanilla)
         if (e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.NATURAL &&
                 e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.CHUNK_GEN &&
-                e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG)
+                e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG &&
+                e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.REINFORCEMENTS)
             return;
 
         double roll = random.nextDouble(); // Lanza un dado del 0.0 al 1.0
@@ -68,9 +72,47 @@ public class MilitaryMobHandler implements Listener {
                 equipPusher(zombie);
             }
         }
+
+        else if (e.getEntityType() == EntityType.ZOMBIE_VILLAGER) {
+            ZombieVillager zombieVillager = (ZombieVillager) e.getEntity();
+            if (roll < KING_CHANCE) {
+                equipoKing(zombieVillager);
+            }
+        }
     }
 
     // [MÉTODO DE EQUIPAMIENTO]: Aquí defines CÓMO se ve y QUÉ HACE tu entidad
+
+    public static void equipoKing(ZombieVillager king) {
+        king.setCustomName(ChatColor.DARK_GRAY + "♔ The King ♔");
+        king.setCustomNameVisible(true);
+        king.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(250.0); // 125 Corazones
+        king.setHealth(250.0);
+        king.setBaby(false);
+        king.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(100.0);
+        king.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.13); // Lentitud 3
+        king.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0); // Inamovible
+
+        EntityEquipment equip = king.getEquipment();
+        if (equip != null) {
+            ItemStack arma = new ItemStack(Material.GOLDEN_SWORD);
+            ItemMeta metaArma = arma.getItemMeta();
+            if(metaArma != null){
+                metaArma.setDisplayName(net.md_5.bungee.api.ChatColor.of("#CFCD8A") + "The King's Sword");
+                metaArma.addEnchant(Enchantment.SHARPNESS, 3, true);
+            }
+            equip.setItemInMainHand(arma);
+            equip.setItemInMainHandDropChance(0.0f); // No dropea espada
+            equip.setHelmet(new ItemStack(Material.YELLOW_STAINED_GLASS));
+            equip.setChestplate(new ItemStack(Material.GOLDEN_CHESTPLATE));
+            equip.setLeggings(new ItemStack(Material.GOLDEN_LEGGINGS));
+            equip.setBoots(new ItemStack(Material.GOLDEN_BOOTS));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
+        }
+    }
 
     public static void equipPusher(Zombie pusher) {
         pusher.setCustomName(ChatColor.GOLD + "⇄ Pusher ⇄");
@@ -79,6 +121,7 @@ public class MilitaryMobHandler implements Listener {
         pusher.setHealth(10.0);
         pusher.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.40);
         pusher.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(0.0);
+        pusher.getAttribute(Attribute.GENERIC_ATTACK_KNOCKBACK).setBaseValue(1.0);
         pusher.setBaby(true);
         pusher.addScoreboardTag("Pusher");
 
@@ -86,13 +129,17 @@ public class MilitaryMobHandler implements Listener {
         if (equip != null) {
 
             // Arma en mano principal
-            equip.setItemInMainHand(new ItemStack(Material.PISTON));
+            equip.setItemInMainHand(new ItemStack(Material.STICK));
             equip.setItemInMainHandDropChance(0.0f); // No dropea
 
-            equip.setHelmet(getColorArmor(Material.LEATHER_HELMET, Color.YELLOW));
+            equip.setHelmet(new ItemStack(Material.PISTON));
             equip.setChestplate(getColorArmor(Material.LEATHER_CHESTPLATE, Color.YELLOW));
             equip.setLeggings(getColorArmor(Material.LEATHER_LEGGINGS, Color.YELLOW));
             equip.setBoots(getColorArmor(Material.LEATHER_BOOTS, Color.YELLOW));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
         }
 
     }
@@ -102,7 +149,7 @@ public class MilitaryMobHandler implements Listener {
         miniboss.setCustomNameVisible(true);
         miniboss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.1); // Lentitud 4
         miniboss.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0); // No retroceso
-        miniboss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(999999.0); // Instakill ( Posiblemente ) :V
+        miniboss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(999999.0); // Instakill ( Posiblemente ) :V hace 999k de daño
         miniboss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(1000.0);
         miniboss.setHealth(1000.0); // Vida del enemigo 500 corazones
         miniboss.setBaby(false);
@@ -116,10 +163,14 @@ public class MilitaryMobHandler implements Listener {
             equip.setItemInMainHand(new ItemStack(Material.DIAMOND_SWORD));
             equip.setItemInMainHandDropChance(0.0f); // No dropea
 
-            equip.setHelmet(getColorArmor(Material.LEATHER_HELMET, Color.WHITE));
+            equip.setHelmet(new ItemStack(Material.WHITE_STAINED_GLASS));
             equip.setChestplate(getColorArmor(Material.LEATHER_CHESTPLATE, Color.WHITE));
             equip.setLeggings(getColorArmor(Material.LEATHER_LEGGINGS, Color.WHITE));
             equip.setBoots(getColorArmor(Material.LEATHER_BOOTS, Color.WHITE));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
         }
 
     }
@@ -155,6 +206,10 @@ public class MilitaryMobHandler implements Listener {
             equip.setChestplate(new ItemStack(Material.NETHERITE_CHESTPLATE));
             equip.setLeggings(new ItemStack(Material.NETHERITE_LEGGINGS));
             equip.setBoots(new ItemStack(Material.NETHERITE_BOOTS));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
 
             // [EFECTOS DE POCIÓN]: Lo que añadimos anteriormente
             boss.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 999999, 1));
@@ -167,21 +222,21 @@ public class MilitaryMobHandler implements Listener {
         miniboss.setCustomNameVisible(true);
 
         // Escalar stats por dificultad
-        double damage = 30.0;
-        double health = 50.0;
+        double damage = 60.0;
+        double health = 75.0;
 
         switch (miniboss.getWorld().getDifficulty()) {
             case EASY:
-                damage = 20.0;
-                health = 40.0;
+                damage = 40.0;
+                health = 55.0;
                 break;
             case NORMAL:
-                damage = 30.0;
-                health = 50.0;
+                damage = 60.0;
+                health = 75.0;
                 break;
             case HARD:
-                damage = 45.0; // Muy letal
-                health = 80.0;
+                damage = 80.0;
+                health = 100.0;
                 break;
             default: // PEACEFUL
                 break;
@@ -210,10 +265,14 @@ public class MilitaryMobHandler implements Listener {
             equip.setItemInOffHandDropChance(0.0f);
 
             // Armadura de Camuflaje (Cuero Verde - Zombie Camo)
-            equip.setHelmet(getColorArmor(Material.LEATHER_HELMET, Color.GREEN));
+            equip.setHelmet(new ItemStack(Material.OAK_LEAVES));
             equip.setChestplate(getColorArmor(Material.LEATHER_CHESTPLATE, Color.GREEN));
             equip.setLeggings(getColorArmor(Material.LEATHER_LEGGINGS, Color.GREEN));
             equip.setBoots(getColorArmor(Material.LEATHER_BOOTS, Color.GREEN));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
         }
     }
 
