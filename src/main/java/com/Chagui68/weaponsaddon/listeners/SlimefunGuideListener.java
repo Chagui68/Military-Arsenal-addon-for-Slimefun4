@@ -14,6 +14,14 @@ import org.bukkit.inventory.ItemStack;
 
 public class SlimefunGuideListener implements Listener {
 
+    // Known Slimefun Guide titles (check multiple languages/versions)
+    private static final String[] SLIMEFUN_GUIDE_IDENTIFIERS = {
+            "Slimefun Guide",
+            "Slimefun",
+            "Item Group:",
+            "Search Results"
+    };
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onSlimefunGuideClick(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) {
@@ -28,23 +36,9 @@ public class SlimefunGuideListener implements Listener {
         }
 
         String title = e.getView().getTitle();
-        boolean isSlimefunGuide = false;
 
-        // Detectar si es la guía de Slimefun por el título
-        if (title.contains("Slimefun") || title.contains("Guide") ||
-                title.contains("guía") || title.contains("Guía")) {
-            isSlimefunGuide = true;
-        }
-
-        // Verificación adicional por tamaño de inventario y presencia de items Slimefun
-        if (e.getInventory().getSize() == 54) {
-            SlimefunItem sfItemTest = SlimefunItem.getByItem(clicked);
-            if (sfItemTest != null) {
-                isSlimefunGuide = true;
-            }
-        }
-
-        if (!isSlimefunGuide) {
+        // ONLY trigger in actual Slimefun Guide - strict check
+        if (!isSlimefunGuide(title)) {
             return;
         }
 
@@ -54,14 +48,14 @@ public class SlimefunGuideListener implements Listener {
             return;
         }
 
-        // Verificar si es un item con receta personalizada
+        // Only handle CustomRecipeItem clicks
         if (sfItem instanceof CustomRecipeItem) {
             CustomRecipeItem customItem = (CustomRecipeItem) sfItem;
 
             e.setCancelled(true);
             p.closeInventory();
 
-            // Abrir la GUI personalizada después de un tick
+            // Open custom recipe viewer after a tick
             Bukkit.getScheduler().runTaskLater(
                     Bukkit.getPluginManager().getPlugin("WeaponsAddon"),
                     () -> {
@@ -78,11 +72,40 @@ public class SlimefunGuideListener implements Listener {
                                         customItem.getFullRecipe());
                             }
                         } catch (Exception ex) {
-                            p.sendMessage(ChatColor.RED + "Error al abrir la receta. Contacta a un administrador.");
+                            p.sendMessage(ChatColor.RED + "Error opening recipe viewer.");
                             ex.printStackTrace();
                         }
                     },
                     1L);
         }
+    }
+
+    /**
+     * Strictly check if the inventory is a Slimefun Guide.
+     * Only matches actual Slimefun Guide titles, NOT crafting tables or other GUIs.
+     */
+    private boolean isSlimefunGuide(String title) {
+        if (title == null)
+            return false;
+
+        // Exclude our own GUIs
+        if (title.contains("Military") ||
+                title.contains("Crafting Table") ||
+                title.contains("Workshop") ||
+                title.contains("Upgrade") ||
+                title.contains("Recipe:") ||
+                title.contains("Fabricator") ||
+                title.contains("Terminal")) {
+            return false;
+        }
+
+        // Check for Slimefun Guide identifiers
+        for (String identifier : SLIMEFUN_GUIDE_IDENTIFIERS) {
+            if (title.contains(identifier)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

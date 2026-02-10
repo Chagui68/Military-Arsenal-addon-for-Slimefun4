@@ -1,8 +1,19 @@
 name: WeaponsAddon
-version: 1.9
+version: 5.0.DEV
 main: com.Chagui68.weaponsaddon.WeaponsAddon
 api-version: 1.20
 depend: [Slimefun]
 author: Chagui68
 description: Military weapons and machines addon for Slimefun
 
+commands:
+  resetarena:
+    description: Reset the Heavy Gunner arena
+    usage: /resetarena
+    permission: militaryarsenal.admin
+    permission-message: You don't have permission to use this command!
+
+permissions:
+  militaryarsenal.admin:
+    description: Access to admin commands
+    default: op

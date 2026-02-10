@@ -27,8 +27,7 @@ public class MachineGun extends CustomRecipeItem {
             "&eRight-Click to fire burst",
             "&cRequires Machine Gun Bullets",
             "",
-            "&7Click in guide to view recipe"
-    );
+            "&7Click in guide to view recipe");
 
     static {
         ItemMeta meta = MACHINE_GUN.getItemMeta();
@@ -39,11 +38,11 @@ public class MachineGun extends CustomRecipeItem {
     }
 
     public MachineGun(ItemGroup itemGroup, SlimefunItemStack item, ItemStack[] recipe, RecipeGridSize gridSize) {
-        super(itemGroup, item, MilitaryRecipeTypes.MILITARY_CRAFTING_TABLE, recipe, gridSize);
+        super(itemGroup, item, MilitaryRecipeTypes.getMilitaryCraftingTable(), recipe, gridSize);
     }
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
-        ItemStack[] fullRecipe = new ItemStack[]{
+        ItemStack[] fullRecipe = new ItemStack[] {
                 MilitaryComponents.WEAPON_BARREL, MilitaryComponents.TARGETING_SYSTEM,
                 MilitaryComponents.RADAR_MODULE, MilitaryComponents.WEAPON_BARREL,
                 MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TRIGGER_MECHANISM,

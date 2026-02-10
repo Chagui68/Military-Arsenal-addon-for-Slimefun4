@@ -40,11 +40,11 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
             "",
             "&eRight-Click to open",
             "",
-            "&7Click in guide to view recipe"
-    );
+            "&7Click in guide to view recipe");
 
-    public BombardmentTerminal(ItemGroup itemGroup, SlimefunItemStack item, ItemStack[] recipe, RecipeGridSize gridSize) {
-        super(itemGroup, item, MilitaryRecipeTypes.MILITARY_MACHINE_FABRICATOR, recipe, gridSize);
+    public BombardmentTerminal(ItemGroup itemGroup, SlimefunItemStack item, ItemStack[] recipe,
+            RecipeGridSize gridSize) {
+        super(itemGroup, item, MilitaryRecipeTypes.getMilitaryMachineFabricator(), recipe, gridSize);
     }
 
     @Override
@@ -84,9 +84,8 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
                 ChatColor.YELLOW + "⬇ NETHER STAR SLOT ⬇"));
         inv.setItem(16, null);
 
-        String energyStatus = currentEnergy >= ENERGY_PER_USE ?
-                ChatColor.GREEN + "✓ Ready" :
-                ChatColor.RED + "✗ Low energy";
+        String energyStatus = currentEnergy >= ENERGY_PER_USE ? ChatColor.GREEN + "✓ Ready"
+                : ChatColor.RED + "✗ Low energy";
 
         inv.setItem(22, new CustomItemStack(Material.LIME_STAINED_GLASS_PANE,
                 ChatColor.GREEN + "▶ ACTIVATE ◀",
@@ -119,16 +118,29 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
     }
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
-        ItemStack[] fullRecipe = new ItemStack[]{
-                MilitaryComponents.REINFORCED_FRAME, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.REINFORCED_FRAME,
-                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
-                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
-                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
-                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
-                MilitaryComponents.REINFORCED_FRAME, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.HYDRAULIC_SYSTEM, MilitaryComponents.COOLANT_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.REINFORCED_FRAME
+        ItemStack[] fullRecipe = new ItemStack[] {
+                MilitaryComponents.REINFORCED_FRAME, MilitaryComponents.QUANTUM_PROCESSOR,
+                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX,
+                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.REINFORCED_FRAME,
+                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
+                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.EXPLOSIVE_CORE,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
+                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.EXPLOSIVE_CORE,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
+                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM,
+                MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
+                MilitaryComponents.REINFORCED_FRAME, MilitaryComponents.QUANTUM_PROCESSOR,
+                MilitaryComponents.HYDRAULIC_SYSTEM, MilitaryComponents.COOLANT_SYSTEM,
+                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.REINFORCED_FRAME
         };
 
-        BombardmentTerminal terminal = new BombardmentTerminal(category, BOMBARDMENT_TERMINAL, fullRecipe, RecipeGridSize.GRID_6x6);
+        BombardmentTerminal terminal = new BombardmentTerminal(category, BOMBARDMENT_TERMINAL, fullRecipe,
+                RecipeGridSize.GRID_6x6);
         terminal.register(addon);
         MachineFabricatorHandler.registerRecipe(terminal);
     }

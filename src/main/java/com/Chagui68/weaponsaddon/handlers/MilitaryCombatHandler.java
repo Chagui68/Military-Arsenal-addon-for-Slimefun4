@@ -1,7 +1,9 @@
 package com.Chagui68.weaponsaddon.handlers;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.*;
@@ -10,8 +12,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 public class MilitaryCombatHandler implements Listener {
 
@@ -51,6 +55,45 @@ public class MilitaryCombatHandler implements Listener {
                     e.setDamage(damage);
                 }
             }
+        }
+    }
+
+    // Logic for The King: Spawn Warriors on hit (25s cooldown)
+    @EventHandler
+    public void onKingDamage(EntityDamageByEntityEvent e) {
+        if (e.getEntity() instanceof ZombieVillager && e.getEntity().getScoreboardTags().contains("TheKing")) {
+            ZombieVillager king = (ZombieVillager) e.getEntity();
+
+            // Cooldown check
+            if (king.hasMetadata("king_summon_cd")) {
+                long cd = king.getMetadata("king_summon_cd").get(0).asLong();
+                if (System.currentTimeMillis() < cd)
+                    return;
+            }
+
+            // Spawn 2 Warriors
+            Location loc = king.getLocation();
+            Vector side = new Vector(-loc.getDirection().getZ(), 0, loc.getDirection().getX()).normalize();
+
+            Location left = loc.clone().add(side.multiply(1.5));
+            Location right = loc.clone().add(side.multiply(-1.5));
+
+            Zombie w1 = (Zombie) king.getWorld().spawnEntity(left, EntityType.ZOMBIE);
+            Zombie w2 = (Zombie) king.getWorld().spawnEntity(right, EntityType.ZOMBIE);
+
+            MilitaryMobHandler.equipWarrior(w1);
+            MilitaryMobHandler.equipWarrior(w2);
+
+            if (e.getDamager() instanceof LivingEntity) {
+                w1.setTarget((LivingEntity) e.getDamager());
+                w2.setTarget((LivingEntity) e.getDamager());
+            }
+
+            king.getWorld().playSound(loc, Sound.ENTITY_IRON_GOLEM_HURT, 1.0f, 0.5f);
+            king.getWorld().spawnParticle(Particle.CLOUD, loc, 15, 0.5, 0.5, 0.5, 0.05);
+
+            // Set new cooldown (25 seconds)
+            king.setMetadata("king_summon_cd", new FixedMetadataValue(plugin, System.currentTimeMillis() + 25000));
         }
     }
 

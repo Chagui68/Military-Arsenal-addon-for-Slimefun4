@@ -33,7 +33,7 @@ public class AntimatterRifle extends SlimefunItem {
             "",
             "&6Damage: &c999,999 HP (Instant Kill)",
             "&6Range: &e50 blocks",
-            "&6Cooldown: &e2 seconds",
+            "&6Cooldown: &e8 seconds",
             "",
             "&c⚠ EXTREME DANGER",
             "&c⚠ Use with caution",

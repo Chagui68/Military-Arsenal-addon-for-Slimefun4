@@ -264,6 +264,73 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
     &8 produce gris oscuro para metadata.
 
     # Este item no tiene funcionalidad de juego real, es puramente cosmético para la interfaz de Slimefun Guide.
+
+---
+### 🎨 Referencia de Colores (&)
+    
+| Código | Resultado 
+
+| `&0`   | Negro 
+
+| `&1`   | Azul Oscuro 
+
+| `&2`   | Verde Oscuro 
+
+| `&3`   | Cian Oscuro 
+
+| `&4`   | Rojo Oscuro 
+
+| `&5`   | Púrpura 
+
+| `&6`   | Dorado 
+
+| `&7`   | Gris Claro 
+
+| `&8`   | Gris Oscuro 
+
+| `&9`   | Azul Brillante 
+
+| `&a`   | Verde Lima 
+
+| `&b`   | Celeste 
+
+| `&c`   | Rojo Brillante 
+
+| `&d`   | Rosa / Magenta
+
+| `&e`   | Amarillo 
+
+| `&f`   | Blanco 
+
+| `&l`   | **Negrita** 
+
+| `&m`   | ~~Tachado~~ 
+
+| `&n`   | <u>Subrayado</u> 
+
+| `&o`   | *Cursiva* 
+
+| `&k`   | Texto Mágico 
+
+| `&r`   | **Reset** (Quita colores) 
+
+    **Nota:** Siempre coloca el color **antes** que el formato (Ejemplo: `&c&l` para Rojo Negrita).
+
+    ---
+    ### ⚔️ Lógica de Daño y Atributos
+
+    Cuando creamos armas personalizadas para jefes, usamos un sistema de **Daño Combinado** para que el jugador vea el total real de daño.
+
+    1. **HIDE_ATTRIBUTES**: Usamos esta "bandera" (`ItemFlag`) para ocultar el texto azul de Minecraft (`+15 Attack Damage`). Esto nos permite limpiar la interfaz y evitar confusiones.
+    
+    2. **Cálculo de Daño Real**:
+       Para mostrar el daño total en el Lore (la descripción), sumamos tres valores:
+       - **Daño Base**: El daño natural del material (Madera: 4, Oro: 4, Hierro: 6, Diamante: 7, Netherite: 8).
+       - **Daño Extra**: El valor que añadimos mediante `AttributeModifier`.
+       - **Bono de Filo (Sharpness)**: Los encantamientos de Filo suman daño extra según la fórmula: `(0.5 * Nivel) + 0.5`.
+    
+    3. **Resultado Final**:
+       De esta manera, si una espada de oro (4) tiene un modificador de +15 y Filo III (+2), el código mostrará automáticamente **"Daño Total: 21.0"**, que es exactamente lo que el arma quitará de vida.
            
 /*
 
@@ -1161,32 +1228,77 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 /
 
     # 26. Atributos Directos (Daño, Armadura, Resistencia)
-
-    # Si quieres que un ítem dé estadísticas extra MIENTRAS el mob 
-    # lo tiene puesto, usamos AttributeModifiers:
-
-    # Nota: Esto es avanzado. Se usa para que, por ejemplo, una 
-    # pechera dé +20 de Vida extra solo por llevarla puesta.
-
-    # 1. Crear el modificador:
-    AttributeModifier modifier = new AttributeModifier(
-        UUID.randomUUID(), 
-        "bono_stats", 
-        10.0, 
-        AttributeModifier.Operation.ADD_NUMBER, 
-        EquipmentSlot.CHEST
-    );
-
-    # 2. Aplicar al Meta:
-    meta.addAttributeModifier(Attribute.GENERIC_ARMOR, modifier);
-    meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, modifier);
-    
-    # Esto sobreescribe las stats vanilla del ítem. Si le pones esto 
-    # a un palo, el palo daría armadura.
+ 
+     # Si quieres que un ítem dé estadísticas extra MIENTRAS el mob 
+     # lo tiene puesto (como +20 de vida), usamos AttributeModifiers.
+ 
+ /
+ 
+     # Ejemplo Completo: Coraza de Titán (Da 20 de vida extra y 5 de armadura)
+     
+     public static ItemStack createTitanChestplate() {
+         ItemStack item = new ItemStack(Material.NETHERITE_CHESTPLATE);
+         ItemMeta meta = item.getItemMeta();
+         
+         if (meta != null) {
+             meta.setDisplayName(ChatColor.DARK_AQUA + "Coraza de Titán");
+             
+             // 1. Crear el modificador de VIDA (+20 puntos / 10 corazones)
+             AttributeModifier modifierVida = new AttributeModifier(
+                 UUID.randomUUID(), 
+                 "titán_salud", 
+                 20.0, 
+                 AttributeModifier.Operation.ADD_NUMBER, 
+                 EquipmentSlot.CHEST
+             );
+             
+             // 2. Crear el modificador de ARMADURA (+5 puntos extra)
+             AttributeModifier modifierArmor = new AttributeModifier(
+                 UUID.randomUUID(), 
+                 "titán_defensa", 
+                 5.0, 
+                 AttributeModifier.Operation.ADD_NUMBER, 
+                 EquipmentSlot.CHEST
+             );
+             
+             // 3. Aplicar los modificadores al Meta
+             meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, modifierVida);
+             meta.addAttributeModifier(Attribute.GENERIC_ARMOR, modifierArmor);
+             
+             item.setItemMeta(meta);
+         }
+         return item;
+     }
+ 
+     # Al usar `addAttributeModifier`, borras los
+     # atributos base del ítem (el Netherite normal). Por eso, si quieres 
+     # mantener la defensa original, debes añadirla tú manualmente.
 
 /
 
-    # 27. Encantamientos (Poder Adicional)
+     # Ejemplo
+ 
+     
+     public static void addTitanStats(ItemStack item) {
+         ItemMeta meta = item.getItemMeta();
+         if (meta == null) return;
+ 
+         UUID hpID = UUID.randomUUID();
+         UUID defID = UUID.randomUUID();
+ 
+         AttributeModifier hpMod = new AttributeModifier(hpID, "titán_salud", 20.0, Operation.ADD_NUMBER, EquipmentSlot.CHEST);
+         AttributeModifier defMod = new AttributeModifier(defID, "titán_defensa", 5.0, Operation.ADD_NUMBER, EquipmentSlot.CHEST);
+ 
+         meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, hpMod);
+         meta.addAttributeModifier(Attribute.GENERIC_ARMOR, defMod);
+         
+         item.setItemMeta(meta);
+     }
+    
+ 
+ /
+ 
+     # 27. Encantamientos (Poder Adicional)
 
     # Puedes añadir cualquier encantamiento de Minecraft:
     
@@ -1284,3 +1396,761 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
     }
 
 **
+
+## 31. Cambiar el Tamaño de una Entidad (Scale)
+
+    # Hacer que un mob sea gigante o diminuto es posible de varias formas, 
+    # dependiendo de la versión de Minecraft y el tipo de bicho:
+
+/
+
+    # 1. El Método Moderno (Atributo SCALE - Recomendado 1.20.5+)
+    # Minecraft añadió recientemente un atributo universal para cambiar 
+    # el tamaño de casi cualquier entidad (Zombies, Esqueletos, etc.)
+    
+    # Multiplicar tamaño por 2.0 (Gigante):
+    boss.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(2.0);
+    
+    # Reducir tamaño a 0.5 (Miniatura):
+    boss.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(0.5);
+
+/
+
+    # 2. Entidades con Tamaño Especial (Slimes y Phantoms)
+    # Algunos bichos tienen un método propio para el tamaño:
+    
+    Slime slime = (Slime) entidad;
+    slime.setSize(10); // Un slime enorme (Suele subir vida y daño también)
+    
+    Phantom phantom = (Phantom) entidad;
+    phantom.setSize(5); // Un phantom mucho más grande de lo normal
+
+/
+
+    # 3. Forzar Estado Bebé (Mini Mobs)
+    # Como vimos antes, esto cambia el tamaño visual y la hitbox:
+    
+    zombie.setBaby(true);
+
+/
+
+    # 4. Aspectos a tener en cuenta:
+    # - Hitbox: Si usas el atributo SCALE, la caja de colisión (donde 
+    #   le pegas) suele ajustarse automáticamente al nuevo tamaño.
+    # - Daño y Vida: Cambiar el tamaño NO cambia automáticamente la 
+    #   fuerza del mob. Debes ajustar la Vida y el Daño por separado 
+    #   si quieres un "Giga-Zombie" real.
+ 
+ /
+ 
+     # 5. Guía de Tamaños Proporcionales (Basado en bloques)
+     # Para entidades de 2 bloques de alto (Zombie/Skeleton):
+ 
+     # | Valor (Scale) | Altura Aprox. | Sentido Visual |
+     # | :------------ | :------------ | :------------- |
+     # | 0.25          | 0.5 Bloques   | Como un loro   |
+     # | 0.50          | 1.0 Bloques   | Como un bicho  |
+     # | 1.0           | 2.0 Bloques   | Normal         |
+     # | 1.5           | 3.0 Bloques   | Mini-Boss      |
+     # | 2.0           | 4.0 Bloques   | Gigante        |
+     # | 5.0           | 10.0 Bloques  | ¡GIGANTESCO!   |
+ 
+ /
+ 
+     # 5.1 Guía de Referencia: La Araña
+     # La araña es un caso especial porque es más ancha que alta:
+     
+     # - Escala por Defecto: 1.0
+     # - Altura Real: 0.9 Bloques (Casi un bloque completo)
+     # - Ancho Real: 1.4 Bloques (Casi un bloque y medio)
+     
+     # Si quieres una Araña "Pequeña" (tipo Araña de cueva):
+     # - Usa Escala: 0.50 (Mediría 0.45 de alto y 0.7 de ancho)
+
+**
+
+ ## 32. Ejemplo: Entidad con Atributos en el Equipo
+ 
+     # En este ejemplo creamos un "Caballero de Élite". 
+     # Sus estadísticas no vienen del mob, sino de la espada y la pechera.
+ 
+ /
+ 
+     # 1. El Código:
+ 
+     
+     public static void equipEliteKnight(Zombie knight) {
+         knight.setCustomName(ChatColor.GOLD + "Elite Knight");
+         
+         EntityEquipment equip = knight.getEquipment();
+         if (equip == null) return;
+ 
+         ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+         ItemMeta swordMeta = sword.getItemMeta();
+         if (swordMeta != null) {
+             AttributeModifier dMod = new AttributeModifier(UUID.randomUUID(), "att", 15.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND);
+             swordMeta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, dMod);
+             sword.setItemMeta(swordMeta);
+         }
+         equip.setItemInMainHand(sword);
+ 
+         ItemStack chest = new ItemStack(Material.NETHERITE_CHESTPLATE);
+         ItemMeta chestMeta = chest.getItemMeta();
+         if (chestMeta != null) {
+             AttributeModifier hMod = new AttributeModifier(UUID.randomUUID(), "hp", 40.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST);
+             chestMeta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, hMod);
+             chest.setItemMeta(chestMeta);
+         }
+         equip.setChestplate(chest);
+     }
+
+ 
+ /
+ 
+     # 2. Explicación por pedazos:
+ 
+     # EL ARMA:
+     # - Definimos el daño (+15 puntos) y lo inyectamos en el Meta:
+     AttributeModifier dMod = new AttributeModifier(UUID.randomUUID(), "att", 15.0, Operation.ADD_NUMBER, EquipmentSlot.HAND);
+     swordMeta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, dMod);
+     
+     # - Guardamos los cambios y entregamos:
+     sword.setItemMeta(swordMeta);
+     equip.setItemInMainHand(sword);
+ 
+     # LA ARMADURA:
+     # - Creamos vida extra (+40 o 20 corazones) vinculada al pecho:
+     AttributeModifier hMod = new AttributeModifier(UUID.randomUUID(), "hp", 40.0, Operation.ADD_NUMBER, EquipmentSlot.CHEST);
+     chestMeta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, hMod);
+     
+     # - Guardamos y equipamos para que el Zombie suba su vida:
+     chest.setItemMeta(chestMeta);
+     equip.setChestplate(chest);
+ 
+     # LA ESTRATEGIA:
+     # - Los modificadores se deben aplicar sobre el ItemMeta.
+     # - Sin 'setItemMeta(meta)', el ítem ignorará los cambios y será normal.
+     # - 'UUID.randomUUID()' evita que el juego confunda las estadísticas.
+ 
+ **
+ 
+ ## 33. Velocidad de Ataque y Persistencia de Stats
+ 
+     # Si quieres modificar qué tan rápido puede golpear un jugador con el 
+     # arma personalizada, usamos el atributo de velocidad de ataque:
+ 
+ /
+ 
+     # 1. Atributo de Velocidad (GENERIC_ATTACK_SPEED)
+     
+     AttributeModifier speedMod = new AttributeModifier(
+         UUID.randomUUID(), 
+         "velocidad_arma", 
+         4.0, // Un valor de 4.0 es muy rápido (estilo versiones antiguas)
+         AttributeModifier.Operation.ADD_NUMBER, 
+         EquipmentSlot.HAND
+     );
+     meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, speedMod);
+ 
+ /
+ 
+     # 2. ¿Los stats se mantienen al dropear el ítem?
+     # SÍ. Absolutamente todo lo que guardes en el 'ItemMeta' (Encantamientos, 
+     # Atributos, Nombres, Lore) se queda grabado en el objeto.
+ 
+     # - Si el mob muere y suelta la espada: El jugador la recogerá con 
+     #   exactamente los mismos stats que tenía el mob.
+     # - Funciona como un ítem de RPG: Una espada que da +40 de vida al mob, 
+     #   le dará +40 de vida al jugador si se la pone en la mano correcta.
+ 
+ **
+ 
+ ## 34. Interacción entre Lore y Atributos
+ 
+     # Es importante entender que el Lore (el texto descriptivo) y los 
+     # Atributos (el daño/vida real) son cosas totalmente separadas.
+ 
+ /
+ 
+     # 1. ¿El Lore se borra al cambiar Atributos?
+     # NO. Modificar los atributos con 'addAttributeModifier' no toca la lista 
+     # de Lore del ítem. El texto que ya tenía el arma se mantendrá igual.
+ 
+ /
+ 
+     # 2. ¿El Lore se actualiza solo si cambio el daño?
+     # NO. El Lore es solo "texto decorativo". Si usas un modificador para 
+     # que una espada haga 50 de daño, pero el Lore escrito dice "Daño: 10", 
+     # el texto seguirá diciendo "Daño: 10".
+     
+     # Si quieres que el texto coincida con el nuevo daño, debes actualizar 
+     # la lista de Lore:
+     
+     public static void setCustomStats(ItemStack item, double damage) {
+         ItemMeta meta = item.getItemMeta();
+         if (meta == null) return;
+ 
+         AttributeModifier mod = new AttributeModifier(UUID.randomUUID(), "att", damage, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND);
+         meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, mod);
+ 
+         List<String> lore = new ArrayList<>();
+         lore.add(ChatColor.GRAY + "Poder: " + ChatColor.RED + damage);
+         meta.setLore(lore);
+ 
+         item.setItemMeta(meta);
+     }
+ 
+ /
+ 
+     # 4. Explicación por pedazos:
+ 
+     # EL ATRIBUTO:
+     # AttributeModifier mod = new AttributeModifier(...);
+     # meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, mod);
+     # - Define la fuerza real del arma para el motor de Minecraft.
+ 
+     # EL LORE:
+     # List<String> lore = new ArrayList<>();
+     # lore.add(ChatColor.GRAY + "Poder: " + ChatColor.RED + damage);
+     # meta.setLore(lore);
+     # - Crea la información visual que el jugador verá al pasar el ratón.
+     # - Al usar la variable 'damage', ambos valores siempre serán iguales.
+ 
+     # LA SINCRONIZACIÓN:
+     # - Al hacer ambos pasos dentro del mismo método, aseguras que el 
+     #   arma nunca mienta sobre su daño real.
+ 
+ /
+ 
+     # 3. Resumen visual en el juego:
+     # - Lo que ves en AZUL/GRIS oscuro abajo del ítem son los ATRIBUTOS reales.
+     # - Lo que escribes tú con 'setLore' es solo información visual.
+     # - Minecraft suele ocultar los atributos base si añades uno personalizado, 
+     #   pero el Lore que tú escribiste nunca desaparece solo.
+ 
+ **
+ 
+ ## 35. Despliegue Completo: Clase de Creación de Super Jefe
+ 
+     # Este es un ejemplo de una clase terminada que podrías usar para 
+     # invocar un jefe con estadísticas, tamaño y equipo personalizados.
+ 
+ /
+ 
+     # 1. El Código:
+ 
+     package com.Chagui68.weaponsaddon.handlers;
+ 
+     import org.bukkit.*;
+     import org.bukkit.attribute.*;
+     import org.bukkit.entity.*;
+     import org.bukkit.inventory.*;
+     import org.bukkit.inventory.meta.*;
+     import java.util.*;
+ 
+     public class SuperBossHandler {
+ 
+         public static void spawnSuperBoss(Location loc) {
+             Zombie boss = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
+             
+             boss.setCustomName(ChatColor.DARK_PURPLE + "TITAN OVERLORD");
+             boss.setCustomNameVisible(true);
+             boss.setRemoveWhenFarAway(false);
+             
+             boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(1000.0);
+             boss.setHealth(1000.0);
+             boss.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(3.0);
+             boss.addScoreboardTag("SuperBoss");
+             
+             equipBoss(boss);
+         }
+ 
+         private static void equipBoss(Zombie boss) {
+             EntityEquipment equip = boss.getEquipment();
+             if (equip == null) return;
+ 
+             ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
+             ItemMeta swordMeta = sword.getItemMeta();
+             if (swordMeta != null) {
+                 AttributeModifier dmg = new AttributeModifier(UUID.randomUUID(), "atk", 50.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND);
+                 swordMeta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, dmg);
+                 
+                 List<String> lore = new ArrayList<>();
+                 lore.add(ChatColor.RED + "Daño Destructor: 50.0");
+                 swordMeta.setLore(lore);
+                 
+                 sword.setItemMeta(swordMeta);
+             }
+             equip.setItemInMainHand(sword);
+ 
+             ItemStack chest = new ItemStack(Material.NETHERITE_CHESTPLATE);
+             ItemMeta chestMeta = chest.getItemMeta();
+             if (chestMeta != null) {
+                 AttributeModifier hp = new AttributeModifier(UUID.randomUUID(), "hp", 200.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST);
+                 chestMeta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, hp);
+                 chest.setItemMeta(chestMeta);
+             }
+             equip.setChestplate(chest);
+         }
+     }
+ 
+ /
+ 
+     # 2. Explicación por pedazos:
+ 
+     # EL SPAWN:
+     # - Zombie boss = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
+     # - Crea la entidad físicamente en el mundo en la ubicación 'loc'.
+ 
+     # ATRIBUTOS DEL MOB:
+     # - boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(1000.0);
+     # - Define la vida base del bicho (500 corazones).
+     # - boss.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(3.0);
+     # - Lo hace 3 veces más grande que un zombie normal (aprox 6 bloques).
+ 
+     # EQUIPO PERSONALIZADO:
+     # - El método 'equipBoss' se encarga de fabricar los ítems.
+     # - La espada tiene un modificador de daño de 50.0.
+     # - La pechera tiene un modificador de vida extra de 200.0.
+ 
+     # SINCRONIZACIÓN SÍ/NO:
+     # - En la pechera se añaden los HP extra pero no se puso lore (para comparar).
+ 
+ **
+ 
+ ## 36. Gestión de Lore: Reemplazar vs Añadir
+ 
+     # Es fundamental saber que el método 'setLore' reemplaza toda la lista 
+     # de texto del ítem. Si no tienes cuidado, borrarás el lore original.
+ 
+ /
+ 
+     # 1. Reemplazar Lore (Borra lo anterior):
+     
+     List<String> nuevoLore = new ArrayList<>();
+     nuevoLore.add("Solo queda este texto");
+     meta.setLore(nuevoLore);
+ 
+ /
+ 
+     # 2. Añadir al Lore (Mantener lo anterior):
+     
+     List<String> loreActual = meta.getLore();
+     if (loreActual == null) {
+         loreActual = new ArrayList<>();
+     }
+     loreActual.add("Nueva línea sin borrar las otras");
+     meta.setLore(loreActual);
+ 
+ /
+ 
+     # 3. Ejemplo Reutilizable (Método para añadir):
+ 
+     public static void addLoreLine(ItemStack item, String line) {
+         ItemMeta meta = item.getItemMeta();
+         if (meta == null) return;
+ 
+         List<String> lore = meta.getLore();
+         if (lore == null) lore = new ArrayList<>();
+         
+         lore.add(ChatColor.translateAlternateColorCodes('&', line));
+         meta.setLore(lore);
+         
+         item.setItemMeta(meta);
+     }
+ 
+ /
+ 
+     # Resumen:
+     # - meta.getLore(): Te da lo que ya está escrito (o null si está vacío).
+     # - meta.setLore(): Guarda la lista completa. Si la lista es nueva, 
+     #   lo viejo desaparece.
+     # - Siempre pide la lista actual si quieres conservar el texto previo 
+     #   (como las descripciones de Slimefun).
+ 
+ **
+ 
+ ## 37. Rendimiento y Spark (Evitar Lag)
+ 
+     # Si Spark detecta que tu addon causa lag, lo más probable es que sea 
+     # por el uso excesivo del Scheduler en el hilo principal.
+ 
+ /
+ 
+     # 1. El Problema: runTaskTimer (Síncrono)
+     # Cuando ejecutas algo cada 1, 2 o 5 ticks síncronamente, Minecraft 
+     # tiene que esperar a que tu código termine antes de seguir con el 
+     # siguiente tick del servidor. Si tienes muchos jefes disparando 
+     # a la vez, el TPS bajará.
+ 
+ /
+ 
+     # 2. La Solución: runTaskTimerAsynchronously
+     # Si tu código solo hace cálculos matemáticos, efectos de partículas 
+     # o sonidos, puedes enviarlo al hilo asíncrono. Esto libera al 
+     # hilo principal de carga.
+     
+     new BukkitRunnable() {
+         public void run() {
+             // Lógica pesada aquí (Cálculos de vectores, partículas)
+         }
+     }.runTaskTimerAsynchronously(plugin, 0L, 2L);
+ 
+ /
+ 
+     # 3. Reglas de Oro para evitar Lag:
+     
+     # - NO toques la API de Bukkit en hilos asíncronos: No puedes usar 
+     #   'setHealth', 'teleport' o 'damage' dentro de un hilo ASYNC.
+     
+     # - Estrategia Híbrida:
+     #   1. El Scheduler ASYNC calcula la trayectoria y pone las partículas.
+     #   2. Cuando detectas un impacto, usas 'runTask' para volver al 
+     #      hilo principal solo para aplicar el daño.
+     
+     #   cada 2 ticks? A veces, subirlo a 5 o 10 ticks (0.5s) visualmente 
+     #   es casi igual pero reduce el uso de CPU a la mitad.
+ 
+ **
+
+
+ ## 38. Boss Reinforcements: Damage Detection (The King)
+ 
+     # Los jefes pueden invocar ayuda cuando son atacados. Para evitar 
+     # que spawneen infinitos minions, usamos un cooldown con Metadatos.
+ 
+ /
+ 
+     # 1. Detectar daño al Jefe:
+     if (entity.getScoreboardTags().contains("TheKing")) {
+         // Revisar cooldown de 25 segundos
+         if (entity.hasMetadata("king_summon_cd")) {
+             long cd = entity.getMetadata("king_summon_cd").get(0).asLong();
+             if (System.currentTimeMillis() < cd) return;
+         }
+ 
+         // Invocar minions a los lados
+         spawnWarriors(entity.getLocation());
+ 
+         // Establecer nuevo cooldown
+         entity.setMetadata("king_summon_cd", new FixedMetadataValue(plugin, System.currentTimeMillis() + 25000));
+     }
+ 
+ **
+ 
+ ## 39. Charging Dash AI: 2-Phase Movement
+ 
+     # Esta IA hace que la entidad se quede quieta (cargando) antes 
+     # de salir disparada hacia el jugador.
+ 
+ /
+ 
+     # Fase 1: Carga (Inmovilizar)
+     # Aplicamos Slowness 255 por 1 segundo y efectos visuales.
+     entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20, 255));
+     entity.getWorld().playSound(loc, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 1, 0.5f);
+ 
+ /
+ 
+     # Fase 2: Impulso (Dash)
+     # Usamos un scheduler para que el dash ocurra después del segundo de carga.
+     new BukkitRunnable() {
+         public void run() {
+             Vector dash = target.getLocation().subtract(loc).toVector().normalize();
+             entity.setVelocity(dash.multiply(1.5).setY(0.2));
+         }
+     }.runTaskLater(plugin, 20L);
+ 
+ **
+
+---
+
+## 40. Heavy Gunner Boss: Sistema Completo
+
+    # El Heavy Gunner es un jefe basado en Skeleton con múltiples sistemas
+    # interconectados: fases, arena, refuerzos y tracking de daño.
+
+/
+
+### 40.1 Estructura del BossAIHandler
+
+    # Este archivo contiene TODA la lógica del jefe:
+    
+    BossAIHandler.java
+    ├── Constantes de configuración (daño, cooldowns, tiempos)
+    ├── Variables estáticas (arena, boss bar, tracking)
+    ├── onProjectileHit() → Detecta daño al jefe
+    ├── scanAndShoot() → Loop principal de IA
+    ├── handleShooting() → Sistema de disparo
+    ├── executeReinforcementCall() → Llamada de refuerzos
+    ├── handleBattleWitchAI() → IA de la bruja
+    ├── buildArena() / destroyArena() → Gestión de arena
+    ├── setupBossBar() → Barra de jefe
+    └── onBossDeath() → Limpieza y leaderboard
+
+/
+
+### 40.2 Sistema de Fases Dinámico
+
+    # Las fases se calculan automáticamente basándose en el HP:
+    
+    private int calculatePhase(double healthPercent) {
+        if (healthPercent > 0.857) return 1;
+        if (healthPercent > 0.714) return 2;
+        if (healthPercent > 0.571) return 3;
+        if (healthPercent > 0.428) return 4;
+        if (healthPercent > 0.285) return 5;
+        if (healthPercent > 0.142) return 6;
+        return 7;
+    }
+    
+    # Cada fase cambia:
+    # - Color de la Boss Bar
+    # - Título de la fase
+    # - Cooldown de habilidades
+    # - Daño de las balas
+
+/
+
+### 40.3 Daño Progresivo de Balas
+
+    # Las balas del jefe hacen más daño según la fase actual:
+    
+    double phaseDamage = baseDamage + (currentBossPhase * 3.0);
+    
+    # Ejemplo:
+    # Fase 1: 5 + 3 = 8 de daño
+    # Fase 4: 5 + 12 = 17 de daño
+    # Fase 7: 5 + 21 = 26 de daño
+
+/
+
+### 40.4 Cap de Daño (Damage Cap)
+
+    # Para evitar que armas muy poderosas maten al jefe de un golpe:
+    
+    if (e.getDamage() > 1000.0) {
+        e.setDamage(1000.0);
+    }
+    
+    # Esto asegura que el jefe SIEMPRE sobreviva al menos 1 golpe.
+
+**
+
+## 41. Arena de Combate
+
+    # La arena es un cubo de cristal rojo que encierra al jefe y jugadores.
+
+/
+
+### 41.1 Construcción de Arena
+
+    # Se guarda el bloque ORIGINAL antes de reemplazarlo:
+    
+    for (x, y, z en el área) {
+        Location blockLoc = new Location(world, x, y, z);
+        Block block = blockLoc.getBlock();
+        
+        // IMPORTANTE: Guardar el bloque original
+        originalBlocks.put(blockLoc, block.getType());
+        arenaBlocks.add(blockLoc);
+        
+        // Colocar cristal rojo
+        block.setType(Material.RED_STAINED_GLASS);
+    }
+
+/
+
+### 41.2 Destrucción de Arena
+
+    # Al destruir, se restauran los bloques originales:
+    
+    public static void destroyArena() {
+        for (Map.Entry<Location, Material> entry : originalBlocks.entrySet()) {
+            entry.getKey().getBlock().setType(entry.getValue());
+        }
+        arenaBlocks.clear();
+        originalBlocks.clear();
+    }
+    
+    # ¡El mapa DEBE ser Map<Location, Material> para recordar qué había!
+
+**
+
+## 42. Reinforcement Call (Llamada de Refuerzos)
+
+    # Sistema de dados que determina qué entidad aparece.
+
+/
+
+### 42.1 Animación de Dados
+
+    # Se muestra un dado animado en títulos:
+    
+    for (int tick = 0; tick < 10; tick++) {
+        int randomNumber = random.nextInt(6) + 1;
+        showTitle("🎲 " + randomNumber + " 🎲");
+        wait(4 ticks);
+    }
+    // Resultado final
+    int finalRoll = random.nextInt(6) + 1;
+
+/
+
+### 42.2 Spawns por Dado
+
+    switch (diceRoll) {
+        case 1: spawnWarrior();     break;
+        case 2: spawnPusher();      break;
+        case 3: spawnTheKing();     break;
+        case 4: spawnEliteKiller(); break;
+        case 5: spawnEliteRanger(); break;
+        case 6: spawnBattleWitch(); break;
+    }
+
+**
+
+## 43. Battle Witch: IA de Pociones
+
+    # La bruja tiene su propia IA que lanza pociones malditas.
+
+/
+
+### 43.1 Sistema de Cooldown
+
+    # Cada bruja tiene su propio cooldown individual:
+    
+    if (witch.hasMetadata("witch_potion_cd")) {
+        long cd = witch.getMetadata("witch_potion_cd").get(0).asLong();
+        if (System.currentTimeMillis() < cd) return; // Aún en cooldown
+    }
+    
+    // Ejecutar habilidad...
+    
+    // Establecer cooldown de 8 segundos
+    witch.setMetadata("witch_potion_cd", 
+        new FixedMetadataValue(plugin, System.currentTimeMillis() + 8000));
+
+/
+
+### 43.2 Pociones Personalizadas
+
+    # Las pociones tienen MÚLTIPLES efectos combinados:
+    
+    switch (diceRoll) {
+        case 1: // Starvation Brew
+            addEffect(HUNGER, 10s, nivel 5);
+            addEffect(CONFUSION, 10s, nivel 2);
+            break;
+        case 4: // Inferno Draught
+            addEffect(SLOWNESS, 12s, nivel 3);
+            target.setFireTicks(240); // Fuego manual
+            break;
+    }
+    
+    # El fuego se aplica MANUALMENTE porque no existe poción de fuego.
+
+**
+
+## 44. Sistema de Recompensas (Boss Rewards)
+
+    # Al morir el jefe, se elige a un jugador para recibir un premio aleatorio.
+
+/
+
+### 44.1 Selección de Jugador (Radio 10)
+
+    # Se prioriza a los jugadores que estuvieron cerca en el combate:
+    
+    List<Player> nearby = deathLoc.getPlayersInRange(10);
+    if (!nearby.isEmpty()) {
+        luckyPlayer = nearby.get(random);
+    } else {
+        luckyPlayer = getClosestPlayer();
+    }
+
+/
+
+### 44.2 Entrega de Recompensa (32 items)
+
+    # El sistema elige uno de los 32 objetos disponibles:
+    
+    ItemStack reward = rewardsList.get(random.nextInt(32));
+    player.getInventory().addItem(reward);
+    
+    # Los premios incluyen Componentes de Élite, Armas, Munición y Vales Especiales.
+    # Se han separado las categorías en el Libro de Slimefun:
+    # - Military Workbenches: Estaciones de trabajo.
+    # - War Machines: Máquinas de combate avanzadas (Bombardment Terminal).
+    # - Military Vouchers: Vales de recompensa registrados oficialmente.
+    
+    # Si el inventario está lleno, se suelta en el suelo automáticamente.
+
+**
+
+## 45. Despawn por Inactividad
+
+    # Si nadie ataca al jefe por 60 segundos, desaparece.
+
+/
+
+### 45.1 Tracking de Último Daño
+
+    # Se guarda el timestamp del último daño recibido:
+    
+    entity.setMetadata("last_damage_taken", 
+        new FixedMetadataValue(plugin, System.currentTimeMillis()));
+
+/
+
+### 45.2 Verificación en Loop de IA
+
+    # Cada tick del loop de IA se verifica:
+    
+    long lastDamage = entity.getMetadata("last_damage_taken").get(0).asLong();
+    
+    if (System.currentTimeMillis() - lastDamage > 60000) { // 60 segundos
+        destroyArena();
+        cleanupBossBar();
+        entity.remove();
+        broadcast("The Heavy Gunner has retreated...");
+    }
+
+**
+
+## 46. Comando /resetarena
+
+    # Comando de emergencia para resetear arenas bugeadas.
+
+/
+
+### 46.1 Implementación
+
+    public class ResetArenaCommand implements CommandExecutor {
+        @Override
+        public boolean onCommand(CommandSender sender, ...) {
+            if (!sender.hasPermission("militaryarsenal.admin")) {
+                sender.sendMessage("No tienes permiso!");
+                return true;
+            }
+            
+            BossAIHandler.destroyArena();
+            sender.sendMessage("Arena reseteada!");
+            return true;
+        }
+    }
+
+/
+
+### 46.2 Registro en Plugin
+
+    # En WeaponsAddon.java:
+    getCommand("resetarena").setExecutor(new ResetArenaCommand());
+    
+    # En plugin.yml:
+    commands:
+      resetarena:
+        permission: militaryarsenal.admin
+
+**
+

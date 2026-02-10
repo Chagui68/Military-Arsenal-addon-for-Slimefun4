@@ -1,7 +1,6 @@
 package com.Chagui68.weaponsaddon.items.machines;
 
 import com.Chagui68.weaponsaddon.items.components.MilitaryComponents;
-import com.Chagui68.weaponsaddon.items.MilitaryRecipeTypes;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
@@ -59,7 +58,8 @@ public class MilitaryMachineFabricator extends SlimefunItem {
         ItemStack[] recipe = new ItemStack[] {
                 MilitaryComponents.REINFORCED_PLATING, MilitaryComponents.MILITARY_CIRCUIT,
                 MilitaryComponents.MILITARY_CIRCUIT, MilitaryComponents.REINFORCED_PLATING,
-                MilitaryComponents.MILITARY_CIRCUIT, MilitaryComponents.STABILIZER_UNIT, MilitaryComponents.REINFORCED_PLATING,
+                MilitaryComponents.MILITARY_CIRCUIT, MilitaryComponents.STABILIZER_UNIT,
+                MilitaryComponents.REINFORCED_PLATING,
                 MilitaryComponents.MILITARY_CIRCUIT,
                 MilitaryComponents.MILITARY_CIRCUIT, SlimefunItems.CARGO_MANAGER, SlimefunItems.CARGO_MANAGER,
                 MilitaryComponents.MILITARY_CIRCUIT,
@@ -68,7 +68,7 @@ public class MilitaryMachineFabricator extends SlimefunItem {
         };
 
         new MilitaryMachineFabricator(category, MILITARY_MACHINE_FABRICATOR,
-                MilitaryRecipeTypes.MILITARY_CRAFTING_TABLE, recipe)
+                RecipeType.ENHANCED_CRAFTING_TABLE, recipe)
                 .register(addon);
     }
 }

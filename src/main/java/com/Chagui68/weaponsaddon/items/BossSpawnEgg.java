@@ -7,7 +7,11 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.core.handlers.ItemUseHandler;
+import com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler;
+import com.Chagui68.weaponsaddon.listeners.BossAIHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
@@ -46,11 +50,15 @@ public class BossSpawnEgg extends SlimefunItem {
         });
     }
 
-    private void spawnBoss(org.bukkit.Location loc) {
+    private void spawnBoss(Location loc) {
         org.bukkit.entity.Skeleton boss = (org.bukkit.entity.Skeleton) loc.getWorld().spawnEntity(loc,
                 EntityType.SKELETON);
 
-        com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler.equipHeavyGunner(boss);
+        MilitaryMobHandler.equipHeavyGunner(boss);
+
+        // Construir arena física y activar Boss Bar
+        BossAIHandler.buildArena(loc,
+                Bukkit.getPluginManager().getPlugin("WeaponsAddon"));
 
         loc.getWorld().playSound(loc, Sound.ENTITY_WITHER_SPAWN, 1.0f, 0.5f);
     }

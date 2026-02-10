@@ -31,10 +31,12 @@ public class MachineGunHandler implements Listener {
         Player player = event.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
 
-        if (item == null || !item.hasItemMeta()) return;
+        if (item == null || !item.hasItemMeta())
+            return;
 
         SlimefunItem sfItem = SlimefunItem.getByItem(item);
-        if (sfItem == null || !sfItem.getId().equals("MACHINE_GUN")) return;
+        if (sfItem == null || !sfItem.getId().equals("MACHINE_GUN"))
+            return;
 
         event.setCancelled(true);
 
@@ -78,10 +80,12 @@ public class MachineGunHandler implements Listener {
                 Location eyeLoc = player.getEyeLocation();
                 Vector direction = eyeLoc.getDirection();
 
+                // All Bukkit API calls must be on main thread
                 player.getWorld().playSound(eyeLoc, Sound.ENTITY_BLAZE_SHOOT, 2.0f, 1.5f);
                 eyeLoc.getWorld().spawnParticle(Particle.FLAME, eyeLoc, 5, 0.1, 0.1, 0.1, 0.02);
                 eyeLoc.getWorld().spawnParticle(Particle.SMOKE, eyeLoc, 10, 0.1, 0.1, 0.1, 0.05);
 
+                // Raycast for bullet hit detection
                 Location currentLoc = eyeLoc.clone();
                 for (int i = 0; i < 50; i++) {
                     currentLoc.add(direction.clone().multiply(0.5));
@@ -94,7 +98,8 @@ public class MachineGunHandler implements Listener {
                         if (entity instanceof LivingEntity && entity != player) {
                             LivingEntity target = (LivingEntity) entity;
                             target.damage(DAMAGE, player);
-                            target.getWorld().spawnParticle(Particle.ENCHANTED_HIT, target.getLocation().add(0, 1, 0), 20, 0.3, 0.5, 0.3);
+                            target.getWorld().spawnParticle(Particle.ENCHANTED_HIT,
+                                    target.getLocation().add(0, 1, 0), 20, 0.3, 0.5, 0.3);
                             target.getWorld().playSound(target.getLocation(), Sound.ENTITY_ARROW_HIT, 1.0f, 1.0f);
                             player.sendMessage(ChatColor.RED + "✕ HIT! -" + DAMAGE + " HP");
                             return;
@@ -102,7 +107,8 @@ public class MachineGunHandler implements Listener {
                     }
 
                     if (currentLoc.getBlock().getType().isSolid()) {
-                        currentLoc.getWorld().spawnParticle(Particle.BLOCK, currentLoc, 10, 0.2, 0.2, 0.2, 0.1, currentLoc.getBlock().getBlockData());
+                        currentLoc.getWorld().spawnParticle(Particle.BLOCK, currentLoc, 10, 0.2, 0.2, 0.2,
+                                0.1, currentLoc.getBlock().getBlockData());
                         currentLoc.getWorld().playSound(currentLoc, Sound.BLOCK_STONE_HIT, 1.0f, 1.0f);
                         return;
                     }
