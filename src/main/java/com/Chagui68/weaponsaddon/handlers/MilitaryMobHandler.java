@@ -8,11 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Skeleton;
-import org.bukkit.entity.Witch;
-import org.bukkit.entity.Zombie;
-import org.bukkit.entity.ZombieVillager;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -35,7 +31,7 @@ public class MilitaryMobHandler implements Listener {
 
     private final Random random = new Random();
 
-    // Spawn chances (0.25 = 25%)
+    // Porcentaje de aparacion (0.25 = 25%)
     private static final double RANGER_CHANCE = 0.2; // 20%
     private static final double ELITE_CHANCE = 0.3; // 30%
     private static final double KING_CHANCE = 0.25; // 25%
@@ -51,6 +47,7 @@ public class MilitaryMobHandler implements Listener {
 
         // 1. Filtro: Solo reemplazamos esqueletos y zombies que aparecen naturalmente
         // Permitir Spawn Natural, Generación de Mundo, HUEVOS e INVOCACIONES (Vanilla)
+
         if (e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.NATURAL &&
                 e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.CHUNK_GEN &&
                 e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG &&
@@ -59,10 +56,11 @@ public class MilitaryMobHandler implements Listener {
 
         double roll = random.nextDouble(); // Lanza un dado del 0.0 al 1.0
 
-        // Manejo de SKELETONS
+        // Manejo de esqueletos
         if (e.getEntityType() == EntityType.SKELETON) {
             Skeleton skeleton = (Skeleton) e.getEntity();
 
+            // Elite Ranger (20%)
             if (roll < RANGER_CHANCE) {
                 equipEliteRanger(skeleton);
             }
@@ -72,27 +70,30 @@ public class MilitaryMobHandler implements Listener {
         else if (e.getEntityType() == EntityType.ZOMBIE) {
             Zombie zombie = (Zombie) e.getEntity();
 
-            // Prioridad 1: Elite Killer (Más raro - 30%)
+            // Elite Killer (30%)
             if (roll < ELITE_CHANCE) {
                 equipEliteKiller(zombie);
             }
-            // Prioridad 2: Pusher (Más común - 80%)
-            // Solo se comprueba si el anterior NO se cumplió
+            //Pusher (80%)
             else if (roll < PUSHER_CHANCE) {
                 equipPusher(zombie);
             }
         }
-
+        //Manerjo Aldeanos zombies
         else if (e.getEntityType() == EntityType.ZOMBIE_VILLAGER) {
             ZombieVillager zombieVillager = (ZombieVillager) e.getEntity();
+
+            // The King (25%)
             if (roll < KING_CHANCE) {
                 equipKing(zombieVillager);
             }
         }
 
-        // Handle WITCHES
+        // Manejo Brujas
         else if (e.getEntityType() == EntityType.WITCH) {
             Witch witch = (Witch) e.getEntity();
+
+            // Battle Witch (25%)
             if (roll < WITCH_CHANCE) {
                 equipBattleWitch(witch);
             }
@@ -115,6 +116,35 @@ public class MilitaryMobHandler implements Listener {
 
         EntityEquipment equip = king.getEquipment();
         if (equip != null) {
+            ItemStack casco = new ItemStack(Material.YELLOW_STAINED_GLASS);
+            ItemMeta metaCasco = casco.getItemMeta();
+            if (metaCasco != null) {
+                AttributeModifier helmet_protection = new AttributeModifier(
+                        UUID.randomUUID(),
+                        "protection", 5,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlot.HEAD);
+                
+                AttributeModifier helmet_toughness = new AttributeModifier(
+                        UUID.randomUUID(),
+                        "Toughness", 4,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlot.HEAD);
+
+                metaCasco.addAttributeModifier(Attribute.GENERIC_ARMOR, helmet_protection);
+                metaCasco.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, helmet_toughness);
+                
+                metaCasco.setDisplayName(ChatColor.of("#CFCD8A") + "♔ The King's Crown ♔");
+                metaCasco.addEnchant(Enchantment.PROTECTION, 5, true);
+                metaCasco.addEnchant(Enchantment.PROJECTILE_PROTECTION,5,true);
+                metaCasco.addEnchant(Enchantment.BLAST_PROTECTION,5,true);
+                metaCasco.addEnchant(Enchantment.FIRE_PROTECTION,5,true);
+                
+                casco.setItemMeta(metaCasco);
+            }
+            equip.setHelmet(casco);
+            equip.setHelmetDropChance(0.01f); //1%
+
             ItemStack arma = new ItemStack(Material.GOLDEN_SWORD);
             ItemMeta metaArma = arma.getItemMeta();
             if (metaArma != null) {
@@ -128,7 +158,7 @@ public class MilitaryMobHandler implements Listener {
                         UUID.randomUUID(), "att_speed", -2.4,
                         AttributeModifier.Operation.ADD_NUMBER,
                         EquipmentSlot.HAND);
-                // [LÓGICA DE DAÑO DINÁMICO]
+                // Daño dinamico en base atributos
 
                 // Todos los valores o variables son exclusivos de esta entidad. En otras
                 // palabras son locales
@@ -139,14 +169,14 @@ public class MilitaryMobHandler implements Listener {
 
                 // 2. Definir valores base
                 double Damage_Gold_SWORD = 4.0; // Daño base de una espada de oro
-                double Extra_Damage_Attribute = 15.0; // El bono que añadimos nosotros
+                double Extra_Damage_Attribute = 15.0; // Daño nuevo base de la espada
 
-                // 3. Calcular el bono por encantamiento "Sharpness" (Filo)
+                // 3. Calcular el daño en base al encantamiento "Sharpness" (Filo)
                 // Fórmula de Minecraft: 0.5 * nivel + 0.5
-                int Sharpness_Level = 3; // Nivel asignado abajo (Enchantment.SHARPNESS, 3)
+                int Sharpness_Level = 3; // Nivel del encantamiento
                 double Bonus_Sharpness = (0.5 * Sharpness_Level) + 0.5;
 
-                // 4. Calcular el daño TOTAL que el jugador verá y sentirá
+                // 4. Calcular el daño TOTAL que el jugador verá y trendrá la espada
                 double Total_Damage = Damage_Gold_SWORD + Extra_Damage_Attribute + Bonus_Sharpness;
 
                 metaArma.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, sword_damage);
@@ -157,7 +187,8 @@ public class MilitaryMobHandler implements Listener {
                 metaArma.addEnchant(Enchantment.FIRE_ASPECT, 4, true);
                 metaArma.setUnbreakable(true);
 
-                // [LORE PERSONALIZADO]
+                // Lore especial del arma
+                // El lore.add(""); Sirve para dejar un espacio blanco
                 List<String> lore = new ArrayList<>();
                 lore.add("");
                 lore.add(ChatColor.RED + "❣ Weapon damage: " + ChatColor.WHITE + Total_Damage);
@@ -168,11 +199,12 @@ public class MilitaryMobHandler implements Listener {
             }
             equip.setItemInMainHand(arma);
             equip.setItemInMainHandDropChance(0.1f); // 10%
-            equip.setHelmet(new ItemStack(Material.YELLOW_STAINED_GLASS));
+            
+            // Resto de la armadura (puedes personalizarlos luego igual que el casco)
             equip.setChestplate(new ItemStack(Material.GOLDEN_CHESTPLATE));
             equip.setLeggings(new ItemStack(Material.GOLDEN_LEGGINGS));
             equip.setBoots(new ItemStack(Material.GOLDEN_BOOTS));
-            equip.setHelmetDropChance(0.0f);
+            
             equip.setChestplateDropChance(0.0f);
             equip.setLeggingsDropChance(0.0f);
             equip.setBootsDropChance(0.0f);

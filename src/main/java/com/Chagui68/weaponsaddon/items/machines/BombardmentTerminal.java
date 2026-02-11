@@ -9,16 +9,28 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.core.attributes.EnergyNetComponent;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockUseHandler;
+import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler;
 import io.github.thebusybiscuit.slimefun4.core.networks.energy.EnergyNetComponentType;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Transformation;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import java.util.List;
 
 public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetComponent {
 
@@ -27,7 +39,7 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
 
     public static final SlimefunItemStack BOMBARDMENT_TERMINAL = new SlimefunItemStack(
             "BOMBARDMENT_TERMINAL",
-            Material.OBSERVER,
+            Material.CYAN_STAINED_GLASS,
             "&4💣 &cBombardment Terminal",
             "",
             "&7GPS-targeted airstrike system",
@@ -67,6 +79,109 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
             int charge = EnergyManager.getCharge(blockLoc);
             openTerminalGUI(p, blockLoc, charge);
         });
+
+        addItemHandler(new BlockPlaceHandler(false) {
+            @Override
+            public void onPlayerPlace(BlockPlaceEvent e) {
+                me.mrCookieSlime.Slimefun.api.BlockStorage.addBlockInfo(e.getBlock(), "id", "BOMBARDMENT_TERMINAL");
+                spawnSatelliteModel(e.getBlock().getLocation());
+            }
+        });
+
+        addItemHandler(new io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler(false, false) {
+            @Override
+            public void onPlayerBreak(BlockBreakEvent e, ItemStack item, List<ItemStack> drops) {
+                removeSatelliteModel(e.getBlock().getLocation());
+            }
+
+            @Override
+            public void onExplode(Block b, List<ItemStack> drops) {
+                removeSatelliteModel(b.getLocation());
+            }
+        });
+    }
+
+    private void spawnSatelliteModel(Location loc) {
+        Location center = loc.clone().add(0.5, 0, 0.5);
+        World world = loc.getWorld();
+        String tag = "SF_SATELLITE_" + loc.getBlockX() + "_" + loc.getBlockY() + "_" + loc.getBlockZ();
+
+        // 1. BASE ROBUSTA (Chasis de la Terminal)
+        BlockDisplay base = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
+        base.setBlock(Material.NETHERITE_BLOCK.createBlockData());
+        base.setTransformation(new Transformation(
+                new Vector3f(-0.4f, 0.0f, -0.4f), 
+                new Quaternionf(),
+                new Vector3f(0.8f, 0.5f, 0.8f),    
+                new Quaternionf()
+        ));
+        base.addScoreboardTag(tag);
+
+        // 2. PANEL DE CONTROL (Teclado/Interfaz superior)
+        BlockDisplay panel = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
+        panel.setBlock(Material.HEAVY_WEIGHTED_PRESSURE_PLATE.createBlockData());
+        panel.setTransformation(new Transformation(
+                new Vector3f(-0.35f, 0.5f, -0.35f),
+                new Quaternionf(),
+                new Vector3f(0.7f, 0.05f, 0.7f),
+                new Quaternionf()
+        ));
+        panel.addScoreboardTag(tag);
+
+        // 3. PANTALLA MILITAR (Monitor inclinado con brillo)
+        BlockDisplay screen = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
+        screen.setBlock(Material.LIME_STAINED_GLASS_PANE.createBlockData());
+        screen.setTransformation(new Transformation(
+                new Vector3f(-0.3f, 0.55f, 0.1f),
+                new Quaternionf().rotateX((float) Math.toRadians(-30)),
+                new Vector3f(0.6f, 0.4f, 0.05f),
+                new Quaternionf()
+        ));
+        screen.addScoreboardTag(tag);
+
+        // 4. INDICADORES LED (Luces de estado)
+        BlockDisplay led = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
+        led.setBlock(Material.GLOWSTONE.createBlockData());
+        led.setTransformation(new Transformation(
+                new Vector3f(0.2f, 0.51f, -0.3f),
+                new Quaternionf(),
+                new Vector3f(0.1f, 0.05f, 0.1f),
+                new Quaternionf()
+        ));
+        led.addScoreboardTag(tag);
+
+        // 5. ANTENA DE COMUNICACIÓN (Enlace Satelital)
+        BlockDisplay antenna = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
+        antenna.setBlock(Material.LIGHTNING_ROD.createBlockData());
+        antenna.setTransformation(new Transformation(
+                new Vector3f(-0.3f, 0.5f, -0.3f),
+                new Quaternionf(),
+                new Vector3f(1.0f, 1.0f, 1.0f), // Escala normal para el pararrayos
+                new Quaternionf()
+        ));
+        antenna.addScoreboardTag(tag);
+        
+        // 6. DETALLE DE ENERGIA (Núcleo lateral)
+        BlockDisplay core = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
+        core.setBlock(Material.SEA_LANTERN.createBlockData());
+        core.setTransformation(new Transformation(
+                new Vector3f(0.35f, 0.1f, -0.2f),
+                new Quaternionf(),
+                new Vector3f(0.1f, 0.3f, 0.4f),
+                new Quaternionf()
+        ));
+        core.addScoreboardTag(tag);
+    }
+
+    public static void removeSatelliteModel(Location loc) {
+        String tag = "SF_SATELLITE_" + loc.getBlockX() + "_" + loc.getBlockY() + "_" + loc.getBlockZ();
+        // Usamos loc.clone() para no mutar la ubicación original
+        Location searchLoc = loc.clone().add(0.5, 0.5, 0.5);
+        for (Entity entity : loc.getWorld().getNearbyEntities(searchLoc, 1, 1, 1)) {
+            if (entity.getScoreboardTags().contains(tag)) {
+                entity.remove();
+            }
+        }
     }
 
     private void openTerminalGUI(Player p, Location blockLoc, int currentEnergy) {

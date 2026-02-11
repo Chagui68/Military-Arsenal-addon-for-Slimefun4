@@ -25,17 +25,30 @@ public class BossAIHandler implements Listener {
     private final Plugin plugin;
 
     // --- CONFIGURABLE PARAMETERS ---
-    private static final double AIRSTRIKE_DAMAGE = 15.0;
+    private static final double AIRSTRIKE_DAMAGE = 150.0;
     private static final int FLASHBANG_DURATION = 100;
     private static final double COVER_HP_THRESHOLD = 0.10;
-    private static final double ARENA_RADIUS = 35.0;
+    private static final double ARENA_RADIUS = 25.0;
     private static final long IDLE_DESPAWN_TIME = 60000;
-    private static final int ARENA_HEIGHT = 4; // Wall height
+    private static final int ARENA_HEIGHT = 19;
+    private static final double ARENA_MARGIN = 0.5;
 
-    // --- ARENA AND BOSS BAR ---
+    /*
+     La altura y tamaño se define aquí en las lineas 33 para la altura y 31 para el radio
+     (private static final int Arena_HEIGHT)
+     (private static final double ARENA_RADIUS)
+     En las lineas donde se usan estas variables se explica mas a fondo como funciona la
+     creacion de la arena y su uso de los bloques
+     */
+
     private static final Set<Location> arenaBlocks = new HashSet<>();
     private static final Map<Location, Material> originalBlocks = new HashMap<>();
     private static BossBar activeBossBar = null;
+
+   /*
+   El arena center se usa para calcular el tamaño de la arena y colocar una particula 
+    */
+
     private static Location arenaCenter = null;
     private static int currentBossPhase = 1;
 
@@ -53,7 +66,7 @@ public class BossAIHandler implements Listener {
                 Skeleton shooter = (Skeleton) bullet.getShooter();
                 if (shooter.getScoreboardTags().contains("HeavyGunner")) {
                     // Base damage + phase bonus
-                    double baseDamage = 12.0;
+                    double baseDamage = 80.0;
                     double phaseDamage = baseDamage + (currentBossPhase * 3.0);
                     e.setDamage(phaseDamage); // Phase 1: 15, Phase 7: 33
                 }
@@ -364,7 +377,7 @@ public class BossAIHandler implements Listener {
                     // Clear rolling flag and set cooldown
                     witch.removeMetadata("witch_rolling", plugin);
                     witch.setMetadata("witch_potion_cd",
-                            new FixedMetadataValue(plugin, System.currentTimeMillis() + 8000));
+                            new FixedMetadataValue(plugin, System.currentTimeMillis() + 15000)); // 8 segundos de casteo entre cada uso
 
                     this.cancel();
                 }
@@ -447,35 +460,69 @@ public class BossAIHandler implements Listener {
     }
 
     private void handleArena(Skeleton boss) {
-        Location bossLoc = boss.getLocation();
-        for (Player p : bossLoc.getWorld().getPlayers()) {
-            double dist = p.getLocation().distance(bossLoc);
+        if (arenaCenter == null) return;
 
-            // If player tries to escape (between 35 and 50 blocks)
-            if (dist > ARENA_RADIUS && dist < ARENA_RADIUS + 15) {
-                // Teleport 10 blocks above boss to avoid being underground
-                Location safeLoc = bossLoc.clone();
-                safeLoc.setY(bossLoc.getY() + 10);
+        double limit = ARENA_RADIUS;
+        double minX = arenaCenter.getX() - limit;
+        double maxX = arenaCenter.getX() + limit;
+        double minZ = arenaCenter.getZ() - limit;
+        double maxZ = arenaCenter.getZ() + limit;
 
+        for (Player p : arenaCenter.getWorld().getPlayers()) {
+            Location loc = p.getLocation();
+
+            /*
+            Aqui se encuentra el margen de la arena si alguien trata de escapar o pasa ese margen
+            va a ser devuelto al centro de la arena a 10 bloques de altura soltando a su vez
+            un mensaje donde dice que no puedes escapar de la batalla
+             */
+            boolean outside = loc.getX() < minX - ARENA_MARGIN || loc.getX() > maxX + ARENA_MARGIN ||
+                              loc.getZ() < minZ - ARENA_MARGIN || loc.getZ() > maxZ + ARENA_MARGIN;
+            
+            boolean nearby = loc.getX() > minX - 15 && loc.getX() < maxX + 15 &&
+                             loc.getZ() > minZ - 15 && loc.getZ() < maxZ + 15;
+
+            if (outside && nearby) {
+                Location safeLoc = arenaCenter.clone().add(0, 10, 0);
                 p.teleport(safeLoc);
                 p.sendMessage(org.bukkit.ChatColor.RED + "YOU CANNOT ESCAPE THE BATTLEFIELD!");
                 p.playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 0.5f);
             }
 
-            // Visualizar el borde si el jugador está cerca de él (mejorado para mayor
-            // visibilidad)
-            if (dist > ARENA_RADIUS - 10 && dist < ARENA_RADIUS + 5) {
-                for (int i = 0; i < 360; i += 5) { // Más partículas (cada 5 grados en lugar de 10)
-                    double angle = Math.toRadians(i);
-                    double x = Math.cos(angle) * ARENA_RADIUS;
-                    double z = Math.sin(angle) * ARENA_RADIUS;
+            // 2. Warning Layer (Square Particles inside the glass)
+            double distToMinX = Math.abs(loc.getX() - minX);
+            double distToMaxX = Math.abs(loc.getX() - maxX);
+            double distToMinZ = Math.abs(loc.getZ() - minZ);
+            double distToMaxZ = Math.abs(loc.getZ() - maxZ);
+            double minDist = Math.min(Math.min(distToMinX, distToMaxX), Math.min(distToMinZ, distToMaxZ));
 
-                    // Múltiples alturas para mejor visibilidad
-                    for (int y = 0; y <= 3; y++) {
-                        Location particleLoc = bossLoc.clone().add(x, y, z);
-                        bossLoc.getWorld().spawnParticle(org.bukkit.Particle.FLAME, particleLoc, 1, 0, 0, 0, 0);
-                    }
-                }
+            if (minDist < 10) {
+                drawSquareParticles(arenaCenter, limit);
+            }
+        }
+    }
+
+    private void drawSquareParticles(Location center, double radius) {
+        World world = center.getWorld();
+        // Visual offset to be inside the glass
+        double offset = 0.2;
+        double minX = center.getX() - radius + offset;
+        double maxX = center.getX() + radius - offset;
+        double minZ = center.getZ() - radius + offset;
+        double maxZ = center.getZ() + radius - offset;
+
+        // Draw horizontal lines (X)
+        for (double x = minX; x <= maxX; x += 1.0) {
+            for (int y = 0; y <= 3; y++) {
+                world.spawnParticle(org.bukkit.Particle.FLAME, new Location(world, x, center.getY() + y, minZ), 1, 0, 0, 0, 0);
+                world.spawnParticle(org.bukkit.Particle.FLAME, new Location(world, x, center.getY() + y, maxZ), 1, 0, 0, 0, 0);
+            }
+        }
+        // Draw horizontal lines (Z)
+        for (double z = minZ; z <= maxZ; z += 1.0) {
+            for (int y = 0; y <= 3; y++) {
+                world.spawnParticle(org.bukkit.Particle.FLAME, new Location(world, minX, center.getY() + y, z), 1, 0, 0, 0, 0);
+                world.spawnParticle(org.bukkit.Particle.FLAME, new Location(world, maxX, center.getY() + y, z), 1, 0, 0, 0, 0);
             }
         }
     }
@@ -524,9 +571,15 @@ public class BossAIHandler implements Listener {
         // 1. TRIGGER: FLASHBANG (Phase Change)
         if (currentPhase != lastPhase) {
             executeFlashbang(boss);
+            executeReinforcementCall(boss, plugin);
             boss.setMetadata("boss_phase", new FixedMetadataValue(plugin, currentPhase));
             currentBossPhase = currentPhase;
             updateBossBarColor();
+
+            // Reset cooldown immediately after phase change trigger
+            boss.setMetadata("reinforce_call_cd",
+                    new FixedMetadataValue(plugin, System.currentTimeMillis() + getReinforceCooldown(currentPhase)));
+            boss.removeMetadata("reinforce_warned", plugin);
         }
 
         // 2. TRIGGER: DEPLOYABLE COVER (Every 10% HP)
@@ -549,25 +602,7 @@ public class BossAIHandler implements Listener {
             }
         }
 
-        // 4. TRIGGER: REINFORCEMENT CALL (All phases, variable cooldown)
-        int reinforceCooldown;
-        switch (currentPhase) {
-            case 7:
-                reinforceCooldown = 50000;
-                break; // 50s
-            case 6:
-            case 5:
-                reinforceCooldown = 60000;
-                break; // 1 min
-            case 4:
-            case 3:
-                reinforceCooldown = 120000;
-                break; // 2 min
-            default:
-                reinforceCooldown = 180000;
-                break; // 3 min
-        }
-
+        int reinforceCooldown = getReinforceCooldown(currentPhase);
         long lastReinforceCall = boss.hasMetadata("reinforce_call_cd")
                 ? boss.getMetadata("reinforce_call_cd").get(0).asLong()
                 : 0;
@@ -955,8 +990,29 @@ public class BossAIHandler implements Listener {
         // Clear previous arena if exists
         destroyArena();
 
-        int size = (int) ARENA_RADIUS; // Cube size (35 blocks per side)
-        int height = 20; // Cube height (20 blocks)
+
+        /*
+          Radio de la arena, este funciona de tal
+          manera que si el radio fuera 20 tomaria
+          20 bloques para cada lado sin contar el centro
+          en otras palabras se toma desde un lado hasta
+          otro lado en otras palabras el radio va desde
+          -20 a 20 siendo asi que el 0 esta entre esos
+          valores siendo asi que el radio real es de 21
+          si por ejemplo el radio fuera 1 en realidad este
+          seria de 3 bloques puesto que se toma desde -1 a 1
+          siendo asi que los valores tomados son -1 , 0 , 1
+         */
+        int size = (int) ARENA_RADIUS;
+
+        /*
+         * Lo mismo aplica para la altura de la arena
+         * pero en vez de ir desde -20 esta empieza desde
+         * 0 en otras palabras esta comienza desde 0 a 4
+         * siendo que si la altura fuera de 4 en realidad
+         * seria de 5
+         */
+        int height = ARENA_HEIGHT;
         int startY = (int) center.getY() - 1; // Start 1 block below for floor
         int centerX = (int) center.getX();
         int centerZ = (int) center.getZ();
@@ -1160,6 +1216,21 @@ public class BossAIHandler implements Listener {
         if (arenaBlocks.contains(e.getBlock().getLocation())) {
             e.setCancelled(true);
             e.getPlayer().sendMessage(ChatColor.RED + "You cannot break the arena barrier!");
+        }
+    }
+
+    private int getReinforceCooldown(int phase) {
+        switch (phase) {
+            case 7:
+                return 50000; // 50s
+            case 6:
+            case 5:
+                return 60000; // 1 min
+            case 4:
+            case 3:
+                return 120000; // 2 min
+            default:
+                return 180000; // 3 min
         }
     }
 

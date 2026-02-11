@@ -2,13 +2,17 @@ package com.Chagui68.weaponsaddon.items.machines;
 
 import com.Chagui68.weaponsaddon.WeaponsAddon;
 import com.Chagui68.weaponsaddon.items.machines.energy.EnergyManager;
+import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -134,6 +138,16 @@ public class TerminalClickHandler implements Listener {
 
         playerInventories.remove(p.getUniqueId());
         playerTerminalLocations.remove(p.getUniqueId());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onBlockBreak(BlockBreakEvent e) {
+        Block b = e.getBlock();
+        Location loc = b.getLocation();
+
+        if (BlockStorage.check(loc, "BOMBARDMENT_TERMINAL")) {
+            BombardmentTerminal.removeSatelliteModel(loc);
+        }
     }
 
     @EventHandler

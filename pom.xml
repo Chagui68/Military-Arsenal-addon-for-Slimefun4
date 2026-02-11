@@ -6,7 +6,7 @@
 
     <groupId>com.Chagui68</groupId>
     <artifactId>WeaponsAddon</artifactId>
-    <version>5.0.DEV</version>
+    <version>5.2.DEV</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -41,6 +41,14 @@
             <version>RC-37</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- JOML for 3D Display Entities -->
+        <dependency>
+            <groupId>org.joml</groupId>
+            <artifactId>joml</artifactId>
+            <version>1.10.5</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -56,5 +64,11 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 </project>
