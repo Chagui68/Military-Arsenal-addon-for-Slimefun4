@@ -12,10 +12,13 @@ import io.github.thebusybiscuit.slimefun4.core.handlers.BlockUseHandler;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler;
 import io.github.thebusybiscuit.slimefun4.core.networks.energy.EnergyNetComponentType;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
+import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
+import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.BlockDisplay;
@@ -45,7 +48,7 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
             "&7GPS-targeted airstrike system",
             "&7Drops TNT bombs at coordinates",
             "",
-            "&6Energy: &e2,000,000 J per attack",
+            "&6Energy: &e2000000 J per attack",
             "&6Fuel: &e10 TNT + 5 Nether Stars",
             "&6Attack: &e2 waves × 4 bombs",
             "&6Radius: &e10 blocks",
@@ -83,7 +86,7 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
         addItemHandler(new BlockPlaceHandler(false) {
             @Override
             public void onPlayerPlace(BlockPlaceEvent e) {
-                me.mrCookieSlime.Slimefun.api.BlockStorage.addBlockInfo(e.getBlock(), "id", "BOMBARDMENT_TERMINAL");
+                BlockStorage.addBlockInfo(e.getBlock(), "id", "BOMBARDMENT_TERMINAL");
                 spawnSatelliteModel(e.getBlock().getLocation());
             }
         });
@@ -99,6 +102,19 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
                 removeSatelliteModel(b.getLocation());
             }
         });
+
+        addItemHandler(new BlockTicker() {
+            @Override
+            public void tick(Block b, io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem item,
+                    me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config data) {
+                updateHologram(b.getLocation());
+            }
+
+            @Override
+            public boolean isSynchronized() {
+                return true;
+            }
+        });
     }
 
     private void spawnSatelliteModel(Location loc) {
@@ -106,71 +122,95 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
         World world = loc.getWorld();
         String tag = "SF_SATELLITE_" + loc.getBlockX() + "_" + loc.getBlockY() + "_" + loc.getBlockZ();
 
-        // 1. BASE ROBUSTA (Chasis de la Terminal)
+        // 1. MAIN CHASSIS (More industrial)
         BlockDisplay base = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
         base.setBlock(Material.NETHERITE_BLOCK.createBlockData());
         base.setTransformation(new Transformation(
-                new Vector3f(-0.4f, 0.0f, -0.4f), 
+                new Vector3f(-0.45f, 0.0f, -0.45f),
                 new Quaternionf(),
-                new Vector3f(0.8f, 0.5f, 0.8f),    
-                new Quaternionf()
-        ));
+                new Vector3f(0.9f, 0.6f, 0.9f),
+                new Quaternionf()));
         base.addScoreboardTag(tag);
 
-        // 2. PANEL DE CONTROL (Teclado/Interfaz superior)
-        BlockDisplay panel = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
-        panel.setBlock(Material.HEAVY_WEIGHTED_PRESSURE_PLATE.createBlockData());
-        panel.setTransformation(new Transformation(
-                new Vector3f(-0.35f, 0.5f, -0.35f),
+        // 2. INDUSTRIAL FRAME (Reinforcement)
+        BlockDisplay frame = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
+        frame.setBlock(Material.IRON_BARS.createBlockData());
+        frame.setTransformation(new Transformation(
+                new Vector3f(-0.5f, 0.0f, -0.5f),
                 new Quaternionf(),
-                new Vector3f(0.7f, 0.05f, 0.7f),
-                new Quaternionf()
-        ));
+                new Vector3f(1.0f, 1.0f, 1.0f),
+                new Quaternionf()));
+        frame.addScoreboardTag(tag);
+
+        // 3. MAIN CONSOLE PANEL
+        BlockDisplay panel = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
+        panel.setBlock(Material.POLISHED_BLACKSTONE_PRESSURE_PLATE.createBlockData());
+        panel.setTransformation(new Transformation(
+                new Vector3f(-0.35f, 0.61f, -0.3f),
+                new Quaternionf().rotateX((float) Math.toRadians(-15)),
+                new Vector3f(0.7f, 0.1f, 0.5f),
+                new Quaternionf()));
         panel.addScoreboardTag(tag);
 
-        // 3. PANTALLA MILITAR (Monitor inclinado con brillo)
+        // 4. MILITARY SCREEN (Tilted)
         BlockDisplay screen = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
         screen.setBlock(Material.LIME_STAINED_GLASS_PANE.createBlockData());
         screen.setTransformation(new Transformation(
-                new Vector3f(-0.3f, 0.55f, 0.1f),
-                new Quaternionf().rotateX((float) Math.toRadians(-30)),
-                new Vector3f(0.6f, 0.4f, 0.05f),
-                new Quaternionf()
-        ));
+                new Vector3f(-0.3f, 0.65f, 0.15f),
+                new Quaternionf().rotateX((float) Math.toRadians(-45)),
+                new Vector3f(0.6f, 0.5f, 0.05f),
+                new Quaternionf()));
         screen.addScoreboardTag(tag);
 
-        // 4. INDICADORES LED (Luces de estado)
+        // 5. STATUS LEDS
         BlockDisplay led = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
-        led.setBlock(Material.GLOWSTONE.createBlockData());
+        led.setBlock(Material.REDSTONE_TORCH.createBlockData());
         led.setTransformation(new Transformation(
-                new Vector3f(0.2f, 0.51f, -0.3f),
+                new Vector3f(0.2f, 0.62f, -0.2f),
                 new Quaternionf(),
-                new Vector3f(0.1f, 0.05f, 0.1f),
-                new Quaternionf()
-        ));
+                new Vector3f(0.2f, 0.2f, 0.2f),
+                new Quaternionf()));
         led.addScoreboardTag(tag);
 
-        // 5. ANTENA DE COMUNICACIÓN (Enlace Satelital)
-        BlockDisplay antenna = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
-        antenna.setBlock(Material.LIGHTNING_ROD.createBlockData());
-        antenna.setTransformation(new Transformation(
-                new Vector3f(-0.3f, 0.5f, -0.3f),
+        // 6. HOLOGRAM RADAR SWEEP (The part that rotates)
+        BlockDisplay hologram = (BlockDisplay) world.spawnEntity(center.clone().add(0, 1.2, 0),
+                EntityType.BLOCK_DISPLAY);
+        hologram.setBlock(Material.CYAN_STAINED_GLASS.createBlockData());
+        hologram.setTransformation(new Transformation(
+                new Vector3f(-0.4f, 0.0f, -0.05f),
                 new Quaternionf(),
-                new Vector3f(1.0f, 1.0f, 1.0f), // Escala normal para el pararrayos
-                new Quaternionf()
-        ));
-        antenna.addScoreboardTag(tag);
-        
-        // 6. DETALLE DE ENERGIA (Núcleo lateral)
-        BlockDisplay core = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
-        core.setBlock(Material.SEA_LANTERN.createBlockData());
+                new Vector3f(0.8f, 0.4f, 0.02f),
+                new Quaternionf()));
+        hologram.addScoreboardTag(tag);
+        hologram.addScoreboardTag("SF_HOLOGRAM");
+        hologram.setInterpolationDuration(10);
+        hologram.setInterpolationDelay(0);
+
+        // 7. RADAR CORE
+        BlockDisplay core = (BlockDisplay) world.spawnEntity(center.clone().add(0, 1.1, 0), EntityType.BLOCK_DISPLAY);
+        core.setBlock(Material.BEACON.createBlockData());
         core.setTransformation(new Transformation(
-                new Vector3f(0.35f, 0.1f, -0.2f),
+                new Vector3f(-0.1f, 0.0f, -0.1f),
                 new Quaternionf(),
-                new Vector3f(0.1f, 0.3f, 0.4f),
-                new Quaternionf()
-        ));
+                new Vector3f(0.2f, 0.2f, 0.2f),
+                new Quaternionf()));
         core.addScoreboardTag(tag);
+    }
+
+    private void updateHologram(Location loc) {
+        String tag = "SF_SATELLITE_" + loc.getBlockX() + "_" + loc.getBlockY() + "_" + loc.getBlockZ();
+        Location center = loc.clone().add(0.5, 1.2, 0.5);
+
+        for (Entity entity : loc.getWorld().getNearbyEntities(center, 1.5, 1.5, 1.5)) {
+            if (entity.getScoreboardTags().contains(tag) && entity.getScoreboardTags().contains("SF_HOLOGRAM")) {
+                Location eloc = entity.getLocation();
+                eloc.setYaw(eloc.getYaw() + 20);
+                entity.teleport(eloc);
+
+                // Radar sweep particles
+                loc.getWorld().spawnParticle(Particle.INSTANT_EFFECT, center, 3, 0.4, 0.1, 0.4, 0.05);
+            }
+        }
     }
 
     public static void removeSatelliteModel(Location loc) {

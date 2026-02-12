@@ -100,7 +100,7 @@ public class MilitaryMobHandler implements Listener {
         }
     }
 
-    // [MÉTODO DE EQUIPAMIENTO]: Aquí defines CÓMO se ve y QUÉ HACE tu entidad
+    // Creacion de las entidades y definicion de su equipamiento
 
     public static void equipKing(ZombieVillager king) {
         king.setCustomName(ChatColor.DARK_GRAY + "♔ The King ♔");

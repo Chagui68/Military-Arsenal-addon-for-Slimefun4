@@ -19,8 +19,9 @@ import com.Chagui68.weaponsaddon.items.machines.MilitaryCraftingHandler;
 import com.Chagui68.weaponsaddon.items.machines.MilitaryCraftingTable;
 import com.Chagui68.weaponsaddon.items.machines.MilitaryMachineFabricator;
 import com.Chagui68.weaponsaddon.items.machines.TerminalClickHandler;
+import com.Chagui68.weaponsaddon.items.machines.AttackTurret;
 import com.Chagui68.weaponsaddon.items.machines.WeaponUpgradeTable;
-import com.Chagui68.weaponsaddon.commands.ResetArenaCommand;
+import com.Chagui68.weaponsaddon.commands.WeaponsCommand;
 import com.Chagui68.weaponsaddon.handlers.MilitaryCombatHandler;
 import com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler;
 import com.Chagui68.weaponsaddon.items.vouchers.MilitaryVouchers;
@@ -97,6 +98,11 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
                                 mainGroup,
                                 new CustomItemStack(Material.NETHER_STAR, "&b✨ &3Military Upgrades"));
 
+                SubItemGroup defensesGroup = new SubItemGroup(
+                                new NamespacedKey(this, "military_defenses"),
+                                mainGroup,
+                                new CustomItemStack(Material.SHIELD, "&1🛡 &9Military Defenses"));
+
                 // Register all groups
                 mainGroup.register(this);
                 componentsGroup.register(this);
@@ -108,6 +114,7 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
                 vouchersGroup.register(this);
                 warMachinesGroup.register(this);
                 upgradesGroup.register(this);
+                defensesGroup.register(this);
 
                 // Register items with debug logging
                 try {
@@ -161,6 +168,15 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
                         getLogger().info("WeaponUpgradeTable registered successfully!");
                 } catch (Exception e) {
                         getLogger().severe("Failed to register WeaponUpgradeTable: " + e.getMessage());
+                        e.printStackTrace();
+                }
+
+                try {
+                        getLogger().info("Registering AttackTurret...");
+                        AttackTurret.register(this, defensesGroup);
+                        getLogger().info("AttackTurret registered successfully!");
+                } catch (Exception e) {
+                        getLogger().severe("Failed to register AttackTurret: " + e.getMessage());
                         e.printStackTrace();
                 }
 
@@ -242,13 +258,17 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
                 getServer().getPluginManager().registerEvents(new MilitaryCombatHandler(this), this);
 
                 // Register commands
-                getCommand("resetarena").setExecutor(new ResetArenaCommand());
+
+                WeaponsCommand weaponsCommand = new WeaponsCommand();
+                getCommand("weapons").setExecutor(weaponsCommand);
+                getCommand("weapons").setTabCompleter(weaponsCommand);
 
                 getLogger().info("Military Arsenal addon enabled successfully!");
         }
 
         @Override
         public void onDisable() {
+                AttackTurret.cleanupAllModels();
                 getLogger().info("Military Arsenal addon disabled!");
         }
 

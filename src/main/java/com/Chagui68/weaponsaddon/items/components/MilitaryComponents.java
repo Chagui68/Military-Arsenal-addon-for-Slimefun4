@@ -318,6 +318,15 @@ public class MilitaryComponents {
                         "&c⚠ Handle with extreme care",
                         "&8⇨ Tier 5 Antimatter");
 
+        public static final SlimefunItemStack FIREARM_BARREL = new SlimefunItemStack(
+          "FIREARM_BARREL",
+                Material.FLINT_AND_STEEL,
+                "&c🔥 Firearm Barrel",
+                "&7Reinforced steel barrel",
+                "&7Designed to withstand high pressures",
+                ""
+        );
+
         public static void register(SlimefunAddon addon, ItemGroup category, ItemGroup upgradesCategory) {
 
                 new SlimefunItem(category, BASIC_CIRCUIT, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[] {

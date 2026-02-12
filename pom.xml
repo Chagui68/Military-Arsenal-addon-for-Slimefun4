@@ -6,7 +6,7 @@
 
     <groupId>com.Chagui68</groupId>
     <artifactId>WeaponsAddon</artifactId>
-    <version>5.2.DEV</version>
+    <version>6.7.DEV</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
