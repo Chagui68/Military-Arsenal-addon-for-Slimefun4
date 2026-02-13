@@ -18,6 +18,8 @@ import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import static org.bukkit.Bukkit.getScheduler;
+
 public class AirstrikeExecutor {
 
     public static void executeBombardment(Location target, Player p) {
@@ -46,7 +48,7 @@ public class AirstrikeExecutor {
                     bombTarget = bombTarget.getWorld().getHighestBlockAt(bombTarget).getLocation().add(0, 1, 0);
                     Location finalTarget = bombTarget;
 
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    getScheduler().runTaskLater(plugin, () -> {
                         spawnMissileSequence(finalTarget, plugin);
                     }, i * 20L + (wave * 40L));
                 }
@@ -82,7 +84,7 @@ public class AirstrikeExecutor {
         }.runTaskTimer(plugin, 0L, 5L);
 
         // 2. MISSILE SPAWN AND TRAVEL
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        getScheduler().runTaskLater(plugin, () -> {
             Location missileStart = target.clone().add(0, 60, 0);
             BlockDisplay missile = (BlockDisplay) target.getWorld().spawnEntity(missileStart, EntityType.BLOCK_DISPLAY);
             missile.setBlock(Material.COAL_BLOCK.createBlockData());

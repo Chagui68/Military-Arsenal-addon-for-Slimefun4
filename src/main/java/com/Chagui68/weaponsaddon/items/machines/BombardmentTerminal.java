@@ -7,14 +7,16 @@ import com.Chagui68.weaponsaddon.items.machines.energy.EnergyManager;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.core.attributes.EnergyNetComponent;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockUseHandler;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler;
 import io.github.thebusybiscuit.slimefun4.core.networks.energy.EnergyNetComponentType;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
+import io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
+import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,6 +36,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.List;
+
+import static org.bukkit.Bukkit.createInventory;
 
 public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetComponent {
 
@@ -91,7 +95,7 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
             }
         });
 
-        addItemHandler(new io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler(false, false) {
+        addItemHandler(new BlockBreakHandler(false, false) {
             @Override
             public void onPlayerBreak(BlockBreakEvent e, ItemStack item, List<ItemStack> drops) {
                 removeSatelliteModel(e.getBlock().getLocation());
@@ -105,8 +109,7 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
 
         addItemHandler(new BlockTicker() {
             @Override
-            public void tick(Block b, io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem item,
-                    me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config data) {
+            public void tick(Block b, SlimefunItem item, Config data) {
                 updateHologram(b.getLocation());
             }
 
@@ -225,7 +228,7 @@ public class BombardmentTerminal extends CustomRecipeItem implements EnergyNetCo
     }
 
     private void openTerminalGUI(Player p, Location blockLoc, int currentEnergy) {
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.DARK_RED + "Bombardment Terminal");
+        Inventory inv = createInventory(null, 27, ChatColor.DARK_RED + "Bombardment Terminal");
 
         for (int i = 0; i < 27; i++) {
             inv.setItem(i, new CustomItemStack(Material.GRAY_STAINED_GLASS_PANE, " "));

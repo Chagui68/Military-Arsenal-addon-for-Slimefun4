@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.bukkit.Bukkit.createInventory;
+import static org.bukkit.ChatColor.*;
+
 public class AmmunitionWorkshopHandler implements Listener {
 
     private static final Map<UUID, Location> openWorkshops = new HashMap<>();
@@ -35,7 +38,7 @@ public class AmmunitionWorkshopHandler implements Listener {
     }
 
     private static void openGui(Player p, Location loc) {
-        Inventory inv = Bukkit.createInventory(null, 45, ChatColor.DARK_GRAY + "Ammunition Workshop");
+        Inventory inv = createInventory(null, 45, DARK_GRAY + "Ammunition Workshop");
 
         ItemStack glass = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta glassMeta = glass.getItemMeta();
@@ -55,7 +58,7 @@ public class AmmunitionWorkshopHandler implements Listener {
 
         ItemStack anvil = new ItemStack(Material.ANVIL);
         ItemMeta anvilMeta = anvil.getItemMeta();
-        anvilMeta.setDisplayName(ChatColor.GOLD + "Click to Craft");
+        anvilMeta.setDisplayName(GOLD + "Click to Craft");
         anvil.setItemMeta(anvilMeta);
         inv.setItem(craftButtonSlot, anvil);
 
@@ -66,7 +69,7 @@ public class AmmunitionWorkshopHandler implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) return;
-        if (!e.getView().getTitle().equals(ChatColor.DARK_GRAY + "Ammunition Workshop")) return;
+        if (!e.getView().getTitle().equals(DARK_GRAY + "Ammunition Workshop")) return;
 
         int slot = e.getRawSlot();
         if (slot < 0 || slot >= e.getInventory().getSize()) return;
@@ -132,7 +135,7 @@ public class AmmunitionWorkshopHandler implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
         if (!(e.getPlayer() instanceof Player)) return;
-        if (!e.getView().getTitle().equals(ChatColor.DARK_GRAY + "Ammunition Workshop")) return;
+        if (!e.getView().getTitle().equals(DARK_GRAY + "Ammunition Workshop")) return;
 
         Player p = (Player) e.getPlayer();
         UUID uuid = p.getUniqueId();

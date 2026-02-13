@@ -1,11 +1,14 @@
 package com.Chagui68.weaponsaddon.commands;
 
 import org.bukkit.ChatColor;
+import com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.*;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -66,46 +69,50 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
 
                 try {
                     switch (mobType) {
+                        case "juan":
+                            Horse horse = (Horse) world
+                                .spawnEntity(loc, EntityType.HORSE);
+                                MilitaryMobHandler.equipHorseJuan(horse);
                         case "king":
-                            org.bukkit.entity.ZombieVillager king = (org.bukkit.entity.ZombieVillager) world
-                                    .spawnEntity(loc, org.bukkit.entity.EntityType.ZOMBIE_VILLAGER);
-                            com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler.equipKing(king);
+                            ZombieVillager king = (ZombieVillager) world
+                                    .spawnEntity(loc, EntityType.ZOMBIE_VILLAGER);
+                                    MilitaryMobHandler.equipKing(king);
                             sender.sendMessage(ChatColor.GREEN + "✓ Summoned The King!");
                             break;
                         case "warrior":
-                            org.bukkit.entity.Zombie warrior = (org.bukkit.entity.Zombie) world.spawnEntity(loc,
-                                    org.bukkit.entity.EntityType.ZOMBIE);
-                            com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler.equipWarrior(warrior);
+                            Zombie warrior = (Zombie) world
+                                    .spawnEntity(loc, EntityType.ZOMBIE);
+                            MilitaryMobHandler.equipWarrior(warrior);
                             sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Warrior!");
                             break;
                         case "pusher":
-                            org.bukkit.entity.Zombie pusher = (org.bukkit.entity.Zombie) world.spawnEntity(loc,
-                                    org.bukkit.entity.EntityType.ZOMBIE);
-                            com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler.equipPusher(pusher);
+                            Zombie pusher = (Zombie) world
+                                    .spawnEntity (loc, EntityType.ZOMBIE);
+                            MilitaryMobHandler.equipPusher(pusher);
                             sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Pusher!");
                             break;
                         case "elite_killer":
-                            org.bukkit.entity.Zombie killer = (org.bukkit.entity.Zombie) world.spawnEntity(loc,
-                                    org.bukkit.entity.EntityType.ZOMBIE);
-                            com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler.equipEliteKiller(killer);
+                           Zombie killer = (Zombie) world
+                                   .spawnEntity(loc, EntityType.ZOMBIE);
+                            MilitaryMobHandler.equipEliteKiller(killer);
                             sender.sendMessage(ChatColor.GREEN + "✓ Summoned an Elite Killer!");
                             break;
                         case "heavy_gunner":
-                            org.bukkit.entity.Skeleton boss = (org.bukkit.entity.Skeleton) world.spawnEntity(loc,
-                                    org.bukkit.entity.EntityType.SKELETON);
-                            com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler.equipHeavyGunner(boss);
+                            Skeleton boss = (Skeleton) world
+                                    .spawnEntity(loc, EntityType.SKELETON);
+                            MilitaryMobHandler.equipHeavyGunner(boss);
                             sender.sendMessage(ChatColor.GREEN + "✓ Summoned the Heavy Gunner boss!");
                             break;
                         case "elite_ranger":
-                            org.bukkit.entity.Skeleton ranger = (org.bukkit.entity.Skeleton) world.spawnEntity(loc,
-                                    org.bukkit.entity.EntityType.SKELETON);
-                            com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler.equipEliteRanger(ranger);
+                            Skeleton ranger = (Skeleton) world
+                                    .spawnEntity(loc, EntityType.SKELETON);
+                            MilitaryMobHandler.equipEliteRanger(ranger);
                             sender.sendMessage(ChatColor.GREEN + "✓ Summoned an Elite Ranger!");
                             break;
                         case "battle_witch":
-                            org.bukkit.entity.Witch witch = (org.bukkit.entity.Witch) world.spawnEntity(loc,
-                                    org.bukkit.entity.EntityType.WITCH);
-                            com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler.equipBattleWitch(witch);
+                            Witch witch = (Witch) world
+                                    .spawnEntity(loc, EntityType.WITCH);
+                            MilitaryMobHandler.equipBattleWitch(witch);
                             sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Battle Witch!");
                             break;
                         default:
@@ -145,6 +152,7 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
                 completions.add("heavy_gunner");
                 completions.add("elite_ranger");
                 completions.add("battle_witch");
+                completions.add("juan");
             }
         }
 

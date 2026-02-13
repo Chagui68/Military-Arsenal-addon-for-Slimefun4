@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.bukkit.Bukkit.createInventory;
+
 public class UpgradeTableHandler implements Listener {
 
     private static final int UPGRADE_COST = 50000;
@@ -128,7 +130,7 @@ public class UpgradeTableHandler implements Listener {
     private static final int OUTPUT_SLOT = 22;
 
     public static void openUpgradeGui(Player p, Location loc, int energy) {
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.DARK_GRAY + "Weapon Upgrade Table");
+        Inventory inv = createInventory(null, 27, ChatColor.DARK_GRAY + "Weapon Upgrade Table");
 
         ItemStack darkBg = new CustomItemStack(Material.BLACK_STAINED_GLASS_PANE, " ");
         ItemStack lightBg = new CustomItemStack(Material.GRAY_STAINED_GLASS_PANE, " ");

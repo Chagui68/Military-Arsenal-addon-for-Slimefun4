@@ -24,6 +24,8 @@ import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
 
+import static org.bukkit.Bukkit.createInventory;
+
 public class MachineFabricatorHandler implements Listener {
 
     private static final Map<UUID, Location> openFabricators = new HashMap<>();
@@ -39,7 +41,7 @@ public class MachineFabricatorHandler implements Listener {
     }
 
     private static void openFabricatorGUI(Player p, Location blockLoc) {
-        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.DARK_RED + "Machine Fabricator");
+        Inventory inv = createInventory(null, 54, ChatColor.DARK_RED + "Machine Fabricator");
 
         ItemStack background = new CustomItemStack(Material.BLACK_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < 54; i++) {

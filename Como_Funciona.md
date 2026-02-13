@@ -969,7 +969,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
      # 1. Preguntar qué bicho es (Cadena).
      # 2. Dentro de ese bicho, preguntar qué variante es (Anidación).
  
- ## 15. Ejemplo Maestro: Dos variantes del mismo bicho (El "Combo")
+ ## 15. Ejemplo: Dos variantes del mismo bicho (El "Combo")
  
      # Si quieres que un Zombie pueda ser o bien "Elite" o bien "Pusher", 
      # la forma final y correcta de escribirlo para que Java no se confunda es esta:
@@ -1089,7 +1089,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /
 
-    # 19. Orden Lógico de Equipamiento
+# 19. Orden Lógico de Equipamiento
 
     # 1. Creamos el ítem básico
     ItemStack item = new ItemStack(Material.GOLDEN_SWORD);
@@ -1107,7 +1107,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /*
 
-    # 20. Ejemplo Arma
+# 20. Ejemplo Arma
 
     public static void equipWardenGeneral(Skeleton boss) {
         boss.setCustomName(ChatColor.DARK_PURPLE + "☣ Warden General ☣");
@@ -1142,7 +1142,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /*
 
-    # 21. Ejemplo Armadura
+# 21. Ejemplo Armadura
 
     ItemStack pechera = new ItemStack(Material.NETHERITE_CHESTPLATE);
     ItemMeta meta = pechera.getItemMeta();
@@ -1156,7 +1156,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /
 
-    # 22. Combinación de Colores y Estilos
+# 22. Combinación de Colores y Estilos
 
     # Solo Color:
     meta.setDisplayName(ChatColor.RED + "Nombre");
@@ -1172,7 +1172,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /
 
-    # 23. Estilos de Texto (ITALIC y más)
+# 23. Estilos de Texto (ITALIC y más)
 
     # Además de colores, existen "modificadores" visuales:
     
@@ -1187,7 +1187,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /
 
-    # 24. Colores Hexadecimales (RGB - Personalizados)
+# 24. Colores Hexadecimales (RGB - Personalizados)
 
     # Si los 16 colores básicos de Minecraft no te bastan, puedes 
     # usar CUALQUIER color del mundo usando códigos Hex (#RRGGBB).
@@ -1200,7 +1200,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /
 
-    # 25. Propiedades de ItemMeta (Lista Completa)
+# 25. Propiedades de ItemMeta (Lista Completa)
 
     # Estas propiedades se aplican a través del objeto 'meta' 
     # de casi cualquier ítem o armadura:
@@ -1227,7 +1227,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /
 
-    # 26. Atributos Directos (Daño, Armadura, Resistencia)
+# 26. Atributos Directos (Daño, Armadura, Resistencia)
  
      # Si quieres que un ítem dé estadísticas extra MIENTRAS el mob 
      # lo tiene puesto (como +20 de vida), usamos AttributeModifiers.
@@ -1298,7 +1298,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
  
  /
  
-     # 27. Encantamientos (Poder Adicional)
+# 27. Encantamientos (Poder Adicional)
 
     # Puedes añadir cualquier encantamiento de Minecraft:
     
@@ -1318,7 +1318,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /
 
-    # 28. Protecciones por Caso Específico
+# 28. Protecciones por Caso Específico
 
     # Si quieres que una armadura sea "especialista" en proteger 
     # contra un tipo de daño, usa estos encantamientos:
@@ -1343,7 +1343,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /
 
-    # 29. Drops Personalizados con Encantamientos
+# 29. Drops Personalizados con Encantamientos
 
     # Si quieres que al morir un mob suelte un ítem con 
     # propiedades específicas (como Filo 3), se hace así:
@@ -1366,7 +1366,7 @@ Mientras se lee el texto se van a encontrar con simbolos o caracteres especiales
 
 /
 
-    # 30. Formas de llamar Encantamientos (Estático vs Dinámico)
+# 30. Formas de llamar Encantamientos (Estático vs Dinámico)
 
     # Existen dos formas de pedirle a Bukkit un encantamiento. 
     # Es importante saber cuándo usar cada una:

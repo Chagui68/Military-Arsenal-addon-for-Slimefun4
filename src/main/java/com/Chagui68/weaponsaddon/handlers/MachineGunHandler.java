@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import com.Chagui68.weaponsaddon.WeaponsAddon;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -114,7 +115,7 @@ public class MachineGunHandler implements Listener {
                     }
                 }
             }
-        }.runTaskTimer(player.getServer().getPluginManager().getPlugin("WeaponsAddon"), 0L, 2L);
+        }.runTaskTimer(WeaponsAddon.getInstance(), 0L, 2L);
     }
 
     private boolean hasAmmo(Player player) {

@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.bukkit.Bukkit.getScheduler;
+
 public class TerminalClickHandler implements Listener {
 
     private static final Map<UUID, Location> awaitingCoordinates = new HashMap<>();
@@ -182,7 +184,7 @@ public class TerminalClickHandler implements Listener {
             p.sendMessage(ChatColor.DARK_RED + "⚠ [Terminal] BOMBARDMENT INITIATED");
             p.sendMessage(ChatColor.GRAY + "Impact in 3 seconds...");
 
-            Bukkit.getScheduler().runTask(WeaponsAddon.getInstance(), () -> {
+            getScheduler().runTask(WeaponsAddon.getInstance(), () -> {
                 AirstrikeExecutor.executeBombardment(target, p);
             });
 

@@ -10,8 +10,10 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.core.attributes.EnergyNetComponent;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler;
+import io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler;
 import io.github.thebusybiscuit.slimefun4.core.networks.energy.EnergyNetComponentType;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
+import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,6 +35,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
@@ -40,6 +44,9 @@ import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+
+import static org.bukkit.Bukkit.getPluginManager;
+import static org.bukkit.Bukkit.getWorlds;
 
 public class MountableTurret extends CustomRecipeItem implements EnergyNetComponent, Listener {
 
@@ -96,7 +103,7 @@ public class MountableTurret extends CustomRecipeItem implements EnergyNetCompon
             }
         });
 
-        addItemHandler(new io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler(false, false) {
+        addItemHandler(new BlockBreakHandler(false, false) {
             @Override
             public void onPlayerBreak(BlockBreakEvent e, ItemStack item, List<ItemStack> drops) {
                 removeModel(e.getBlock().getLocation());
@@ -110,7 +117,7 @@ public class MountableTurret extends CustomRecipeItem implements EnergyNetCompon
 
         addItemHandler(new BlockTicker() {
             @Override
-            public void tick(Block b, SlimefunItem item, me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config data) {
+            public void tick(Block b, SlimefunItem item, Config data) {
                 MountableTurret.this.tick(b);
             }
 
@@ -337,7 +344,7 @@ public class MountableTurret extends CustomRecipeItem implements EnergyNetCompon
         world.spawnParticle(Particle.FLASH, start.clone().add(direction.clone().multiply(1.0)), 2);
 
         // Raytrace to hit entities (including players)
-        org.bukkit.util.RayTraceResult result = world.rayTraceEntities(start, direction, RANGE, 0.5,
+        RayTraceResult result = world.rayTraceEntities(start, direction, RANGE, 0.5,
                 ent -> ent instanceof LivingEntity && ent != shooter && !(ent instanceof ArmorStand)
                         && !(ent instanceof Interaction));
 
@@ -393,7 +400,7 @@ public class MountableTurret extends CustomRecipeItem implements EnergyNetCompon
     }
 
     public static void cleanupAllModels() {
-        for (World world : org.bukkit.Bukkit.getWorlds()) {
+        for (World world : getWorlds()) {
             for (Entity entity : world.getEntities()) {
                 if (entity.getScoreboardTags().stream().anyMatch(tag -> tag.startsWith("MOUNT_"))) {
                     entity.remove();
@@ -412,8 +419,8 @@ public class MountableTurret extends CustomRecipeItem implements EnergyNetCompon
 
         MountableTurret turret = new MountableTurret(category, MOUNTABLE_TURRET, recipe);
         turret.register(addon);
-        if (addon instanceof org.bukkit.plugin.Plugin) {
-            org.bukkit.Bukkit.getPluginManager().registerEvents(turret, (org.bukkit.plugin.Plugin) addon);
+        if (addon instanceof Plugin) {
+            getPluginManager().registerEvents(turret, (Plugin) addon);
         }
     }
 }

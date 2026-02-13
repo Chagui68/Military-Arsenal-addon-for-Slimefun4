@@ -16,7 +16,10 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.inventory.ItemStack;
+
+import static org.bukkit.Bukkit.getPluginManager;
 
 public class BossSpawnEgg extends SlimefunItem {
 
@@ -51,14 +54,14 @@ public class BossSpawnEgg extends SlimefunItem {
     }
 
     private void spawnBoss(Location loc) {
-        org.bukkit.entity.Skeleton boss = (org.bukkit.entity.Skeleton) loc.getWorld().spawnEntity(loc,
+        Skeleton boss = (Skeleton) loc.getWorld().spawnEntity(loc,
                 EntityType.SKELETON);
 
         MilitaryMobHandler.equipHeavyGunner(boss);
 
         // Construir arena física y activar Boss Bar
         BossAIHandler.buildArena(loc,
-                Bukkit.getPluginManager().getPlugin("WeaponsAddon"));
+                getPluginManager().getPlugin("WeaponsAddon"));
 
         loc.getWorld().playSound(loc, Sound.ENTITY_WITHER_SPAWN, 1.0f, 0.5f);
     }

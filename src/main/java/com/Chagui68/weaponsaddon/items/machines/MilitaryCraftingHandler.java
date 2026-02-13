@@ -22,6 +22,8 @@ import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
 
+import static org.bukkit.Bukkit.createInventory;
+
 public class MilitaryCraftingHandler implements Listener {
 
     private static final Map<UUID, Location> openTables = new HashMap<>();
@@ -37,7 +39,7 @@ public class MilitaryCraftingHandler implements Listener {
     }
 
     private static void openTableGUI(Player p, Location blockLoc) {
-        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.DARK_RED + "Military Crafting Table");
+        Inventory inv = createInventory(null, 54, ChatColor.DARK_RED + "Military Crafting Table");
 
         ItemStack background = new CustomItemStack(Material.GRAY_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < 54; i++) {

@@ -10,18 +10,27 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.core.attributes.EnergyNetComponent;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler;
+import io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler;
 import io.github.thebusybiscuit.slimefun4.core.networks.energy.EnergyNetComponentType;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
+import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Ghast;
+import org.bukkit.entity.Phantom;
+import org.bukkit.entity.Shulker;
+import org.bukkit.entity.Hoglin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.bukkit.util.RayTraceResult;
@@ -31,6 +40,9 @@ import org.joml.Vector3f;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
+
+import static org.bukkit.Bukkit.getPluginManager;
+import static org.bukkit.Bukkit.getWorlds;
 
 public class SniperTurret extends CustomRecipeItem implements EnergyNetComponent, Listener {
 
@@ -109,7 +121,7 @@ public class SniperTurret extends CustomRecipeItem implements EnergyNetComponent
             }
         });
 
-        addItemHandler(new io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler(false, false) {
+        addItemHandler(new BlockBreakHandler(false, false) {
             @Override
             public void onPlayerBreak(BlockBreakEvent e, ItemStack item, List<ItemStack> drops) {
                 removePvzModel(e.getBlock().getLocation());
@@ -123,7 +135,7 @@ public class SniperTurret extends CustomRecipeItem implements EnergyNetComponent
 
         addItemHandler(new BlockTicker() {
             @Override
-            public void tick(Block b, SlimefunItem item, me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config data) {
+            public void tick(Block b, SlimefunItem item, Config data) {
                 SniperTurret.this.tick(b);
             }
 
@@ -183,7 +195,11 @@ public class SniperTurret extends CustomRecipeItem implements EnergyNetComponent
         double closestDist = Double.MAX_VALUE;
 
         for (Entity e : nearby) {
-            if (e instanceof LivingEntity && !(e instanceof Player) && !(e instanceof ArmorStand) && !e.isDead()
+            // Target all Hostile Entities (Monsters, Slimes, etc.)
+            boolean isHostile = e instanceof Monster || e instanceof Slime || e instanceof Ghast || e instanceof Phantom
+                    || e instanceof Shulker || e instanceof Hoglin;
+
+            if (isHostile && !e.isDead()
                     && !e.hasMetadata("no_target")
                     && !e.getScoreboardTags().contains("PVZ_HEAD")
                     && !e.getScoreboardTags().contains("PVZ_GUARDIAN")) {
@@ -347,7 +363,7 @@ public class SniperTurret extends CustomRecipeItem implements EnergyNetComponent
     }
 
     public static void cleanupAllModels() {
-        for (World world : org.bukkit.Bukkit.getWorlds()) {
+        for (World world : getWorlds()) {
             for (Entity entity : world.getEntities()) {
                 if (entity.getScoreboardTags().stream().anyMatch(tag -> tag.startsWith("PVZ_"))) {
                     entity.remove();
@@ -412,8 +428,8 @@ public class SniperTurret extends CustomRecipeItem implements EnergyNetComponent
         SniperTurret turret = new SniperTurret(category, SNIPER_TURRET, recipe);
         turret.register(addon);
 
-        if (addon instanceof org.bukkit.plugin.Plugin) {
-            org.bukkit.Bukkit.getPluginManager().registerEvents(turret, (org.bukkit.plugin.Plugin) addon);
+        if (addon instanceof Plugin) {
+            getPluginManager().registerEvents(turret, (Plugin) addon);
         }
     }
 }

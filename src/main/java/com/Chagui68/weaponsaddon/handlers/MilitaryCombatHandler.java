@@ -1,6 +1,5 @@
 package com.Chagui68.weaponsaddon.handlers;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -11,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -23,6 +23,8 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+
+import static org.bukkit.Bukkit.getWorlds;
 
 public class MilitaryCombatHandler implements Listener {
 
@@ -155,7 +157,7 @@ public class MilitaryCombatHandler implements Listener {
 
     // --- TARGET HANDLER ---
     @EventHandler
-    public void onEntityTarget(org.bukkit.event.entity.EntityTargetLivingEntityEvent e) {
+    public void onEntityTarget(EntityTargetLivingEntityEvent e) {
         Entity entity = e.getEntity();
 
         // List of all our military mod tags
@@ -189,7 +191,7 @@ public class MilitaryCombatHandler implements Listener {
     }
 
     private void scanHybridMobs() {
-        for (World world : Bukkit.getWorlds()) {
+        for (World world : getWorlds()) {
             for (Skeleton skeleton : world.getEntitiesByClass(Skeleton.class)) {
                 // Verificar si es nuestro Elite Ranger
                 if (skeleton.getScoreboardTags().contains("EliteRanger") && !skeleton.isDead()) {

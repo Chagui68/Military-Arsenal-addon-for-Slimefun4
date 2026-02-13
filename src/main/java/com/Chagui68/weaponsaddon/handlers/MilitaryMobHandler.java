@@ -19,6 +19,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.persistence.PersistentDataType;
+import com.Chagui68.weaponsaddon.WeaponsAddon;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -36,8 +38,9 @@ public class MilitaryMobHandler implements Listener {
     private static final double RANGER_CHANCE = 0.2; // 20%
     private static final double ELITE_CHANCE = 0.3; // 30%
     private static final double KING_CHANCE = 0.25; // 25%
-    private static final double PUSHER_CHANCE = 0.8; // 80%
+    private static final double PUSHER_CHANCE = 0.8; // 80% | Aparicion natural desactivada
     private static final double WITCH_CHANCE = 0.25; // 25%
+    private static final double JUAN_CHANCE = 0.4; // 40%
 
     public MilitaryMobHandler(Plugin plugin) {
     }
@@ -75,10 +78,12 @@ public class MilitaryMobHandler implements Listener {
             if (roll < ELITE_CHANCE) {
                 equipEliteKiller(zombie);
             }
+
+            // Su aparacion esta desactivada hasta nuevo aviso
             // Pusher (80%)
-            else if (roll < PUSHER_CHANCE) {
-                equipPusher(zombie);
-            }
+            // else if (roll < PUSHER_CHANCE) {
+            // equipPusher(zombie);
+            // }
         }
         // Manerjo Aldeanos zombies
         else if (e.getEntityType() == EntityType.ZOMBIE_VILLAGER) {
@@ -99,9 +104,29 @@ public class MilitaryMobHandler implements Listener {
                 equipBattleWitch(witch);
             }
         }
+
+        // Manejo de caballos
+        else if (e.getEntityType() == EntityType.HORSE) {
+            Horse horse = (Horse) e.getEntity();
+            if (roll < JUAN_CHANCE) {
+                equipHorseJuan(horse);
+            }
+        }
     }
 
     // Creacion de las entidades y definicion de su equipamiento
+    public static void equipHorseJuan(Horse horse) {
+        horse.setCustomName(ChatColor.DARK_AQUA + "🐎 Juan");
+        horse.setCustomNameVisible(true);
+        horse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.35); // Velocidad 2
+        horse.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(70.0);
+        horse.setHealth(70.0);
+        horse.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(1.5);
+        horse.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(7.5);
+        horse.getAttribute(Attribute.GENERIC_STEP_HEIGHT).setBaseValue(3.0);
+        horse.getAttribute(Attribute.GENERIC_SAFE_FALL_DISTANCE).setBaseValue(1000.0);
+        horse.addScoreboardTag("Juan");
+    }
 
     public static void equipKing(ZombieVillager king) {
         king.setCustomName(ChatColor.DARK_GRAY + "♔ The King ♔");
@@ -143,8 +168,8 @@ public class MilitaryMobHandler implements Listener {
 
                 // Add persistent tag for wearability logic
                 metaCasco.getPersistentDataContainer().set(
-                        new NamespacedKey(com.Chagui68.weaponsaddon.WeaponsAddon.getInstance(), "is_king_crown"),
-                        org.bukkit.persistence.PersistentDataType.BYTE, (byte) 1);
+                        new NamespacedKey(WeaponsAddon.getInstance(), "is_king_crown"),
+                        PersistentDataType.BYTE, (byte) 1);
 
                 casco.setItemMeta(metaCasco);
             }
@@ -167,8 +192,8 @@ public class MilitaryMobHandler implements Listener {
 
                 // Store boss damage bonus in PDC for UpgradeTableHandler compatibility
                 metaArma.getPersistentDataContainer().set(
-                        new NamespacedKey(com.Chagui68.weaponsaddon.WeaponsAddon.getInstance(), "boss_damage_bonus"),
-                        org.bukkit.persistence.PersistentDataType.DOUBLE, 15.0);
+                        new NamespacedKey(WeaponsAddon.getInstance(), "boss_damage_bonus"),
+                        PersistentDataType.DOUBLE, 15.0);
                 // Daño dinamico en base atributos
 
                 // Todos los valores o variables son exclusivos de esta entidad. En otras

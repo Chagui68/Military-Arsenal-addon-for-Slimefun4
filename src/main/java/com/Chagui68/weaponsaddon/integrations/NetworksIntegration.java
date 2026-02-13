@@ -9,6 +9,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Method;
 
+import static org.bukkit.Bukkit.getPluginManager;
+
 /**
  * Integración con el addon Networks de Slimefun usando reflexión.
  * Registra automáticamente los items del addon Military Arsenal en Networks,
@@ -30,7 +32,7 @@ public class NetworksIntegration {
      */
     public static void register() {
         // Verificar si Networks está instalado
-        if (!Bukkit.getPluginManager().isPluginEnabled("Networks")) {
+        if (getPluginManager().isPluginEnabled("Networks")) {
             WeaponsAddon.getInstance().getLogger().info("Networks no está instalado, saltando integración.");
             return;
         }
