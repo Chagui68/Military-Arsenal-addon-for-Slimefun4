@@ -33,6 +33,7 @@ import com.Chagui68.weaponsaddon.items.vouchers.MilitaryVouchers;
 import com.Chagui68.weaponsaddon.listeners.BossAIHandler;
 import com.Chagui68.weaponsaddon.listeners.SlimefunGuideListener;
 import com.Chagui68.weaponsaddon.handlers.InventoryEffectHandler;
+import com.Chagui68.weaponsaddon.items.armor.VoidSuitPiece;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.api.items.groups.NestedItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.groups.SubItemGroup;
@@ -109,6 +110,11 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
                                 mainGroup,
                                 new CustomItemStack(Material.SHIELD, "&1🛡 &9Military Defenses"));
 
+                SubItemGroup armorGroup = new SubItemGroup(
+                                new NamespacedKey(this, "military_armor"),
+                                mainGroup,
+                                new CustomItemStack(Material.NETHERITE_CHESTPLATE, "&5🛡 &dMilitary Armor"));
+
                 // Register all groups
                 mainGroup.register(this);
                 componentsGroup.register(this);
@@ -121,9 +127,10 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
                 warMachinesGroup.register(this);
                 upgradesGroup.register(this);
                 defensesGroup.register(this);
+                armorGroup.register(this);
 
                 // Register Inventory Effect Task
-                new InventoryEffectHandler().runTaskTimer(this, 0L, 40L);
+                new InventoryEffectHandler().runTaskTimer(this, 0L, 60L);
 
                 // Register items with debug logging
                 try {
@@ -131,6 +138,10 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
                         getLogger().info("Registering MilitaryComponents...");
                         MilitaryComponents.register(this, componentsGroup, upgradesGroup);
                         getLogger().info("MilitaryComponents registered successfully!");
+
+                        getLogger().info("Registering Void Armor set...");
+                        VoidSuitPiece.register(this, armorGroup);
+                        getLogger().info("Void Armor set registered successfully!");
                 } catch (Exception e) {
                         getLogger().severe("Failed to register MilitaryComponents: " + e.getMessage());
                         e.printStackTrace();

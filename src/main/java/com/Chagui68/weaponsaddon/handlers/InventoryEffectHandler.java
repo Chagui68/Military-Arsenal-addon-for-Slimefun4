@@ -1,5 +1,6 @@
 package com.Chagui68.weaponsaddon.handlers;
 
+import com.Chagui68.weaponsaddon.core.attributes.CustomEffectEmitter;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import com.Chagui68.weaponsaddon.WeaponsAddon;
 import org.bukkit.*;
@@ -15,22 +16,8 @@ public class InventoryEffectHandler extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (!WeaponsAddon.getInstance().getConfig()
-                .getBoolean("inventory-effects.tungsten-weight.enabled", true)) {
-            return;
-        }
-
-        /*
-         * Lo que aparece a continuacion sirve para definir el tiempo de un efecto en
-         * base a un intervalo
-         * En este caso se esta evaluando si un jugador tiene un item (Lingote de
-         * tugsteno) y cada 3 segudos
-         * que hace la revicion esta evaluando si lo tiene le aplica el efecto si no lo
-         * tiene no se lo aplica.
-         * 
-         * A su vez se le suma el intervalo y 40 ticks (2 segundo) para aplicar un
-         * efecto de lentitud de 5 segudos
-         */
+        boolean tungstenEnabled = WeaponsAddon.getInstance().getConfig()
+                .getBoolean("inventory-effects.tungsten-weight.enabled", true);
 
         int slownessLevel = WeaponsAddon.getInstance().getConfig()
                 .getInt("inventory-effects.tungsten-weight.slowness-level", 2);
@@ -39,10 +26,28 @@ public class InventoryEffectHandler extends BukkitRunnable {
         int duration = interval + 40;
 
         for (Player player : getOnlinePlayers()) {
-            int finalLevel = getTungstenSlownessLevel(player, slownessLevel);
-            if (finalLevel >= 0) {
-                player.addPotionEffect(
-                        new PotionEffect(PotionEffectType.SLOWNESS, duration, finalLevel, true, false, true));
+            // Process legacy Tungsten effects
+            if (tungstenEnabled) {
+                int finalLevel = getTungstenSlownessLevel(player, slownessLevel);
+                if (finalLevel >= 0) {
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.SLOWNESS, duration, finalLevel, true, false, true));
+                }
+            }
+
+            // Process NEW modular components with custom effects
+            processCustomEffects(player);
+        }
+    }
+
+    private void processCustomEffects(Player player) {
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item == null)
+                continue;
+
+            SlimefunItem sfItem = SlimefunItem.getByItem(item);
+            if (sfItem instanceof CustomEffectEmitter emitter) {
+                emitter.applyEffect(player);
             }
         }
     }

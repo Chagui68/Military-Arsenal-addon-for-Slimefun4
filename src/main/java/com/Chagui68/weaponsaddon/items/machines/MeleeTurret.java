@@ -481,24 +481,12 @@ public class MeleeTurret extends CustomRecipeItem implements EnergyNetComponent,
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
         ItemStack[] recipe = new ItemStack[] {
-                MilitaryComponents.REINFORCED_FRAME, MilitaryComponents.QUANTUM_PROCESSOR,
-                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX,
-                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.REINFORCED_FRAME,
-                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.IMPACT_PISTON,
-                MilitaryComponents.MILITARY_CIRCUIT, MilitaryComponents.MILITARY_CIRCUIT,
-                MilitaryComponents.IMPACT_PISTON, MilitaryComponents.QUANTUM_PROCESSOR,
-                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.MILITARY_CIRCUIT,
-                MilitaryComponents.TUNGSTEN_BLADE, MilitaryComponents.TUNGSTEN_BLADE,
-                MilitaryComponents.MILITARY_CIRCUIT, MilitaryComponents.ENERGY_MATRIX,
-                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.MILITARY_CIRCUIT,
-                new ItemStack(Material.NETHERITE_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS),
-                MilitaryComponents.MILITARY_CIRCUIT, MilitaryComponents.ENERGY_MATRIX,
-                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.IMPACT_PISTON,
-                MilitaryComponents.MILITARY_CIRCUIT, MilitaryComponents.MILITARY_CIRCUIT,
-                MilitaryComponents.IMPACT_PISTON, MilitaryComponents.QUANTUM_PROCESSOR,
-                MilitaryComponents.REINFORCED_FRAME, MilitaryComponents.QUANTUM_PROCESSOR,
-                MilitaryComponents.KINETIC_STABILIZER, MilitaryComponents.KINETIC_STABILIZER,
-                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.REINFORCED_FRAME
+                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.QUANTUM_PROCESSOR, new ItemStack(Material.NETHERITE_HELMET), new ItemStack(Material.NETHERITE_HELMET), MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.FIREARM_BARREL,
+                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM, new ItemStack(Material.NETHERITE_CHESTPLATE), new ItemStack(Material.NETHERITE_CHESTPLATE), MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
+                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM, new ItemStack(Material.NETHERITE_LEGGINGS), MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
+                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
+                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
+                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.HYDRAULIC_SYSTEM, MilitaryComponents.COOLANT_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.FIREARM_BARREL
         };
         MeleeTurret turret = new MeleeTurret(category, MELEE_TURRET, recipe);
         turret.register(addon);
