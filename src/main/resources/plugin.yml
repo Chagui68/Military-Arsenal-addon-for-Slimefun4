@@ -12,11 +12,6 @@ commands:
     usage: /weapons <delete|summon|give> <args>
     permission: militaryarsenal.admin
     permission-message: You don't have permission to use this command!
-  resetarena:
-    description: Manually reset/destroy the Heavy Gunner arena
-    usage: /resetarena
-    permission: militaryarsenal.admin
-    permission-message: You don't have permission to use this command!
 
 permissions:
   militaryarsenal.admin:

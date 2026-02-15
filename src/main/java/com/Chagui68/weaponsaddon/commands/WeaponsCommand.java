@@ -46,6 +46,14 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
                     try {
                         com.Chagui68.weaponsaddon.listeners.BossAIHandler.destroyArena();
                         sender.sendMessage(ChatColor.GREEN + "✓ Arena has been successfully reset!");
+                        sender.sendMessage(
+                                ChatColor.GRAY + "All arena blocks have been restored to their original state.");
+
+                        if (sender instanceof Player) {
+                            Player player = (Player) sender;
+                            player.getWorld().setTime(1000); // Restore daytime
+                            sender.sendMessage(ChatColor.GRAY + "Time has been restored to day.");
+                        }
                     } catch (Exception e) {
                         sender.sendMessage(ChatColor.RED + "Error resetting arena: " + e.getMessage());
                     }
