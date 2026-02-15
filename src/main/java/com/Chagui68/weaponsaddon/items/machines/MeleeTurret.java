@@ -5,6 +5,7 @@ import com.Chagui68.weaponsaddon.items.CustomRecipeItem;
 import com.Chagui68.weaponsaddon.items.MilitaryRecipeTypes;
 import com.Chagui68.weaponsaddon.items.components.MilitaryComponents;
 import com.Chagui68.weaponsaddon.items.machines.energy.EnergyManager;
+import com.Chagui68.weaponsaddon.items.vouchers.MilitaryVouchers;
 import com.Chagui68.weaponsaddon.utils.TurretUtils;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
@@ -481,12 +482,12 @@ public class MeleeTurret extends CustomRecipeItem implements EnergyNetComponent,
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
         ItemStack[] recipe = new ItemStack[] {
-                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.QUANTUM_PROCESSOR, new ItemStack(Material.NETHERITE_HELMET), new ItemStack(Material.NETHERITE_HELMET), MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.FIREARM_BARREL,
-                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM, new ItemStack(Material.NETHERITE_CHESTPLATE), new ItemStack(Material.NETHERITE_CHESTPLATE), MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
-                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM, new ItemStack(Material.NETHERITE_LEGGINGS), MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
-                MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.EXPLOSIVE_CORE, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.ENERGY_MATRIX,
-                MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR,
-                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.HYDRAULIC_SYSTEM, MilitaryComponents.COOLANT_SYSTEM, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.FIREARM_BARREL
+                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.ENERGY_MATRIX, new ItemStack(Material.NETHERITE_HELMET), new ItemStack(Material.NETHERITE_HELMET), MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.FIREARM_BARREL,
+                MilitaryComponents.TURRET_SHELL, MilitaryComponents.QUANTUM_PROCESSOR, new ItemStack(Material.NETHERITE_CHESTPLATE), new ItemStack(Material.NETHERITE_CHESTPLATE), MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TURRET_SHELL,
+                MilitaryComponents.IMPACT_PISTON, MilitaryComponents.ADVANCED_MOVEMENT_CIRCUIT, new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.NETHERITE_LEGGINGS), MilitaryComponents.ADVANCED_MOVEMENT_CIRCUIT, MilitaryComponents.IMPACT_PISTON,
+                MilitaryComponents.IMPACT_PISTON, MilitaryComponents.ADVANCED_MOVEMENT_CIRCUIT, new ItemStack(Material.NETHERITE_BOOTS), new ItemStack(Material.NETHERITE_BOOTS), MilitaryComponents.ADVANCED_MOVEMENT_CIRCUIT, MilitaryComponents.IMPACT_PISTON,
+                MilitaryComponents.TURRET_SHELL, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TUNGSTEN_BLADE , MilitaryComponents.TUNGSTEN_BLADE, MilitaryComponents.QUANTUM_PROCESSOR, MilitaryComponents.TURRET_SHELL,
+                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.ENERGY_MATRIX, MilitaryVouchers.VOUCHER_COMMENDATION, MilitaryVouchers.VOUCHER_EMBLEM, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.FIREARM_BARREL
         };
         MeleeTurret turret = new MeleeTurret(category, MELEE_TURRET, recipe);
         turret.register(addon);

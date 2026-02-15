@@ -80,7 +80,7 @@ public class MilitaryMobHandler implements Listener {
                 equipEliteKiller(zombie);
             }
 
-            // Su aparacion esta desactivada hasta nuevo aviso
+            // Su aparacion natural esta desactivada hasta nuevo aviso
             // Pusher (80%)
             // else if (roll < PUSHER_CHANCE) {
             // equipPusher(zombie);

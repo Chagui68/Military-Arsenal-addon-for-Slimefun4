@@ -1,6 +1,7 @@
 package com.Chagui68.weaponsaddon.items.machines;
 
 import com.Chagui68.weaponsaddon.items.CustomRecipeItem;
+import com.Chagui68.weaponsaddon.items.MachineGun;
 import com.Chagui68.weaponsaddon.items.MilitaryRecipeTypes;
 import com.Chagui68.weaponsaddon.items.components.MilitaryComponents;
 import com.Chagui68.weaponsaddon.items.machines.energy.EnergyManager;
@@ -166,7 +167,7 @@ public class MountableTurret extends CustomRecipeItem implements EnergyNetCompon
         base.addScoreboardTag(tag);
 
         // 2. 4 LEG PODS / FEET (Image 2)
-        float[][] legOffsets = { { 0.45f, 0.45f }, { 0.45f, -0.45f }, { -0.45f, 0.45f }, { -0.45f, -0.45f } };
+        float[][] legOffsets = {{0.45f, 0.45f}, {0.45f, -0.45f}, {-0.45f, 0.45f}, {-0.45f, -0.45f}};
         for (float[] offset : legOffsets) {
             BlockDisplay leg = (BlockDisplay) world.spawnEntity(center, EntityType.BLOCK_DISPLAY);
             leg.setBlock(SECONDARY_MATERIAL.createBlockData());
@@ -208,7 +209,7 @@ public class MountableTurret extends CustomRecipeItem implements EnergyNetCompon
         head.addScoreboardTag("MOUNT_HEAD");
 
         // 6. TWIN HEAVY CANNONS WITH VERTICAL WINGS (Image 2)
-        float[] sideOffsets = { -0.65f, 0.45f };
+        float[] sideOffsets = {-0.65f, 0.45f};
         for (float x : sideOffsets) {
             // Barrel
             BlockDisplay b = (BlockDisplay) world.spawnEntity(center.clone().add(0, 1.1, 0), EntityType.BLOCK_DISPLAY);
@@ -485,17 +486,19 @@ public class MountableTurret extends CustomRecipeItem implements EnergyNetCompon
     }
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
-        ItemStack[] recipe = new ItemStack[36];
-        for (int i = 0; i < 36; i++)
-            recipe[i] = MilitaryComponents.REINFORCED_PLATING;
-        recipe[13] = MilitaryComponents.TARGETING_SYSTEM;
-        recipe[14] = MilitaryComponents.ENERGY_MATRIX;
-        recipe[22] = MilitaryComponents.ADVANCED_CIRCUIT;
+        ItemStack[] recipe = new ItemStack[]{
+                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.FIREARM_BARREL,
+                MilitaryComponents.KINETIC_STABILIZER, MilitaryComponents.ADVANCED_MOVEMENT_CIRCUIT, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.KINETIC_STABILIZER,
+                MilitaryComponents.MOVEMENT_CIRCUIT, MilitaryComponents.TUNGSTEN_INGOT, new ItemStack(Material.SADDLE), new ItemStack(Material.SADDLE), MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.MOVEMENT_CIRCUIT,
+                MilitaryComponents.MOVEMENT_CIRCUIT, MilitaryComponents.TUNGSTEN_INGOT, new ItemStack(Material.SADDLE), new ItemStack(Material.SADDLE), MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.MOVEMENT_CIRCUIT,
+                MilitaryComponents.KINETIC_STABILIZER, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.ADVANCED_MOVEMENT_CIRCUIT, MilitaryComponents.KINETIC_STABILIZER,
+                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.FIREARM_BARREL
+        };
 
-        MountableTurret turret = new MountableTurret(category, MOUNTABLE_TURRET, recipe);
-        turret.register(addon);
-        if (addon instanceof Plugin) {
-            getPluginManager().registerEvents(turret, (Plugin) addon);
+            MountableTurret turret = new MountableTurret(category, MOUNTABLE_TURRET, recipe);
+            turret.register(addon);
+            if (addon instanceof Plugin) {
+                getPluginManager().registerEvents(turret, (Plugin) addon);
+            }
         }
     }
-}

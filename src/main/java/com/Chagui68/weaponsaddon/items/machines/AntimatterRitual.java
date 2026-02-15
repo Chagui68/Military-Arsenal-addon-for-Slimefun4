@@ -2,6 +2,7 @@ package com.Chagui68.weaponsaddon.items.machines;
 
 import com.Chagui68.weaponsaddon.items.AntimatterRifle;
 import com.Chagui68.weaponsaddon.items.components.MilitaryComponents;
+import com.Chagui68.weaponsaddon.items.vouchers.MilitaryVouchers;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
@@ -173,12 +174,9 @@ public class AntimatterRitual extends SlimefunItem {
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
         ItemStack[] recipe = new ItemStack[] {
-                new ItemStack(Material.IRON_BLOCK), new ItemStack(Material.NETHERITE_BLOCK),
-                new ItemStack(Material.IRON_BLOCK),
-                new ItemStack(Material.NETHERITE_BLOCK), MilitaryComponents.VOID_CORE_MACHINE,
-                new ItemStack(Material.NETHERITE_BLOCK),
-                new ItemStack(Material.IRON_BLOCK), new ItemStack(Material.NETHERITE_BLOCK),
-                new ItemStack(Material.IRON_BLOCK)
+                MilitaryVouchers.VOUCHER_TANK_PART, MilitaryComponents.TUNGSTEN_INGOT, new ItemStack(Material.IRON_BLOCK),
+                MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.VOID_CORE_MACHINE, MilitaryComponents.TUNGSTEN_INGOT,
+                new ItemStack(Material.IRON_BLOCK), MilitaryComponents.TUNGSTEN_INGOT, MilitaryVouchers.VOUCHER_TANK_PART
         };
 
         new AntimatterRitual(category, ANTIMATTER_RITUAL_CORE, RecipeType.ENHANCED_CRAFTING_TABLE, recipe)

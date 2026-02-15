@@ -3,6 +3,7 @@ package com.Chagui68.weaponsaddon;
 import com.Chagui68.weaponsaddon.handlers.AntimatterRifleHandler;
 import com.Chagui68.weaponsaddon.handlers.ComponentsHandler;
 import com.Chagui68.weaponsaddon.handlers.MachineGunHandler;
+import com.Chagui68.weaponsaddon.handlers.TraderHandler;
 import com.Chagui68.weaponsaddon.handlers.UpgradeTableHandler;
 import com.Chagui68.weaponsaddon.items.AntimatterRifle;
 import com.Chagui68.weaponsaddon.items.BossSpawnEgg;
@@ -294,6 +295,7 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
                 getServer().getPluginManager().registerEvents(new MilitaryMobHandler(this), this);
                 getServer().getPluginManager().registerEvents(new MilitaryCombatHandler(this), this);
                 getServer().getPluginManager().registerEvents(new AntimatterRifleHandler(), this);
+                getServer().getPluginManager().registerEvents(new TraderHandler(), this);
 
                 // Register commands
 

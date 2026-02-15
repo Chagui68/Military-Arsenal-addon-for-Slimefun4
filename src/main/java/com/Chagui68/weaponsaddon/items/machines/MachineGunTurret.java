@@ -1,6 +1,7 @@
 package com.Chagui68.weaponsaddon.items.machines;
 
 import com.Chagui68.weaponsaddon.items.CustomRecipeItem;
+import com.Chagui68.weaponsaddon.items.MachineGun;
 import com.Chagui68.weaponsaddon.items.MilitaryRecipeTypes;
 import com.Chagui68.weaponsaddon.items.components.MilitaryComponents;
 import com.Chagui68.weaponsaddon.items.machines.energy.EnergyManager;
@@ -270,10 +271,10 @@ public class MachineGunTurret extends CustomRecipeItem implements EnergyNetCompo
         // 4. 4 BLACK BARRELS (Faithful to Image 1 vertical spacing)
         // Two on left, two on right, with vertical gap
         float[][] barrelOffsets = {
-                { -0.55f, 0.15f, -0.1f }, // Left Top
-                { -0.55f, -0.15f, -0.1f }, // Left Bottom
-                { 0.25f, 0.15f, -0.1f }, // Right Top
-                { 0.25f, -0.15f, -0.1f } // Right Bottom
+                {-0.55f, 0.15f, -0.1f}, // Left Top
+                {-0.55f, -0.15f, -0.1f}, // Left Bottom
+                {0.25f, 0.15f, -0.1f}, // Right Top
+                {0.25f, -0.15f, -0.1f} // Right Bottom
         };
 
         for (int i = 0; i < 4; i++) {
@@ -415,16 +416,17 @@ public class MachineGunTurret extends CustomRecipeItem implements EnergyNetCompo
     }
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
-        ItemStack[] recipe = new ItemStack[36];
-        for (int i = 0; i < 36; i++)
-            recipe[i] = MilitaryComponents.REINFORCED_PLATING;
-        recipe[14] = MilitaryComponents.TARGETING_SYSTEM;
-        recipe[15] = MilitaryComponents.TARGETING_SYSTEM;
-        recipe[2] = MilitaryComponents.ADVANCED_CIRCUIT;
-        recipe[32] = MilitaryComponents.ENERGY_MATRIX;
-
+        ItemStack[] recipe = new ItemStack[]{
+                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.FIREARM_BARREL,
+                MilitaryComponents.KINETIC_STABILIZER, MilitaryComponents.ADVANCED_MOVEMENT_CIRCUIT, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.KINETIC_STABILIZER,
+                MilitaryComponents.MOVEMENT_CIRCUIT, MilitaryComponents.TUNGSTEN_INGOT, MachineGun.MACHINE_GUN, MachineGun.MACHINE_GUN, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.MOVEMENT_CIRCUIT,
+                MilitaryComponents.MOVEMENT_CIRCUIT, MilitaryComponents.TUNGSTEN_INGOT, MachineGun.MACHINE_GUN, MachineGun.MACHINE_GUN, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.MOVEMENT_CIRCUIT,
+                MilitaryComponents.KINETIC_STABILIZER, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.ADVANCED_MOVEMENT_CIRCUIT, MilitaryComponents.KINETIC_STABILIZER,
+                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.FIREARM_BARREL
+        };
         MachineGunTurret turret = new MachineGunTurret(category, MACHINE_GUN_TURRET, recipe);
         turret.register(addon);
+
         if (addon instanceof Plugin) {
             getPluginManager().registerEvents(turret, (Plugin) addon);
         }

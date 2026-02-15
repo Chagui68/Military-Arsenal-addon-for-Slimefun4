@@ -458,20 +458,16 @@ public class AttackTurret extends CustomRecipeItem implements EnergyNetComponent
     }
 
     public static void register(SlimefunAddon addon, ItemGroup category) {
-        ItemStack[] recipe = new ItemStack[36];
-        for (int i = 0; i < 36; i++)
-            recipe[i] = MilitaryComponents.REINFORCED_PLATING;
+        ItemStack[] recipe = new ItemStack[]{
 
-        // Customizing some parts of the heavy recipe
-        recipe[14] = MilitaryComponents.TARGETING_SYSTEM;
-        recipe[15] = MilitaryComponents.TARGETING_SYSTEM;
-        recipe[20] = MilitaryComponents.TARGETING_SYSTEM;
-        recipe[21] = MilitaryComponents.TARGETING_SYSTEM;
-        recipe[2] = MilitaryComponents.ADVANCED_CIRCUIT;
-        recipe[3] = MilitaryComponents.ADVANCED_CIRCUIT;
-        recipe[32] = MilitaryComponents.ENERGY_MATRIX;
-        recipe[33] = MilitaryComponents.ENERGY_MATRIX;
+                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.FIREARM_BARREL,
+                MilitaryComponents.KINETIC_STABILIZER, MilitaryComponents.ADVANCED_MOVEMENT_CIRCUIT, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.KINETIC_STABILIZER,
+                MilitaryComponents.MOVEMENT_CIRCUIT, MilitaryComponents.TUNGSTEN_INGOT, new ItemStack(Material.BOW), new ItemStack(Material.BOW), MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.MOVEMENT_CIRCUIT,
+                MilitaryComponents.MOVEMENT_CIRCUIT, MilitaryComponents.TUNGSTEN_INGOT, new ItemStack(Material.BOW), new ItemStack(Material.BOW), MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.MOVEMENT_CIRCUIT,
+                MilitaryComponents.KINETIC_STABILIZER, MilitaryComponents.TARGETING_SYSTEM, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.TUNGSTEN_INGOT, MilitaryComponents.ADVANCED_MOVEMENT_CIRCUIT, MilitaryComponents.KINETIC_STABILIZER,
+                MilitaryComponents.FIREARM_BARREL, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.ENERGY_MATRIX, MilitaryComponents.FIREARM_BARREL
 
+        };
         AttackTurret turret = new AttackTurret(category, ATTACK_TURRET, recipe);
         turret.register(addon);
 
