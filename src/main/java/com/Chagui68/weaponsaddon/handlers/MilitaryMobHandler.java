@@ -1,11 +1,7 @@
 package com.Chagui68.weaponsaddon.handlers;
 
 import com.Chagui68.weaponsaddon.items.MachineGun;
-import net.md_5.bungee.api.ChatColor;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Color;
-import org.bukkit.Difficulty;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
@@ -26,6 +22,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import com.Chagui68.weaponsaddon.utils.ColorUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -41,7 +38,8 @@ public class MilitaryMobHandler implements Listener {
     private static final double KING_CHANCE = 0.25; // 25%
     private static final double PUSHER_CHANCE = 0.8; // 80% | Aparicion natural desactivada
     private static final double WITCH_CHANCE = 0.25; // 25%
-    private static final double JUAN_CHANCE = 0.4; // 40%
+    private static final double JUAN_CHANCE = 0.6; // 60%
+    private static final double CRAB_CHANCE = 0.3; // 30%
 
     public MilitaryMobHandler(Plugin plugin) {
     }
@@ -113,9 +111,48 @@ public class MilitaryMobHandler implements Listener {
                 equipHorseJuan(horse);
             }
         }
+
+        // Manejo de Pigman (Rusty Crab)
+        else if (e.getEntityType() == EntityType.ZOMBIFIED_PIGLIN) {
+            PigZombie crab = (PigZombie) e.getEntity();
+            if (roll < CRAB_CHANCE) {
+                equipPigman(crab);
+            }
+        }
+
     }
 
     // Creacion de las entidades y definicion de su equipamiento
+
+    public static void equipPigman(PigZombie crab) {
+        crab.setCustomName(ChatColor.RED + "🦀Rusty Crab");
+        crab.setCustomNameVisible(true);
+        double health = 100;
+        double damage = 15;
+
+        switch (crab.getWorld().getDifficulty()) {
+            case EASY:
+                damage = 5;
+                health = 50;
+                break;
+            case NORMAL:
+                damage = 10;
+                health = 75;
+                break;
+            case HARD:
+                damage = 15;
+                health = 100;
+                break;
+            default:
+                break;
+        }
+
+        crab.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(1.5);
+        crab.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        crab.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        crab.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.45);
+    }
+
     public static void equipHorseJuan(Horse horse) {
         horse.setCustomName(ChatColor.DARK_AQUA + "🐎 Juan");
         horse.setCustomNameVisible(true);
@@ -179,12 +216,12 @@ public class MilitaryMobHandler implements Listener {
             metaCasco.addAttributeModifier(Attribute.GENERIC_ARMOR, helmet_protection);
             metaCasco.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, helmet_toughness);
 
-            metaCasco.setDisplayName(ChatColor.of("#CFCD8A") + "♔ The King's Crown ♔");
+            metaCasco.setDisplayName(ColorUtils.translate("#CFCD8A") + "♔ The King's Crown ♔");
             metaCasco.addEnchant(Enchantment.PROTECTION, 5, true);
             metaCasco.addEnchant(Enchantment.PROJECTILE_PROTECTION, 5, true);
             metaCasco.addEnchant(Enchantment.BLAST_PROTECTION, 5, true);
             metaCasco.addEnchant(Enchantment.FIRE_PROTECTION, 5, true);
-            metaCasco.addEnchant(Enchantment.RESPIRATION,5,true);
+            metaCasco.addEnchant(Enchantment.RESPIRATION, 5, true);
 
             // Add persistent tags for wearability and making it non-stackable
             metaCasco.getPersistentDataContainer().set(
@@ -241,7 +278,7 @@ public class MilitaryMobHandler implements Listener {
 
             metaArma.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, sword_damage);
             metaArma.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, sword_attack_speed);
-            metaArma.setDisplayName(ChatColor.of("#CFCD8A") + "♔ The King's Sword ♔");
+            metaArma.setDisplayName(ColorUtils.translate("#CFCD8A") + "♔ The King's Sword ♔");
             metaArma.addEnchant(Enchantment.SHARPNESS, Sharpness_Level, true);
             metaArma.addEnchant(Enchantment.LOOTING, 5, true);
             metaArma.addEnchant(Enchantment.FIRE_ASPECT, 4, true);
@@ -310,7 +347,6 @@ public class MilitaryMobHandler implements Listener {
             equip.setBootsDropChance(0.0f);
         }
 
-
     }
 
     public static ItemStack getPusherStick() {
@@ -323,8 +359,9 @@ public class MilitaryMobHandler implements Listener {
                     AttributeModifier.Operation.ADD_NUMBER,
                     EquipmentSlot.HAND);
 
-            metaPiston.addEnchant(Enchantment.KNOCKBACK, 7 ,true);
-            metaPiston.setDisplayName(ChatColor.of("#965151") + "THE PISTON ");
+            metaPiston.addAttributeModifier(Attribute.GENERIC_ATTACK_KNOCKBACK, knockback);
+            metaPiston.addEnchant(Enchantment.KNOCKBACK, 7, true);
+            metaPiston.setDisplayName(ColorUtils.translate("#965151") + "THE PISTON ");
 
             // Add persistent tags for wearability and making it non-stackable
             metaPiston.getPersistentDataContainer().set(

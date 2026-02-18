@@ -49,6 +49,14 @@
             <version>1.10.5</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- Annotations (javax.annotation) -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.2</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

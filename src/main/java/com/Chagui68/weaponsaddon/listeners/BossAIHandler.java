@@ -241,7 +241,7 @@ public class BossAIHandler implements Listener {
         }
 
         // Establecer nuevo cooldown (30 segundos)
-        killer.setMetadata("killer_cooldown", new FixedMetadataValue(plugin, System.currentTimeMillis() + 30000));
+        killer.setMetadata("killer_cooldown", new FixedMetadataValue(plugin, System.currentTimeMillis() + 60000));
     }
 
     private void spawnPusherBehind(LivingEntity target) {
