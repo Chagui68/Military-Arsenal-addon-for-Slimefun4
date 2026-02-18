@@ -151,6 +151,7 @@ public class MilitaryMobHandler implements Listener {
         crab.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
         crab.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
         crab.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.45);
+        crab.addScoreboardTag("MA_Crab");
     }
 
     public static void equipHorseJuan(Horse horse) {

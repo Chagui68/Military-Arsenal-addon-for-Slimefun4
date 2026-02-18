@@ -80,6 +80,12 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
 
                 try {
                     switch (mobType) {
+                        case "crab":
+                            PigZombie pigZombie = (PigZombie)  world
+                                    .spawnEntity(loc,EntityType.ZOMBIFIED_PIGLIN);
+                            MilitaryMobHandler.equipPigman(pigZombie);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned Rusty Crab!");
+                            break;
                         case "juan":
                             Horse horse = (Horse) world
                                     .spawnEntity(loc, EntityType.HORSE);
@@ -208,6 +214,7 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
                 completions.add("elite_ranger");
                 completions.add("battle_witch");
                 completions.add("juan");
+                completions.add("crab");
             } else if (args[0].equalsIgnoreCase("give")) {
                 completions.add("kings_sword");
                 completions.add("kings_crown");
