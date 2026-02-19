@@ -80,6 +80,13 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
 
                 try {
                     switch (mobType) {
+                        case "purple_guy":
+                            Enderman enderman = (Enderman) world
+                                    .spawnEntity(loc, EntityType.ENDERMAN);
+                            MilitaryMobHandler.equipEnderman(enderman);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned Rusty Purple Guy!");
+                            break;
+
                         case "crab":
                             PigZombie pigZombie = (PigZombie)  world
                                     .spawnEntity(loc,EntityType.ZOMBIFIED_PIGLIN);
@@ -215,6 +222,7 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
                 completions.add("battle_witch");
                 completions.add("juan");
                 completions.add("crab");
+                completions.add("purple_guy");
             } else if (args[0].equalsIgnoreCase("give")) {
                 completions.add("kings_sword");
                 completions.add("kings_crown");

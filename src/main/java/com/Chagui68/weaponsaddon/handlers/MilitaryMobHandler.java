@@ -40,6 +40,7 @@ public class MilitaryMobHandler implements Listener {
     private static final double WITCH_CHANCE = 0.25; // 25%
     private static final double JUAN_CHANCE = 0.6; // 60%
     private static final double CRAB_CHANCE = 0.3; // 30%
+    private static final double PURPLE_GUY_CHANCE = 0.4; // 40%
 
     public MilitaryMobHandler(Plugin plugin) {
     }
@@ -107,22 +108,40 @@ public class MilitaryMobHandler implements Listener {
         // Manejo de caballos
         else if (e.getEntityType() == EntityType.HORSE) {
             Horse horse = (Horse) e.getEntity();
+            // Juan
             if (roll < JUAN_CHANCE) {
                 equipHorseJuan(horse);
             }
         }
 
-        // Manejo de Pigman (Rusty Crab)
+        // Manejo de Pigman
         else if (e.getEntityType() == EntityType.ZOMBIFIED_PIGLIN) {
             PigZombie crab = (PigZombie) e.getEntity();
+            // Rusty Crab
             if (roll < CRAB_CHANCE) {
                 equipPigman(crab);
+            }
+            // Manejo de endermans
+        } else if (e.getEntityType() == EntityType.ENDERMAN) {
+            Enderman enderman = (Enderman) e.getEntity();
+            // Purple Guy
+            if (roll < PURPLE_GUY_CHANCE) {
+                equipEnderman(enderman);
             }
         }
 
     }
 
     // Creacion de las entidades y definicion de su equipamiento
+    public static void equipEnderman(Enderman enderman) {
+        enderman.setCustomName(ChatColor.DARK_PURPLE + " 🟪Purple Guy");
+        enderman.setCustomNameVisible(true);
+        enderman.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(2.0);
+        enderman.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(150.0);
+        enderman.setHealth(150.0);
+        enderman.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(30.0);
+        enderman.addScoreboardTag("MA_Purple_Guy");
+    }
 
     public static void equipPigman(PigZombie crab) {
         crab.setCustomName(ChatColor.RED + "🦀Rusty Crab");
@@ -149,6 +168,8 @@ public class MilitaryMobHandler implements Listener {
 
         crab.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(1.5);
         crab.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        crab.setHealth(health);
+        crab.setBaby(true);
         crab.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
         crab.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.45);
         crab.addScoreboardTag("MA_Crab");

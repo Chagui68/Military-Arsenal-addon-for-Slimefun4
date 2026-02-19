@@ -168,6 +168,90 @@ public class BossAIHandler implements Listener {
                     handleBattleWitchAI(witch);
                 }
             }
+
+            for (Enderman enderman : world.getEntitiesByClass(Enderman.class)) {
+                if (enderman.isDead())
+                    continue;
+                if (enderman.getScoreboardTags().contains("MA_Purple_Guy")) {
+                    handlePurpleGuy(enderman);
+                }
+            }
+
+            /*
+             * Entidad neutral convertida en completamente agresiva
+             * cuando el Rusty Crab lee que hay un jugador dentro de un
+             * radio de 15 bloques lo ataca aunque esta entidad sea neutral
+             *
+             */
+            for (PigZombie pigman : world.getEntitiesByClass(PigZombie.class)) {
+                if (pigman.isDead())
+                    continue;
+
+                if (pigman.getScoreboardTags().contains("MA_Crab")) {
+                    handleRustyCrabAI(pigman);
+                }
+            }
+        }
+    }
+
+    private void handlePurpleGuy(Enderman enderman) {
+        if (enderman.getTarget() != null && !enderman.getTarget().isDead()
+                && enderman.getTarget().getWorld() == enderman.getWorld()
+                && enderman.getTarget().getLocation().distance(enderman.getLocation()) < 20) {
+            return;
+        }
+        Player nearestPlayer = null;
+        double nearestDist = Double.MAX_VALUE;
+
+        for (Player p : enderman.getWorld().getPlayers()) {
+            if (p.isDead() || p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR)
+                continue;
+
+            double dist = p.getLocation().distance(enderman.getLocation());
+            if (dist < nearestDist && dist < 15) {
+                if (enderman.hasLineOfSight(p)) {
+                    nearestDist = dist;
+                    nearestPlayer = p;
+                }
+            }
+        }
+        if (nearestPlayer != null) {
+            enderman.setTarget(nearestPlayer);
+        }
+    }
+
+    private void handleRustyCrabAI(PigZombie crab) {
+        // If already has a target, we don't need to force it unless the target is
+        // invalid
+        if (crab.getTarget() != null && !crab.getTarget().isDead()
+                && crab.getTarget().getWorld() == crab.getWorld()
+                && crab.getTarget().getLocation().distance(crab.getLocation()) < 20) {
+            return;
+        }
+
+        /*
+         * Identifica al jugador más cercano y lo ataca
+         *
+         */
+        Player nearestPlayer = null;
+        double nearestDist = Double.MAX_VALUE;
+
+        for (Player p : crab.getWorld().getPlayers()) {
+            if (p.isDead() || p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR)
+                continue;
+
+            double dist = p.getLocation().distance(crab.getLocation());
+            if (dist < nearestDist && dist < 15) { // Distancia del radio de 15 bloques
+                if (crab.hasLineOfSight(p)) {
+                    nearestDist = dist;
+                    nearestPlayer = p;
+                }
+            }
+        }
+
+        if (nearestPlayer != null) {
+            crab.setTarget(nearestPlayer);
+            crab.setAnger(600); // 30 segundos de ira despues de que el jugador se aleja de su radio
         }
     }
 
