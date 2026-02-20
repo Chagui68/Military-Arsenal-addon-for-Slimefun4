@@ -31,6 +31,10 @@ public class MilitaryCombatHandler implements Listener {
 
     private final Plugin plugin;
 
+    // --- PUSHER CONFIGURATION ---
+    private static final double PUSHER_KNOCKBACK_MULTIPLIER = 5.0; // Fuerza horizontal
+    private static final double PUSHER_KNOCKBACK_VERTICAL = 0.5; // Fuerza hacia arriba (Y)
+
     public MilitaryCombatHandler(Plugin plugin) {
         this.plugin = plugin;
         startCombatTask();
@@ -178,7 +182,7 @@ public class MilitaryCombatHandler implements Listener {
             if (e.getEntity() instanceof Player) {
                 Player player = (Player) e.getEntity();
                 Vector dir = player.getLocation().toVector().subtract(damager.getLocation().toVector()).normalize();
-                player.setVelocity(dir.multiply(1.2).setY(0.35));
+                player.setVelocity(dir.multiply(PUSHER_KNOCKBACK_MULTIPLIER).setY(PUSHER_KNOCKBACK_VERTICAL));
             }
         }
 
