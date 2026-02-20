@@ -110,7 +110,7 @@ public class CinematicUtils {
                 // Tock 1: Títulos y Sonido inicial
                 if (ticks == 1) {
                     player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
-                    player.sendTitle(ChatColor.DARK_PURPLE + "SPRINGLOCK FAILURE", ChatColor.RED + "No te muevas...",
+                    player.sendTitle(ChatColor.DARK_PURPLE + "SPRINGLOCK FAILURE", ChatColor.RED + "Don't Move...",
                             10, 80, 10);
                 }
 
