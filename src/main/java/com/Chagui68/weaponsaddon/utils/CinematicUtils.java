@@ -118,37 +118,55 @@ public class CinematicUtils {
                 if (ticks == 30) {
                     npc.getEquipment().setBoots(new ItemStack(Material.GOLDEN_BOOTS));
                     player.playSound(floatingLoc, Sound.BLOCK_ANVIL_LAND, 1.0f, 1.2f);
-                    player.getWorld().spawnParticle(Particle.CRIT, floatingLoc.clone().add(0, 0.2, 0), 10);
+                    Particle crit = VersionSafe.getParticle("CRIT");
+                    if (crit != null) {
+                        player.getWorld().spawnParticle(crit, floatingLoc.clone().add(0, 0.2, 0), 10);
+                    }
                 }
 
                 // Tock 60: Leggings
                 if (ticks == 60) {
                     npc.getEquipment().setLeggings(new ItemStack(Material.GOLDEN_LEGGINGS));
                     player.playSound(floatingLoc, Sound.BLOCK_ANVIL_LAND, 1.0f, 1.1f);
-                    player.getWorld().spawnParticle(Particle.CRIT, floatingLoc.clone().add(0, 0.8, 0), 10);
+                    Particle crit = VersionSafe.getParticle("CRIT");
+                    if (crit != null) {
+                        player.getWorld().spawnParticle(crit, floatingLoc.clone().add(0, 0.8, 0), 10);
+                    }
                 }
 
                 // Tock 90: Chestplate
                 if (ticks == 90) {
                     npc.getEquipment().setChestplate(new ItemStack(Material.GOLDEN_CHESTPLATE));
                     player.playSound(floatingLoc, Sound.BLOCK_ANVIL_LAND, 1.0f, 1.0f);
-                    player.getWorld().spawnParticle(Particle.CRIT, floatingLoc.clone().add(0, 1.2, 0), 10);
+                    Particle crit = VersionSafe.getParticle("CRIT");
+                    if (crit != null) {
+                        player.getWorld().spawnParticle(crit, floatingLoc.clone().add(0, 1.2, 0), 10);
+                    }
                 }
 
                 // Tock 120: The Springtrap Head
                 if (ticks == 120) {
                     npc.getEquipment().setHelmet(getSpringtrapHead());
                     player.playSound(floatingLoc, Sound.BLOCK_ANVIL_LAND, 1.2f, 0.8f);
-                    player.getWorld().spawnParticle(Particle.LARGE_SMOKE, floatingLoc.clone().add(0, 1.8, 0), 15);
+                    Particle smoke = VersionSafe.getParticle("LARGE_SMOKE");
+                    if (smoke != null) {
+                        player.getWorld().spawnParticle(smoke, floatingLoc.clone().add(0, 1.8, 0), 15);
+                    }
                 }
 
                 // Tock 140: The Final Crunch
                 if (ticks == 140) {
                     player.playSound(floatingLoc, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1.5f, 0.5f);
                     player.playSound(floatingLoc, Sound.ENTITY_PLAYER_HURT_SWEET_BERRY_BUSH, 1.5f, 0.5f);
-                    player.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, floatingLoc, 5);
-                    player.getWorld().spawnParticle(Particle.BLOCK, floatingLoc.clone().add(0, 1, 0), 50,
-                            Material.REDSTONE_BLOCK.createBlockData());
+                    Particle explode = VersionSafe.getParticle("EXPLOSION_EMITTER");
+                    if (explode != null) {
+                        player.getWorld().spawnParticle(explode, floatingLoc, 5);
+                    }
+                    Particle block = VersionSafe.getParticle("BLOCK");
+                    if (block != null) {
+                        player.getWorld().spawnParticle(block, floatingLoc.clone().add(0, 1, 0), 50,
+                                Material.REDSTONE_BLOCK.createBlockData());
+                    }
 
                     cleanup(player);
 

@@ -11,6 +11,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import com.Chagui68.weaponsaddon.utils.VersionSafe;
 
 import java.util.Collection;
 
@@ -60,16 +61,18 @@ public class WeaponUtils {
 
         // 2. Enchantments
         // Sharpness (Filo)
-        if (item.containsEnchantment(Enchantment.SHARPNESS)) {
-            int level = item.getEnchantmentLevel(Enchantment.SHARPNESS);
+        Enchantment sharp = VersionSafe.getEnchantment("sharpness");
+        if (sharp != null && item.containsEnchantment(sharp)) {
+            int level = item.getEnchantmentLevel(sharp);
             if (level > 0) {
                 damage += 0.5 * level + 0.5;
             }
         }
 
         // Power (for ranged weapons)
-        if (item.containsEnchantment(Enchantment.POWER)) {
-            int level = item.getEnchantmentLevel(Enchantment.POWER);
+        Enchantment power = VersionSafe.getEnchantment("power");
+        if (power != null && item.containsEnchantment(power)) {
+            int level = item.getEnchantmentLevel(power);
             if (level > 0) {
                 // Vanilla formula approximation for lore consistency
                 damage += 0.5 * (level + 1);
@@ -77,12 +80,15 @@ public class WeaponUtils {
         }
 
         // Smite / Bane of Arthropods (Conditional)
+        Enchantment smite = VersionSafe.getEnchantment("smite"); // Might need to add smite to VersionSafe or use direct
+                                                                 // enum if it didn't change
         if (target != null) {
-            if (item.containsEnchantment(Enchantment.SMITE) && isUndead(target.getType())) {
-                damage += 2.5 * item.getEnchantmentLevel(Enchantment.SMITE);
+            if (smite != null && item.containsEnchantment(smite) && isUndead(target.getType())) {
+                damage += 2.5 * item.getEnchantmentLevel(smite);
             }
-            if (item.containsEnchantment(Enchantment.BANE_OF_ARTHROPODS) && isArthropod(target.getType())) {
-                damage += 2.5 * item.getEnchantmentLevel(Enchantment.BANE_OF_ARTHROPODS);
+            Enchantment bane = VersionSafe.getEnchantment("bane_of_arthropods");
+            if (bane != null && item.containsEnchantment(bane) && isArthropod(target.getType())) {
+                damage += 2.5 * item.getEnchantmentLevel(bane);
             }
         }
 

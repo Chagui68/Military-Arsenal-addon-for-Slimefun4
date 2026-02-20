@@ -5,6 +5,8 @@ import com.Chagui68.weaponsaddon.handlers.BossRewardHandler;
 import com.Chagui68.weaponsaddon.utils.CinematicUtils;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import com.Chagui68.weaponsaddon.utils.VersionSafe;
+
 import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -407,7 +409,7 @@ public class BossAIHandler implements Listener {
                                     ChatColor.LIGHT_PURPLE + "Battle Witch casting...", 0, 10, 0);
                         }
                     }
-                    world.playSound(witchLoc, Sound.BLOCK_NOTE_BLOCK_HAT, 0.5f, 1.0f + (timer / 40f));
+                    world.playSound(witchLoc, VersionSafe.getSound("BLOCK_NOTE_BLOCK_HAT"), 0.5f, 1.0f + (timer / 40f));
                     timer += 4;
                 } else {
                     // Final roll
@@ -555,7 +557,7 @@ public class BossAIHandler implements Listener {
 
         // Effects
         witch.getWorld().playSound(witchLoc, Sound.ENTITY_WITCH_THROW, 1.5f, 1.0f);
-        witch.getWorld().spawnParticle(Particle.WITCH, witchLoc, 15, 0.5, 0.5, 0.5, 0);
+        witch.getWorld().spawnParticle(VersionSafe.getParticle("WITCH"), witchLoc, 15, 0.5, 0.5, 0.5, 0);
     }
 
     private void handleArena(Skeleton boss) {
@@ -788,14 +790,16 @@ public class BossAIHandler implements Listener {
             // PHASE 3: OVERDRIVE (70-50% HP)
             burstShots = 10;
             burstInterval = 3L;
-            boss.getWorld().spawnParticle(Particle.DUST, boss.getLocation().add(0, 1, 0), 15, 0.4, 0.4, 0.4,
+            boss.getWorld().spawnParticle(VersionSafe.getParticle("DUST"), boss.getLocation().add(0, 1, 0), 15, 0.4,
+                    0.4, 0.4,
                     0,
                     new Particle.DustOptions(Color.ORANGE, 1));
         } else if (currentPhase == 2) {
             // PHASE 2: AGGRESSIVE (85-70% HP)
             burstShots = 7;
             burstInterval = 3L;
-            boss.getWorld().spawnParticle(Particle.DUST, boss.getLocation().add(0, 1, 0), 10, 0.3, 0.3, 0.3,
+            boss.getWorld().spawnParticle(VersionSafe.getParticle("DUST"), boss.getLocation().add(0, 1, 0), 10, 0.3,
+                    0.3, 0.3,
                     0,
                     new Particle.DustOptions(Color.YELLOW, 1));
         }
@@ -869,7 +873,7 @@ public class BossAIHandler implements Listener {
                         p.sendTitle(ChatColor.GOLD + "🎲 " + displayNum + " 🎲",
                                 ChatColor.GRAY + "Rolling...", 0, 10, 0);
                     }
-                    world.playSound(bossLoc, Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f, 1.0f + (timer / 100f));
+                    world.playSound(bossLoc, VersionSafe.getSound("BLOCK_NOTE_BLOCK_HAT"), 1.0f, 1.0f + (timer / 100f));
                     timer += 5;
                 } else {
                     // Final roll
@@ -983,7 +987,8 @@ public class BossAIHandler implements Listener {
     }
 
     private void executeFlashbang(LivingEntity boss) {
-        boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 3.0f, 0.5f);
+        boss.getWorld().playSound(boss.getLocation(), VersionSafe.getSound("ENTITY_FIREWORK_ROCKET_LARGE_BLAST"), 3.0f,
+                0.5f);
         boss.getWorld().spawnParticle(Particle.FLASH, boss.getLocation().add(0, 1, 0), 5);
 
         for (Entity nearby : boss.getNearbyEntities(8, 8, 8)) {
@@ -1027,7 +1032,7 @@ public class BossAIHandler implements Listener {
             @Override
             public void run() {
                 if (timer >= 60) { // 3 segundos (20 ticks * 3)
-                    targetLoc.getWorld().spawnParticle(Particle.EXPLOSION, targetLoc, 1);
+                    targetLoc.getWorld().spawnParticle(VersionSafe.getParticle("EXPLOSION"), targetLoc, 1);
                     targetLoc.getWorld().playSound(targetLoc, Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.5f);
 
                     // Daño configurable en área
@@ -1039,7 +1044,8 @@ public class BossAIHandler implements Listener {
                     this.cancel();
                     return;
                 }
-                targetLoc.getWorld().spawnParticle(Particle.LARGE_SMOKE, targetLoc, 5, 0.5, 0.1, 0.5, 0.05);
+                targetLoc.getWorld().spawnParticle(VersionSafe.getParticle("LARGE_SMOKE"), targetLoc, 5, 0.5, 0.1, 0.5,
+                        0.05);
                 timer += 5;
             }
         }.runTaskTimer(plugin, 0L, 5L);
@@ -1078,7 +1084,8 @@ public class BossAIHandler implements Listener {
                 bullet.setShooter(shooter);
                 bullet.addScoreboardTag("BossBullet");
                 // Shot sound (now on main thread)
-                shooter.getWorld().playSound(shooter.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 2.0f, 0.5f);
+                shooter.getWorld().playSound(shooter.getLocation(),
+                        VersionSafe.getSound("ENTITY_FIREWORK_ROCKET_BLAST"), 2.0f, 0.5f);
             }
         });
     }

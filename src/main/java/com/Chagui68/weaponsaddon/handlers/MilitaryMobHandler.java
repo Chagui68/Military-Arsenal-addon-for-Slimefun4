@@ -23,6 +23,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import com.Chagui68.weaponsaddon.utils.ColorUtils;
+import com.Chagui68.weaponsaddon.utils.VersionSafe;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -136,7 +138,7 @@ public class MilitaryMobHandler implements Listener {
     public static void equipEnderman(Enderman enderman) {
         enderman.setCustomName(ChatColor.DARK_PURPLE + " 🟪Purple Guy");
         enderman.setCustomNameVisible(true);
-        enderman.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(2.0);
+        VersionSafe.setAttributeBaseValue(enderman, "GENERIC_SCALE", 2.0);
         enderman.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(150.0);
         enderman.setHealth(150.0);
         enderman.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(10.0);
@@ -166,12 +168,12 @@ public class MilitaryMobHandler implements Listener {
                 break;
         }
 
-        crab.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(1.5);
         crab.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
         crab.setHealth(health);
         crab.setBaby(true);
         crab.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
         crab.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.45);
+        VersionSafe.setAttributeBaseValue(crab, "GENERIC_SCALE", 1.5);
         crab.addScoreboardTag("MA_Crab");
     }
 
@@ -181,10 +183,11 @@ public class MilitaryMobHandler implements Listener {
         horse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.35); // Velocidad 2
         horse.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(70.0);
         horse.setHealth(70.0);
-        horse.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(1.5);
-        horse.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(7.5);
-        horse.getAttribute(Attribute.GENERIC_STEP_HEIGHT).setBaseValue(3.0);
-        horse.getAttribute(Attribute.GENERIC_SAFE_FALL_DISTANCE).setBaseValue(1000.0);
+        VersionSafe.setAttributeBaseValue(horse, "GENERIC_SCALE", 1.5);
+        VersionSafe.setAttributeBaseValue(horse, "GENERIC_JUMP_STRENGTH", 7.5); // Jump strength exists but let's be
+                                                                                // safe
+        VersionSafe.setAttributeBaseValue(horse, "GENERIC_STEP_HEIGHT", 3.0);
+        VersionSafe.setAttributeBaseValue(horse, "GENERIC_SAFE_FALL_DISTANCE", 1000.0);
         horse.addScoreboardTag("MA_Juan");
     }
 
@@ -197,7 +200,7 @@ public class MilitaryMobHandler implements Listener {
         king.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(150.0);
         king.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.13); // Lentitud 3
         king.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0); // Inamovible
-        king.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(1.5);
+        VersionSafe.setAttributeBaseValue(king, "GENERIC_SCALE", 1.5);
         king.addScoreboardTag("MA_TheKing");
 
         EntityEquipment equip = king.getEquipment();
@@ -239,11 +242,23 @@ public class MilitaryMobHandler implements Listener {
             metaCasco.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, helmet_toughness);
 
             metaCasco.setDisplayName(ColorUtils.translate("#CFCD8A") + "♔ The King's Crown ♔");
-            metaCasco.addEnchant(Enchantment.PROTECTION, 5, true);
-            metaCasco.addEnchant(Enchantment.PROJECTILE_PROTECTION, 5, true);
-            metaCasco.addEnchant(Enchantment.BLAST_PROTECTION, 5, true);
-            metaCasco.addEnchant(Enchantment.FIRE_PROTECTION, 5, true);
-            metaCasco.addEnchant(Enchantment.RESPIRATION, 5, true);
+
+            Enchantment prot = VersionSafe.getEnchantment("protection");
+            Enchantment projProt = VersionSafe.getEnchantment("projectile_protection");
+            Enchantment blastProt = VersionSafe.getEnchantment("blast_protection");
+            Enchantment fireProt = VersionSafe.getEnchantment("fire_protection");
+            Enchantment resp = VersionSafe.getEnchantment("respiration");
+
+            if (prot != null)
+                metaCasco.addEnchant(prot, 5, true);
+            if (projProt != null)
+                metaCasco.addEnchant(projProt, 5, true);
+            if (blastProt != null)
+                metaCasco.addEnchant(blastProt, 5, true);
+            if (fireProt != null)
+                metaCasco.addEnchant(fireProt, 5, true);
+            if (resp != null)
+                metaCasco.addEnchant(resp, 5, true);
 
             // Add persistent tags for wearability and making it non-stackable
             metaCasco.getPersistentDataContainer().set(
@@ -301,8 +316,14 @@ public class MilitaryMobHandler implements Listener {
             metaArma.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, sword_damage);
             metaArma.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, sword_attack_speed);
             metaArma.setDisplayName(ColorUtils.translate("#CFCD8A") + "♔ The King's Sword ♔");
-            metaArma.addEnchant(Enchantment.SHARPNESS, Sharpness_Level, true);
-            metaArma.addEnchant(Enchantment.LOOTING, 5, true);
+
+            Enchantment sharp = VersionSafe.getEnchantment("sharpness");
+            Enchantment loot = VersionSafe.getEnchantment("looting");
+
+            if (sharp != null)
+                metaArma.addEnchant(sharp, Sharpness_Level, true);
+            if (loot != null)
+                metaArma.addEnchant(loot, 5, true);
             metaArma.addEnchant(Enchantment.FIRE_ASPECT, 4, true);
             metaArma.setUnbreakable(true);
 
