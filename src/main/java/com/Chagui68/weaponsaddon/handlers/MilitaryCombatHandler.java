@@ -32,9 +32,15 @@ public class MilitaryCombatHandler implements Listener {
 
     private final Plugin plugin;
 
-    // --- PUSHER CONFIGURATION ---
-    private static final double PUSHER_KNOCKBACK_MULTIPLIER = 5.0; // Fuerza horizontal
-    private static final double PUSHER_KNOCKBACK_VERTICAL = 1.0; // Fuerza hacia arriba (Y)
+    // --- PUSHER CONFIGURATION (Default values, will be overridden by config if
+    // present) ---
+    private static double getPusherKnockback() {
+        return WeaponsAddon.getInstance().getConfig().getDouble("mobs.pusher.knockback_multiplier", 5.0);
+    }
+
+    private static double getPusherVertical() {
+        return WeaponsAddon.getInstance().getConfig().getDouble("mobs.pusher.knockback_vertical", 1.0);
+    }
 
     public MilitaryCombatHandler(Plugin plugin) {
         this.plugin = plugin;
@@ -43,7 +49,7 @@ public class MilitaryCombatHandler implements Listener {
 
     // --- EQUIPMENT WEARABILITY HANDLER (FOR KING'S CROWN) ---
 
-    @EventHandler (priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onCrownRightClick(PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             ItemStack item = e.getItem();
@@ -183,7 +189,7 @@ public class MilitaryCombatHandler implements Listener {
             if (e.getEntity() instanceof Player) {
                 Player player = (Player) e.getEntity();
                 Vector dir = player.getLocation().toVector().subtract(damager.getLocation().toVector()).normalize();
-                player.setVelocity(dir.multiply(PUSHER_KNOCKBACK_MULTIPLIER).setY(PUSHER_KNOCKBACK_VERTICAL));
+                player.setVelocity(dir.multiply(getPusherKnockback()).setY(getPusherVertical()));
             }
         }
 
@@ -194,17 +200,19 @@ public class MilitaryCombatHandler implements Listener {
                 Skeleton shooter = (Skeleton) arrow.getShooter();
                 if (shooter.getScoreboardTags().contains("MA_EliteRanger")) {
                     // DAÑO DE RANGO Configurable
-                    double damage = 24.0; // Normal
+                    double baseDamage = WeaponsAddon.getInstance().getConfig().getDouble("mobs.elite_ranger.damage",
+                            60.0);
+                    double damage = baseDamage * 0.4; // Scaled to arrow damage (approx 24)
 
                     switch (shooter.getWorld().getDifficulty()) {
                         case EASY:
-                            damage = 12.0;
+                            damage *= 0.5;
                             break;
                         case NORMAL:
-                            damage = 24.0;
+                            // Base
                             break;
                         case HARD:
-                            damage = 32.0;
+                            damage *= 1.33;
                             break;
                         default:
                             break;

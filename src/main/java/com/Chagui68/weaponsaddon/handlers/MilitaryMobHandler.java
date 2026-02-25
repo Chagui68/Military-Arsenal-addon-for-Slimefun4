@@ -35,15 +35,14 @@ public class MilitaryMobHandler implements Listener {
 
     private final Random random = new Random();
 
-    // Porcentaje de aparacion (0.25 = 25%)
-    private static final double RANGER_CHANCE = 0.2; // 20%
-    private static final double ELITE_CHANCE = 0.3; // 30%
-    private static final double KING_CHANCE = 0.25; // 25%
-    private static final double PUSHER_CHANCE = 0.8; // 80% | Aparicion natural desactivada
-    private static final double WITCH_CHANCE = 0.25; // 25%
-    private static final double JUAN_CHANCE = 0.6; // 60%
-    private static final double CRAB_CHANCE = 0.3; // 30%
-    private static final double PURPLE_GUY_CHANCE = 0.4; // 40%
+    // Percentages loaded from config
+    private static double getChance(String path, double defaultValue) {
+        return WeaponsAddon.getInstance().getConfig().getDouble("mobs." + path + ".spawn_chance", defaultValue);
+    }
+
+    private static double getStat(String path, String stat, double defaultValue) {
+        return WeaponsAddon.getInstance().getConfig().getDouble("mobs." + path + "." + stat, defaultValue);
+    }
 
     public MilitaryMobHandler(Plugin plugin) {
     }
@@ -67,8 +66,8 @@ public class MilitaryMobHandler implements Listener {
         if (e.getEntityType() == EntityType.SKELETON) {
             Skeleton skeleton = (Skeleton) e.getEntity();
 
-            // Elite Ranger (20%)
-            if (roll < RANGER_CHANCE) {
+            // Elite Ranger
+            if (roll < getChance("elite_ranger", 0.2)) {
                 equipEliteRanger(skeleton);
             }
         }
@@ -77,23 +76,21 @@ public class MilitaryMobHandler implements Listener {
         else if (e.getEntityType() == EntityType.ZOMBIE) {
             Zombie zombie = (Zombie) e.getEntity();
 
-            // Elite Killer (30%)
-            if (roll < ELITE_CHANCE) {
+            // Elite Killer
+            if (roll < getChance("elite_killer", 0.3)) {
                 equipEliteKiller(zombie);
             }
-
-            // Su aparacion natural esta desactivada hasta nuevo aviso
-            // Pusher (80%)
-            // else if (roll < PUSHER_CHANCE) {
-            // equipPusher(zombie);
-            // }
+            // Pusher
+            else if (roll < getChance("pusher", 0.8)) {
+                equipPusher(zombie);
+            }
         }
         // Manerjo Aldeanos zombies
         else if (e.getEntityType() == EntityType.ZOMBIE_VILLAGER) {
             ZombieVillager zombieVillager = (ZombieVillager) e.getEntity();
 
-            // The King (25%)
-            if (roll < KING_CHANCE) {
+            // The King
+            if (roll < getChance("the_king", 0.25)) {
                 equipKing(zombieVillager);
             }
         }
@@ -102,8 +99,8 @@ public class MilitaryMobHandler implements Listener {
         else if (e.getEntityType() == EntityType.WITCH) {
             Witch witch = (Witch) e.getEntity();
 
-            // Battle Witch (25%)
-            if (roll < WITCH_CHANCE) {
+            // Battle Witch
+            if (roll < getChance("battle_witch", 0.25)) {
                 equipBattleWitch(witch);
             }
         }
@@ -112,7 +109,7 @@ public class MilitaryMobHandler implements Listener {
         else if (e.getEntityType() == EntityType.HORSE) {
             Horse horse = (Horse) e.getEntity();
             // Juan
-            if (roll < JUAN_CHANCE) {
+            if (roll < getChance("juan", 0.6)) {
                 equipHorseJuan(horse);
             }
         }
@@ -121,14 +118,14 @@ public class MilitaryMobHandler implements Listener {
         else if (e.getEntityType() == EntityType.ZOMBIFIED_PIGLIN) {
             PigZombie crab = (PigZombie) e.getEntity();
             // Rusty Crab
-            if (roll < CRAB_CHANCE) {
+            if (roll < getChance("rusty_crab", 0.3)) {
                 equipPigman(crab);
             }
             // Manejo de endermans
         } else if (e.getEntityType() == EntityType.ENDERMAN) {
             Enderman enderman = (Enderman) e.getEntity();
             // Purple Guy
-            if (roll < PURPLE_GUY_CHANCE) {
+            if (roll < getChance("purple_guy", 0.4)) {
                 equipEnderman(enderman);
             }
         }
@@ -140,30 +137,32 @@ public class MilitaryMobHandler implements Listener {
         enderman.setCustomName(ChatColor.DARK_PURPLE + " 🟪Purple Guy");
         enderman.setCustomNameVisible(true);
         VersionSafe.setAttributeBaseValue(enderman, "GENERIC_SCALE", 2.0);
-        enderman.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(150.0);
-        enderman.setHealth(150.0);
-        enderman.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(10.0);
+        double health = getStat("purple_guy", "health", 150.0);
+        double damage = getStat("purple_guy", "damage", 10.0);
+        enderman.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        enderman.setHealth(health);
+        enderman.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
         enderman.addScoreboardTag("MA_Purple_Guy");
     }
 
     public static void equipPigman(PigZombie crab) {
         crab.setCustomName(ChatColor.RED + "🦀Rusty Crab");
         crab.setCustomNameVisible(true);
-        double health = 100;
-        double damage = 15;
+        double health = getStat("rusty_crab", "health", 100.0);
+        double damage = getStat("rusty_crab", "damage", 15.0);
+        double speed = getStat("rusty_crab", "movement_speed", 0.45);
 
         switch (crab.getWorld().getDifficulty()) {
             case EASY:
-                damage = 5;
-                health = 50;
+                damage *= 0.33;
+                health *= 0.5;
                 break;
             case NORMAL:
-                damage = 10;
-                health = 75;
+                damage *= 0.66;
+                health *= 0.75;
                 break;
             case HARD:
-                damage = 15;
-                health = 100;
+                // Full stats
                 break;
             default:
                 break;
@@ -173,7 +172,7 @@ public class MilitaryMobHandler implements Listener {
         crab.setHealth(health);
         crab.setBaby(true);
         crab.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
-        crab.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.45);
+        crab.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
         VersionSafe.setAttributeBaseValue(crab, "GENERIC_SCALE", 1.5);
         crab.addScoreboardTag("MA_Crab");
     }
@@ -181,9 +180,11 @@ public class MilitaryMobHandler implements Listener {
     public static void equipHorseJuan(Horse horse) {
         horse.setCustomName(ChatColor.DARK_AQUA + "🐎 Juan");
         horse.setCustomNameVisible(true);
-        horse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.35); // Velocidad 2
-        horse.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(70.0);
-        horse.setHealth(70.0);
+        double speed = getStat("juan", "movement_speed", 0.35);
+        double health = getStat("juan", "health", 70.0);
+        horse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
+        horse.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        horse.setHealth(health);
         VersionSafe.setAttributeBaseValue(horse, "GENERIC_SCALE", 1.5);
         VersionSafe.setAttributeBaseValue(horse, "GENERIC_JUMP_STRENGTH", 7.5); // Jump strength exists but let's be
                                                                                 // safe
@@ -195,11 +196,14 @@ public class MilitaryMobHandler implements Listener {
     public static void equipKing(ZombieVillager king) {
         king.setCustomName(ChatColor.DARK_GRAY + "♔ The King ♔");
         king.setCustomNameVisible(true);
-        king.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(250.0); // 125 Corazones
-        king.setHealth(250.0);
+        double health = getStat("the_king", "health", 250.0);
+        double damage = getStat("the_king", "damage", 150.0);
+        double speed = getStat("the_king", "movement_speed", 0.13);
+        king.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        king.setHealth(health);
         king.setBaby(false);
-        king.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(150.0);
-        king.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.13); // Lentitud 3
+        king.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        king.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
         king.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0); // Inamovible
         VersionSafe.setAttributeBaseValue(king, "GENERIC_SCALE", 1.5);
         king.addScoreboardTag("MA_TheKing");
@@ -367,9 +371,11 @@ public class MilitaryMobHandler implements Listener {
     public static void equipPusher(Zombie pusher) {
         pusher.setCustomName(ChatColor.GOLD + "⇄ Pusher ⇄");
         pusher.setCustomNameVisible(true);
-        pusher.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(10.0);
-        pusher.setHealth(10.0);
-        pusher.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.40);
+        double health = getStat("pusher", "health", 10.0);
+        double speed = getStat("pusher", "movement_speed", 0.40);
+        pusher.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        pusher.setHealth(health);
+        pusher.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
         pusher.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(0.0);
         pusher.getAttribute(Attribute.GENERIC_ATTACK_KNOCKBACK).setBaseValue(1.0);
         pusher.setBaby(true);
@@ -423,12 +429,14 @@ public class MilitaryMobHandler implements Listener {
     public static void equipEliteKiller(Zombie miniboss) {
         miniboss.setCustomName(ChatColor.WHITE + "☣ Elite Killer ☣ ");
         miniboss.setCustomNameVisible(true);
-        miniboss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.1); // Lentitud 4
+        double speed = getStat("elite_killer", "movement_speed", 0.1);
+        double health = getStat("elite_killer", "health", 1000.0);
+        double damage = getStat("elite_killer", "damage", 999999.0);
+        miniboss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
         miniboss.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0); // No retroceso
-        miniboss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(999999.0); // Instakill ( Posiblemente ) :V
-                                                                                       // hace 999k de daño
-        miniboss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(1000.0);
-        miniboss.setHealth(1000.0); // Vida del enemigo 500 corazones
+        miniboss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        miniboss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        miniboss.setHealth(health);
         miniboss.setBaby(false);
 
         miniboss.addScoreboardTag("MA_EliteKiller");
@@ -457,11 +465,14 @@ public class MilitaryMobHandler implements Listener {
         boss.setCustomName(ChatColor.DARK_RED + "☠ Heavy Gunner ☠");
         boss.setCustomNameVisible(true);
         // 2. [ATRIBUTOS]: Vida, Daño, Velocidad, etc.
-        boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(10000.0);
-        boss.setHealth(10000.0);
+        double health = getStat("heavy_gunner", "health", 10000.0);
+        double speed = getStat("heavy_gunner", "movement_speed", 0.3);
+        double damage = getStat("heavy_gunner", "damage", 18.0);
+        boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        boss.setHealth(health);
         boss.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0); // No retroceso
-        boss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.3); // Esqueleto es más ágil
-        boss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(18.0); // 9 Corazones de daño melee
+        boss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
+        boss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
 
         // 3. [TAG]: Sirve para que BossAIHandler sepa qué IA usar
         boss.addScoreboardTag("MA_HeavyGunner");
@@ -503,22 +514,25 @@ public class MilitaryMobHandler implements Listener {
         miniboss.setCustomName(ChatColor.DARK_GREEN + "☠ Elite Ranger ☠");
         miniboss.setCustomNameVisible(true);
 
+        double baseDamage = getStat("elite_ranger", "damage", 60.0);
+        double baseHealth = getStat("elite_ranger", "health", 75.0);
+        double speed = getStat("elite_ranger", "movement_speed", 0.35);
+
         // Escalar stats por dificultad
-        double damage = 60.0;
-        double health = 75.0;
+        double damage = baseDamage;
+        double health = baseHealth;
 
         switch (miniboss.getWorld().getDifficulty()) {
             case EASY:
-                damage = 40.0;
-                health = 55.0;
+                damage *= 0.66;
+                health *= 0.73;
                 break;
             case NORMAL:
-                damage = 60.0;
-                health = 75.0;
+                // Base
                 break;
             case HARD:
-                damage = 80.0;
-                health = 100.0;
+                damage *= 1.33;
+                health *= 1.33;
                 break;
             default: // PEACEFUL
                 break;
@@ -526,7 +540,7 @@ public class MilitaryMobHandler implements Listener {
 
         miniboss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
         miniboss.setHealth(health);
-        miniboss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.35);
+        miniboss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
         miniboss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
 
         // Tag para la IA Híbrida

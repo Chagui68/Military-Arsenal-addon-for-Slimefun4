@@ -14,17 +14,27 @@ public class VersionSafe {
      * Handles attributes introduced in 1.20.5+ (SCALE, STEP_HEIGHT, etc.)
      */
     public static Attribute getAttribute(String name) {
+        if (name == null)
+            return null;
         try {
-            return Attribute.valueOf(name);
-        } catch (IllegalArgumentException e1) {
-            // Try legacy names
-            try {
-                if (name.equals("GENERIC_JUMP_STRENGTH")) {
-                    return Attribute.valueOf("HORSE_JUMP_STRENGTH");
+            // Check if the enum constant exists before calling valueOf to be safe
+            for (Attribute attr : Attribute.values()) {
+                if (attr.name().equals(name)) {
+                    return attr;
                 }
-            } catch (IllegalArgumentException e2) {
-                // Still doesn't exist
             }
+
+            // Legacy fallbacks
+            if (name.equals("GENERIC_JUMP_STRENGTH")) {
+                for (Attribute attr : Attribute.values()) {
+                    if (attr.name().equals("HORSE_JUMP_STRENGTH")) {
+                        return attr;
+                    }
+                }
+            }
+
+            return null;
+        } catch (Exception e) {
             return null;
         }
     }

@@ -7,6 +7,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import com.Chagui68.weaponsaddon.utils.VersionSafe;
 
+import com.Chagui68.weaponsaddon.WeaponsAddon;
 import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -36,16 +37,31 @@ public class BossAIHandler implements Listener {
     private final Plugin plugin;
 
     // --- CONFIGURABLE PARAMETERS ---
-    private static final double AIRSTRIKE_DAMAGE = 150.0;
-    private static final int FLASHBANG_DURATION = 100;
+    private static double getAirstrikeDamage() {
+        return WeaponsAddon.getInstance().getConfig().getDouble("heavy_gunner.airstrike_damage", 150.0);
+    }
+
+    private static int getFlashbangDuration() {
+        return WeaponsAddon.getInstance().getConfig().getInt("heavy_gunner.flashbang_duration", 100);
+    }
+
     private static final double COVER_HP_THRESHOLD = 0.10;
     private static final double ARENA_RADIUS = 25.0;
     private static final long IDLE_DESPAWN_TIME = 60000;
     private static final int ARENA_HEIGHT = 19;
     private static final double ARENA_MARGIN = 0.5;
-    private static final double PURPLE_GUY_CINEMATIC_CHANCE = 0.4; // 40% chance
-    private static final int PURPLE_GUY_CINEMATIC_COOLDOWN_TICKS = 1200; // 60 seconds (20 ticks * 60)
-    private static final double PURPLE_GUY_CINEMATIC_DAMAGE = 50.0;
+
+    private static double getPurpleGuyCinematicChance() {
+        return WeaponsAddon.getInstance().getConfig().getDouble("mobs.purple_guy.cinematic_chance", 0.4);
+    }
+
+    private static int getPurpleGuyCinematicCooldown() {
+        return WeaponsAddon.getInstance().getConfig().getInt("mobs.purple_guy.cinematic_cooldown", 1200);
+    }
+
+    private static double getPurpleGuyCinematicDamage() {
+        return WeaponsAddon.getInstance().getConfig().getDouble("mobs.purple_guy.cinematic_damage", 50.0);
+    }
 
     /*
      * La altura y tamaño se define aquí en las lineas 33 para la altura y 31 para
@@ -997,10 +1013,10 @@ public class BossAIHandler implements Listener {
                 Player p = (Player) nearby;
                 p.addPotionEffect(
                         new PotionEffect(PotionEffectType.BLINDNESS,
-                                FLASHBANG_DURATION, 1));
+                                getFlashbangDuration(), 1));
                 p.addPotionEffect(
                         new PotionEffect(PotionEffectType.SLOWNESS,
-                                FLASHBANG_DURATION, 2));
+                                getFlashbangDuration(), 2));
                 p.sendMessage(ChatColor.RED + "BLINDED BY TACTICAL GRENADE!");
             }
         }
@@ -1039,7 +1055,7 @@ public class BossAIHandler implements Listener {
                     // Daño configurable en área
                     for (Entity e : targetLoc.getWorld().getNearbyEntities(targetLoc, 4, 4, 4)) {
                         if (e instanceof LivingEntity) {
-                            ((LivingEntity) e).damage(AIRSTRIKE_DAMAGE);
+                            ((LivingEntity) e).damage(getAirstrikeDamage());
                         }
                     }
                     this.cancel();
@@ -1436,10 +1452,10 @@ public class BossAIHandler implements Listener {
 
             if (enderman.getScoreboardTags().contains("MA_Purple_Guy")) {
                 // Configurable chance to trigger cinematic
-                if (Math.random() < PURPLE_GUY_CINEMATIC_CHANCE) {
+                if (Math.random() < getPurpleGuyCinematicChance()) {
                     // Cooldown check
                     if (!player.hasMetadata("cinematic_cd")) {
-                        CinematicUtils.startPurpleGuyCinematic(plugin, player, enderman, PURPLE_GUY_CINEMATIC_DAMAGE);
+                        CinematicUtils.startPurpleGuyCinematic(plugin, player, enderman, getPurpleGuyCinematicDamage());
                         player.setMetadata("cinematic_cd", new FixedMetadataValue(plugin, true));
                         e.setCancelled(true); // Cancel original damage to make it smoother
 
@@ -1451,7 +1467,7 @@ public class BossAIHandler implements Listener {
                                     player.removeMetadata("cinematic_cd", plugin);
                                 }
                             }
-                        }.runTaskLater(plugin, (long) PURPLE_GUY_CINEMATIC_COOLDOWN_TICKS);
+                        }.runTaskLater(plugin, (long) getPurpleGuyCinematicCooldown());
                     }
                 }
             }

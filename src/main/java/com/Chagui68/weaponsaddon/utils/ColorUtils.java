@@ -33,4 +33,17 @@ public class ColorUtils {
 
         return ChatColor.translateAlternateColorCodes('&', sb.toString());
     }
+
+    /**
+     * Translates a list of strings.
+     */
+    public static java.util.List<String> translateList(java.util.List<String> list) {
+        if (list == null)
+            return null;
+        java.util.List<String> translated = new java.util.ArrayList<>();
+        for (String s : list) {
+            translated.add(translate(s));
+        }
+        return translated;
+    }
 }

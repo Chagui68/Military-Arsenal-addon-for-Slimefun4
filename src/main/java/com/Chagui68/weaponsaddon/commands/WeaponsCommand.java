@@ -31,15 +31,31 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (args.length < 2 || (!args[0].equalsIgnoreCase("delete") && !args[0].equalsIgnoreCase("summon")
-                && !args[0].equalsIgnoreCase("give"))) {
-            sender.sendMessage(ChatColor.RED + "Usage: /weapons <delete|summon|give> <args>");
+        if (args.length < 1) {
+            sender.sendMessage(ChatColor.RED + "Usage: /weapons <delete|summon|give|reload> <args>");
             return true;
         }
 
         String cmdType = args[0].toLowerCase();
 
+        if (cmdType.equals("reload")) {
+            // Already handled in switch below but let's fix the validation
+        } else if (args.length < 2
+                && (cmdType.equals("delete") || cmdType.equals("summon") || cmdType.equals("give"))) {
+            sender.sendMessage(ChatColor.RED + "Usage: /weapons " + cmdType + " <args>");
+            return true;
+        }
+
         switch (cmdType) {
+            case "reload":
+                try {
+                    com.Chagui68.weaponsaddon.WeaponsAddon.getInstance().reloadConfig();
+                    sender.sendMessage(ChatColor.GREEN + "✓ Configuration reloaded successfully!");
+                } catch (Exception e) {
+                    sender.sendMessage(ChatColor.RED + "Error reloading configuration: " + e.getMessage());
+                }
+                break;
+
             case "delete":
                 String deleteType = args[1].toLowerCase();
                 if (deleteType.equals("arena")) {
@@ -88,8 +104,8 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
                             break;
 
                         case "crab":
-                            PigZombie pigZombie = (PigZombie)  world
-                                    .spawnEntity(loc,EntityType.ZOMBIFIED_PIGLIN);
+                            PigZombie pigZombie = (PigZombie) world
+                                    .spawnEntity(loc, EntityType.ZOMBIFIED_PIGLIN);
                             MilitaryMobHandler.equipPigman(pigZombie);
                             sender.sendMessage(ChatColor.GREEN + "✓ Summoned Rusty Crab!");
                             break;
@@ -208,6 +224,7 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
             completions.add("delete");
             completions.add("summon");
             completions.add("give");
+            completions.add("reload");
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("delete")) {
                 completions.add("arena");

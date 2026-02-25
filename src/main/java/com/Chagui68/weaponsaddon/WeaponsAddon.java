@@ -26,6 +26,7 @@ import com.Chagui68.weaponsaddon.items.machines.SniperTurret;
 import com.Chagui68.weaponsaddon.items.machines.MeleeTurret;
 import com.Chagui68.weaponsaddon.items.machines.MachineGunTurret;
 import com.Chagui68.weaponsaddon.items.machines.MountableTurret;
+import com.Chagui68.weaponsaddon.items.machines.SpawnNegator;
 import com.Chagui68.weaponsaddon.items.machines.WeaponUpgradeTable;
 import com.Chagui68.weaponsaddon.commands.WeaponsCommand;
 import com.Chagui68.weaponsaddon.handlers.MilitaryCombatHandler;
@@ -143,6 +144,10 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
                         getLogger().info("Registering Void Armor set...");
                         VoidSuitPiece.register(this, armorGroup);
                         getLogger().info("Void Armor set registered successfully!");
+
+                        getLogger().info("Registering SpawnNegator...");
+                        SpawnNegator.register(this, defensesGroup);
+                        getLogger().info("SpawnNegator registered successfully!");
                 } catch (Exception e) {
                         getLogger().severe("Failed to register MilitaryComponents: " + e.getMessage());
                         e.printStackTrace();

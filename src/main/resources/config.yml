@@ -1,3 +1,81 @@
-# Military Arsenal - Configuration
+# ==========================================
+# Military Arsenal - Configuración General
+# ==========================================
 
-# (Addon settings will appear here)
+# Configuración de Mobs Personalizados
+# -----------------------------------
+# spawn_chance: Probabilidad de que un mob vanilla (Skeleton/Zombie/etc) se convierta 
+#               en uno de este addon al aparecer naturalmente.
+#               VALOR 0: Desactiva completamente la aparición natural de este mob.
+# health: Vida máxima de la entidad.
+# damage: Daño de ataque (melee o base según el mob).
+# movement_speed: Velocidad de movimiento (Ej: 0.3 es velocidad normal, 0.4 es rápido).
+
+mobs:
+  elite_ranger:
+    spawn_chance: 0.2
+    health: 75.0
+    damage: 60.0 # Daño base para escalado de flechas
+    movement_speed: 0.35
+
+
+  elite_killer:
+    spawn_chance: 0.3
+    health: 1000.0
+    damage: 999999.0
+    movement_speed: 0.1
+
+  the_king:
+    spawn_chance: 0.25
+    health: 250.0
+    damage: 150.0
+    movement_speed: 0.13
+
+
+  pusher:
+    spawn_chance: 0.8
+    health: 10.0
+    movement_speed: 0.4
+    knockback_multiplier: 5.0 # Multiplicador de empuje horizontal
+    knockback_vertical: 1.0   # Fuerza de empuje hacia arriba
+
+  battle_witch:
+    spawn_chance: 0.25
+    health: 80.0
+    movement_speed: 0.28
+
+  juan:
+    spawn_chance: 0.6
+    health: 70.0
+    movement_speed: 0.35
+
+  rusty_crab:
+    spawn_chance: 0.3
+    health: 100.0
+    damage: 15.0
+    movement_speed: 0.45
+
+  purple_guy:
+    spawn_chance: 0.4
+    health: 150.0
+    damage: 10.0
+    cinematic_chance: 0.4    # Probabilidad de activar la cinemática al atacar
+    cinematic_cooldown: 1200 # Tiempo de espera en TICKS (20 ticks = 1 segundo)
+    cinematic_damage: 50.0   # Daño causado durante la cinemática
+
+  heavy_gunner:
+    health: 10000.0
+    damage: 18.0
+    movement_speed: 0.3
+    airstrike_damage: 150.0  # Daño de la explosión del ataque aéreo
+    flashbang_duration: 100  # Duración de ceguera/lentitud en ticks
+
+# -----------------------------------
+# Spawn Negator (Máquina Slimefun)
+# -----------------------------------
+# Esta máquina evita la aparición de mobs militares en su radio de acción.
+spawn_negator:
+  radius: 100                # Radio en bloques para bloquear spawns
+  prevent_natural_spawn: true # Bloquear aparición natural
+  prevent_spawner_spawn: true # Bloquear aparición desde spawners
+  prevent_egg_spawn: true     # Bloquear aparición desde huevos de spawn
