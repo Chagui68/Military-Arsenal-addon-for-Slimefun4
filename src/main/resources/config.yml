@@ -76,6 +76,7 @@ mobs:
     health: 10000.0
     damage: 18.0
     movement_speed: 0.3
+    max_damage_received: 1000.0 # Daño máximo que puede recibir por golpe
     airstrike_damage: 150.0  # Daño de la explosión del ataque aéreo
     flashbang_duration: 100  # Duración de ceguera/lentitud en ticks
 

@@ -54,8 +54,21 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
 
         @Override
         public void onEnable() {
+                getLogger().info("=== Starting WeaponsAddon Enabling ===");
+
                 // Configuration
-                saveDefaultConfig();
+                try {
+                        if (!getDataFolder().exists()) {
+                                getLogger().info("Data folder not found, attempting to create...");
+                        }
+                        saveDefaultConfig();
+                        getConfig().options().copyDefaults(true);
+                        saveConfig();
+                        getLogger().info("Configuration loaded and saved successfully.");
+                } catch (Exception e) {
+                        getLogger().severe("CRITICAL: Failed to save or load config: " + e.getMessage());
+                        e.printStackTrace();
+                }
 
                 // Create Item Groups
                 NestedItemGroup mainGroup = new NestedItemGroup(

@@ -45,6 +45,10 @@ public class BossAIHandler implements Listener {
         return WeaponsAddon.getInstance().getConfig().getInt("heavy_gunner.flashbang_duration", 100);
     }
 
+    private static double getMaxDamageReceived() {
+        return WeaponsAddon.getInstance().getConfig().getDouble("heavy_gunner.max_damage_received", 1000.0);
+    }
+
     private static final double COVER_HP_THRESHOLD = 0.10;
     private static final double ARENA_RADIUS = 25.0;
     private static final long IDLE_DESPAWN_TIME = 60000;
@@ -91,8 +95,8 @@ public class BossAIHandler implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onProjectileHit(EntityDamageByEntityEvent e) {
-        // --- BULLET DAMAGE (Progressive by phase) ---
+    public void onBossDamageReceived(EntityDamageByEntityEvent e) {
+        // --- BULLET DAMAGE (From Heavy Gunner to others) ---
         if (e.getDamager() instanceof Snowball) {
             Snowball bullet = (Snowball) e.getDamager();
             if (bullet.getShooter() instanceof Skeleton) {
@@ -101,7 +105,7 @@ public class BossAIHandler implements Listener {
                     // Base damage + phase bonus
                     double baseDamage = 80.0;
                     double phaseDamage = baseDamage + (currentBossPhase * 3.0);
-                    e.setDamage(phaseDamage); // Phase 1: 15, Phase 7: 33
+                    e.setDamage(phaseDamage);
                 }
             }
         }
@@ -110,11 +114,11 @@ public class BossAIHandler implements Listener {
         if (e.getEntity() instanceof Skeleton && e.getEntity().getScoreboardTags().contains("MA_HeavyGunner")) {
             e.getEntity().setMetadata("last_damage_taken", new FixedMetadataValue(plugin, System.currentTimeMillis()));
 
-            // CAP DAMAGE TO 1000 (500 hearts) to prevent one-shots
-            if (e.getDamage() > 1000.0) {
-                e.setDamage(1000.0);
+            // CAP DAMAGE to prevent one-shots (using configurable value)
+            double maxDamage = getMaxDamageReceived();
+            if (e.getDamage() > maxDamage) {
+                e.setDamage(maxDamage);
             }
-
         }
     }
 
@@ -211,7 +215,6 @@ public class BossAIHandler implements Listener {
         }
     }
 
-
     private void handlePurpleGuy(Enderman enderman) {
         if (enderman.getTarget() != null && !enderman.getTarget().isDead()
                 && enderman.getTarget().getWorld() == enderman.getWorld()
@@ -249,25 +252,31 @@ public class BossAIHandler implements Listener {
 
             if (p.hasMetadata("crab_abduction_cd")) {
                 long cd = p.getMetadata("crab_abduction_cd").get(0).asLong();
-                if (System.currentTimeMillis() < cd) continue;
+                if (System.currentTimeMillis() < cd)
+                    continue;
             }
 
             double dist = p.getLocation().distance(crab.getLocation());
             if (dist <= abilityRadius) {
                 p.teleport(crab.getLocation());
-                
-                int slownessAmp = WeaponsAddon.getInstance().getConfig().getInt("mobs.rusty_crab.slowness_amplifier", 1);
-                int blindnessAmp = WeaponsAddon.getInstance().getConfig().getInt("mobs.rusty_crab.blindness_amplifier", 1);
+
+                int slownessAmp = WeaponsAddon.getInstance().getConfig().getInt("mobs.rusty_crab.slowness_amplifier",
+                        1);
+                int blindnessAmp = WeaponsAddon.getInstance().getConfig().getInt("mobs.rusty_crab.blindness_amplifier",
+                        1);
                 int duration = WeaponsAddon.getInstance().getConfig().getInt("mobs.rusty_crab.effect_duration", 100);
 
                 p.addPotionEffect(new PotionEffect(VersionSafe.getPotionEffectType("SLOWNESS"), duration, slownessAmp));
-                p.addPotionEffect(new PotionEffect(VersionSafe.getPotionEffectType("BLINDNESS"), duration, blindnessAmp));
+                p.addPotionEffect(
+                        new PotionEffect(VersionSafe.getPotionEffectType("BLINDNESS"), duration, blindnessAmp));
 
-                p.setMetadata("crab_abduction_cd", new FixedMetadataValue(plugin, System.currentTimeMillis() + cooldownMs));
+                p.setMetadata("crab_abduction_cd",
+                        new FixedMetadataValue(plugin, System.currentTimeMillis() + cooldownMs));
 
                 crab.getWorld().playSound(crab.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
                 crab.getWorld().playSound(crab.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 0.5f);
-                crab.getWorld().spawnParticle(Particle.DRAGON_BREATH, crab.getLocation().add(0, 1, 0), 30, 0.5, 0.5, 0.5, 0.1);
+                crab.getWorld().spawnParticle(Particle.DRAGON_BREATH, crab.getLocation().add(0, 1, 0), 30, 0.5, 0.5,
+                        0.5, 0.1);
 
                 p.sendMessage(ChatColor.RED + "You have been abducted by the Rusty Crab!");
                 break;
@@ -301,9 +310,6 @@ public class BossAIHandler implements Listener {
             crab.setAnger(600);
         }
     }
-
-
-
 
     private void handleWarriorAI(Zombie warrior) {
         LivingEntity target = warrior.getTarget();
@@ -356,30 +362,29 @@ public class BossAIHandler implements Listener {
             return;
 
         double distance = killer.getLocation().distance(target.getLocation());
-        if (distance > 20) return;
+        if (distance > 20)
+            return;
 
         if (target instanceof Player) {
             Player p = (Player) target;
-            long cooldownMs = WeaponsAddon.getInstance().getConfig().getLong("mobs.elite_killer.ability_cooldown_ms", 60000);
+            long cooldownMs = WeaponsAddon.getInstance().getConfig().getLong("mobs.elite_killer.ability_cooldown_ms",
+                    60000);
 
             if (p.hasMetadata("killer_abduction_cd")) {
                 long cd = p.getMetadata("killer_abduction_cd").get(0).asLong();
-                if (System.currentTimeMillis() < cd) return;
+                if (System.currentTimeMillis() < cd)
+                    return;
             }
 
             for (int i = 0; i < 3; i++) {
                 spawnPusherBehind(target);
             }
 
-            p.setMetadata("killer_abduction_cd", new FixedMetadataValue(plugin, System.currentTimeMillis() + cooldownMs));
+            p.setMetadata("killer_abduction_cd",
+                    new FixedMetadataValue(plugin, System.currentTimeMillis() + cooldownMs));
             killer.setMetadata("killer_cooldown", new FixedMetadataValue(plugin, System.currentTimeMillis() + 60000));
         }
     }
-
-
-
-
-
 
     private void spawnPusherBehind(LivingEntity target) {
         Location targetLoc = target.getLocation();
