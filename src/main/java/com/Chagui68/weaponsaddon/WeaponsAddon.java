@@ -33,6 +33,7 @@ import com.Chagui68.weaponsaddon.handlers.MilitaryCombatHandler;
 import com.Chagui68.weaponsaddon.handlers.MilitaryMobHandler;
 import com.Chagui68.weaponsaddon.items.vouchers.MilitaryVouchers;
 import com.Chagui68.weaponsaddon.listeners.BossAIHandler;
+import com.Chagui68.weaponsaddon.listeners.CinematicJoinListener;
 import com.Chagui68.weaponsaddon.listeners.SlimefunGuideListener;
 import com.Chagui68.weaponsaddon.handlers.InventoryEffectHandler;
 import com.Chagui68.weaponsaddon.items.armor.VoidSuitPiece;
@@ -314,6 +315,7 @@ public class WeaponsAddon extends JavaPlugin implements SlimefunAddon {
                 getServer().getPluginManager().registerEvents(new MilitaryCombatHandler(this), this);
                 getServer().getPluginManager().registerEvents(new AntimatterRifleHandler(), this);
                 getServer().getPluginManager().registerEvents(new TraderHandler(), this);
+                getServer().getPluginManager().registerEvents(new CinematicJoinListener(), this);
 
                 // Register commands
 

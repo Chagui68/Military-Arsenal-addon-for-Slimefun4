@@ -19,9 +19,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.persistence.PersistentDataType;
+import com.Chagui68.weaponsaddon.WeaponsAddon;
+
 public class CinematicUtils {
 
-    private static final Map<UUID, GameMode> originalGameModes = new HashMap<>();
+    private static final NamespacedKey GM_KEY = new NamespacedKey(WeaponsAddon.getInstance(), "original_gamemode");
     private static final Map<UUID, Location> originalLocations = new HashMap<>();
     private static final Map<UUID, ArmorStand> activeNpcs = new HashMap<>();
     private static final Map<UUID, LivingEntity> activeBosses = new HashMap<>();
@@ -35,7 +38,7 @@ public class CinematicUtils {
             return;
 
         // 1. Guardar estado original
-        originalGameModes.put(uuid, player.getGameMode());
+        player.getPersistentDataContainer().set(GM_KEY, PersistentDataType.STRING, player.getGameMode().name());
         originalLocations.put(uuid, player.getLocation().clone());
         activeBosses.put(uuid, purpleGuy);
 
@@ -209,9 +212,16 @@ public class CinematicUtils {
         if (loc != null)
             player.teleport(loc);
 
-        GameMode gm = originalGameModes.remove(uuid);
-        if (gm != null)
-            player.setGameMode(gm);
+        String gmName = player.getPersistentDataContainer().get(GM_KEY, PersistentDataType.STRING);
+        if (gmName != null) {
+            try {
+                GameMode gm = GameMode.valueOf(gmName);
+                player.setGameMode(gm);
+            } catch (IllegalArgumentException e) {
+                player.setGameMode(GameMode.SURVIVAL);
+            }
+            player.getPersistentDataContainer().remove(GM_KEY);
+        }
 
         player.removePotionEffect(VersionSafe.getPotionEffectType("BLINDNESS"));
     }

@@ -26,6 +26,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.*;
@@ -95,7 +96,21 @@ public class BossAIHandler implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onBossDamageReceived(EntityDamageByEntityEvent e) {
+    public void onBossDamageReceived(EntityDamageEvent e) {
+        // --- TRACK DAMAGE RECEIVED BY BOSS + DAMAGE CAP ---
+        if (e.getEntity() instanceof Skeleton && e.getEntity().getScoreboardTags().contains("MA_HeavyGunner")) {
+            e.getEntity().setMetadata("last_damage_taken", new FixedMetadataValue(plugin, System.currentTimeMillis()));
+
+            // CAP DAMAGE to prevent one-shots (using configurable value)
+            double maxDamage = getMaxDamageReceived();
+            if (e.getDamage() > maxDamage) {
+                e.setDamage(maxDamage);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onProjectileDamage(EntityDamageByEntityEvent e) {
         // --- BULLET DAMAGE (From Heavy Gunner to others) ---
         if (e.getDamager() instanceof Snowball) {
             Snowball bullet = (Snowball) e.getDamager();
@@ -107,17 +122,6 @@ public class BossAIHandler implements Listener {
                     double phaseDamage = baseDamage + (currentBossPhase * 3.0);
                     e.setDamage(phaseDamage);
                 }
-            }
-        }
-
-        // --- TRACK DAMAGE RECEIVED BY BOSS + DAMAGE CAP ---
-        if (e.getEntity() instanceof Skeleton && e.getEntity().getScoreboardTags().contains("MA_HeavyGunner")) {
-            e.getEntity().setMetadata("last_damage_taken", new FixedMetadataValue(plugin, System.currentTimeMillis()));
-
-            // CAP DAMAGE to prevent one-shots (using configurable value)
-            double maxDamage = getMaxDamageReceived();
-            if (e.getDamage() > maxDamage) {
-                e.setDamage(maxDamage);
             }
         }
     }
@@ -1074,7 +1078,7 @@ public class BossAIHandler implements Listener {
 
     private void executeAirStrike(LivingEntity target) {
         Location targetLoc = target.getLocation();
-        target.sendMessage(ChatColor.DARK_RED + "¡AVISO DE ATAQUE AÉREO DETECTADO!");
+        target.sendMessage(ChatColor.DARK_RED + "AIRSTRIKE WARNING DETECTED!");
         target.getWorld().playSound(targetLoc, Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 0.5f);
 
         // Marcar zona con partículas

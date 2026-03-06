@@ -1,21 +1,21 @@
 # ==========================================
-# Military Arsenal - Configuración General
+# Military Arsenal - General Configuration
 # ==========================================
 
-# Configuración de Mobs Personalizados
+# Custom Mobs Configuration
 # -----------------------------------
-# spawn_chance: Probabilidad de que un mob vanilla (Skeleton/Zombie/etc) se convierta 
-#               en uno de este addon al aparecer naturalmente.
-#               VALOR 0: Desactiva completamente la aparición natural de este mob.
-# health: Vida máxima de la entidad.
-# damage: Daño de ataque (melee o base según el mob).
-# movement_speed: Velocidad de movimiento (Ej: 0.3 es velocidad normal, 0.4 es rápido).
+# spawn_chance: Chance (0.0 to 1.0) for a vanilla mob (Skeleton/Zombie/etc) to turn 
+#               into one from this addon when spawning naturally.
+#               VALUE 0: Completely disables natural spawning for this mob.
+# health: Maximum health of the entity.
+# damage: Attack damage (melee or base depending on the mob).
+# movement_speed: Movement speed (e.g., 0.3 is normal, 0.4 is fast).
 
 mobs:
   elite_ranger:
     spawn_chance: 0.2
     health: 75.0
-    damage: 60.0 # Daño base para escalado de flechas
+    damage: 60.0 # Base damage for arrow scaling
     movement_speed: 0.35
 
 
@@ -39,8 +39,8 @@ mobs:
     spawn_chance: 0.8
     health: 10.0
     movement_speed: 0.4
-    knockback_multiplier: 5.0 # Multiplicador de empuje horizontal
-    knockback_vertical: 1.0   # Fuerza de empuje hacia arriba
+    knockback_multiplier: 5.0 # Horizontal knockback multiplier
+    knockback_vertical: 1.0   # Vertical knockback force
 
   battle_witch:
     spawn_chance: 0.25
@@ -68,24 +68,24 @@ mobs:
     spawn_chance: 0.4
     health: 150.0
     damage: 10.0
-    cinematic_chance: 0.4    # Probabilidad de activar la cinemática al atacar
-    cinematic_cooldown: 1200 # Tiempo de espera en TICKS (20 ticks = 1 segundo)
-    cinematic_damage: 50.0   # Daño causado durante la cinemática
+    cinematic_chance: 0.4    # Probability of activating the cinematic when attacking
+    cinematic_cooldown: 1200 # Cooldown time in TICKS (20 ticks = 1 second)
+    cinematic_damage: 50.0   # Damage dealt during the cinematic
 
   heavy_gunner:
     health: 10000.0
     damage: 18.0
     movement_speed: 0.3
-    max_damage_received: 1000.0 # Daño máximo que puede recibir por golpe
-    airstrike_damage: 150.0  # Daño de la explosión del ataque aéreo
-    flashbang_duration: 100  # Duración de ceguera/lentitud en ticks
+    max_damage_received: 1000.0 # Maximum damage that can be received per hit
+    airstrike_damage: 150.0  # Damage from the airstrike explosion
+    flashbang_duration: 100  # Blindness/slowness duration in ticks
 
 # -----------------------------------
-# Spawn Negator (Máquina Slimefun)
+# Spawn Negator (Slimefun Machine)
 # -----------------------------------
-# Esta máquina evita la aparición de mobs militares en su radio de acción.
+# This machine prevents the spawning of military mobs within its range.
 spawn_negator:
-  radius: 100                # Radio en bloques para bloquear spawns
-  prevent_natural_spawn: true # Bloquear aparición natural
-  prevent_spawner_spawn: true # Bloquear aparición desde spawners
-  prevent_egg_spawn: true     # Bloquear aparición desde huevos de spawn
+  radius: 100                # Range in blocks to block spawns
+  prevent_natural_spawn: true # Block natural spawning
+  prevent_spawner_spawn: true # Block spawning from spawners
+  prevent_egg_spawn: true     # Block spawning from spawn eggs

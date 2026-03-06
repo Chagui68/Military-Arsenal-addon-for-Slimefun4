@@ -275,7 +275,8 @@ public class MilitaryCombatHandler implements Listener {
                 entity.getScoreboardTags().contains("MA_Pusher") ||
                 entity.getScoreboardTags().contains("MA_HeavyGunner") ||
                 entity.getScoreboardTags().contains("MA_Warrior") ||
-                entity.getScoreboardTags().contains("MA_BattleWitch");
+                entity.getScoreboardTags().contains("MA_BattleWitch") ||
+                entity.getScoreboardTags().contains("MA_Purple_Guy");
 
         if (isMilitaryMob) {
             // Only allow targeting Players to prevent them from attacking Armor Stands or
