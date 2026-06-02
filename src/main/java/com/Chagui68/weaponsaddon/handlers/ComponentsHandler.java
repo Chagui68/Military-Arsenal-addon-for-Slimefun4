@@ -1,6 +1,6 @@
 package com.Chagui68.weaponsaddon.handlers;
 
-import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

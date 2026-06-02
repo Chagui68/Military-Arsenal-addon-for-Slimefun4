@@ -1,6 +1,6 @@
 package com.Chagui68.weaponsaddon.handlers;
 
-import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -64,7 +64,7 @@ public class AntimatterRifleHandler implements Listener {
                 if (i % 2 == 0) {
                     p.getWorld().spawnParticle(Particle.FLASH,
                             point.getX(), point.getY(), point.getZ(),
-                            1, 0, 0, 0, 0);
+                            1, null);
                 }
             }
 

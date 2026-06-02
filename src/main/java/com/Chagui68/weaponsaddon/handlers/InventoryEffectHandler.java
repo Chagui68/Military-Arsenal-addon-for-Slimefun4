@@ -1,7 +1,7 @@
 package com.Chagui68.weaponsaddon.handlers;
 
 import com.Chagui68.weaponsaddon.core.attributes.CustomEffectEmitter;
-import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem;
 import com.Chagui68.weaponsaddon.WeaponsAddon;
 import org.bukkit.*;
 import org.bukkit.entity.Player;

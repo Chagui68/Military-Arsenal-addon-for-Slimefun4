@@ -4,7 +4,7 @@ import com.Chagui68.weaponsaddon.WeaponsAddon;
 import com.Chagui68.weaponsaddon.items.machines.AmmunitionWorkshop;
 import com.Chagui68.weaponsaddon.items.machines.MilitaryCraftingTable;
 import com.Chagui68.weaponsaddon.items.machines.MilitaryMachineFabricator;
-import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
+import com.github.drakescraft_labs.slimefun4.api.recipes.RecipeType;
 import org.bukkit.NamespacedKey;
 
 /**

@@ -1,6 +1,6 @@
 package com.Chagui68.weaponsaddon.items.machines;
 
-import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
