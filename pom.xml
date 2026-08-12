@@ -31,33 +31,24 @@
     </repositories>
 
     <dependencies>
-        <!-- Paper 26.2 API. CI builds with JDK 25 while retaining Java 21 bytecode. -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>${paper.version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <!--
-            Compile against the public Slimefun4 API surface used by Slimefun Legacy.
-            Slimefun itself is provided by the server and is never bundled into this addon.
-        -->
         <dependency>
             <groupId>${slimefun.groupId}</groupId>
             <artifactId>${slimefun.artifactId}</artifactId>
             <version>${slimefun.version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- Paper exposes JOML at runtime; this declaration keeps display-entity code explicit. -->
         <dependency>
             <groupId>org.joml</groupId>
             <artifactId>joml</artifactId>
             <version>1.10.8</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
@@ -69,29 +60,18 @@
     <build>
         <defaultGoal>clean package</defaultGoal>
         <finalName>SF_MilitaryArsenal_Legacy_v${project.version}</finalName>
-
-        <!--
-            Upstream 2.4.8 moved its source imports to the Drake Slimefun6 namespace.
-            The Legacy fork intentionally keeps upstream source easy to sync, then prepares a
-            generated compile tree that maps the Drake namespace/API names onto the established
-            Slimefun Legacy and Paper 26.2 API surfaces.
-        -->
         <sourceDirectory>${legacy.source.dir}</sourceDirectory>
 
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <excludes>
-                    <exclude>structures/*.nbt</exclude>
-                </excludes>
+                <excludes><exclude>structures/*.nbt</exclude></excludes>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
-                <includes>
-                    <include>structures/*.nbt</include>
-                </includes>
+                <includes><include>structures/*.nbt</include></includes>
             </resource>
         </resources>
 
@@ -104,9 +84,7 @@
                     <execution>
                         <id>prepare-slimefun-legacy-sources</id>
                         <phase>generate-sources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
+                        <goals><goal>run</goal></goals>
                         <configuration>
                             <target>
                                 <delete dir="${legacy.source.dir}"/>
@@ -114,36 +92,45 @@
                                     <fileset dir="${project.basedir}/src/main/java" includes="**/*.java"/>
                                 </copy>
 
-                                <!-- Drake Slimefun6 namespace -> Slimefun Legacy namespace. -->
-                                <replaceregexp
-                                        match="com\.github\.drakescraft_labs\.slimefun4"
-                                        replace="io.github.thebusybiscuit.slimefun4"
-                                        byline="true">
+                                <replaceregexp match="com\.github\.drakescraft_labs\.slimefun4" replace="io.github.thebusybiscuit.slimefun4" byline="true">
+                                    <fileset dir="${legacy.source.dir}" includes="**/*.java"/>
+                                </replaceregexp>
+                                <replaceregexp match="io\.github\.thebusybiscuit\.slimefun4\.legacy\.Objects\.handlers\.BlockTicker" replace="me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker" byline="true">
+                                    <fileset dir="${legacy.source.dir}" includes="**/*.java"/>
+                                </replaceregexp>
+                                <replaceregexp match="Attribute\.GENERIC_" replace="Attribute." byline="true">
+                                    <fileset dir="${legacy.source.dir}" includes="**/*.java"/>
+                                </replaceregexp>
+                                <replaceregexp match="Material\.CHAIN" replace="Material.IRON_CHAIN" byline="true">
+                                    <fileset dir="${legacy.source.dir}" includes="**/*.java"/>
+                                </replaceregexp>
+                                <replaceregexp match="^\s*e\.getSpawnReason\(\) != CreatureSpawnEvent\.SpawnReason\.CHUNK_GEN &amp;&amp;\s*$" replace="" byline="true">
+                                    <fileset dir="${legacy.source.dir}" includes="**/MilitaryMobHandler.java"/>
+                                </replaceregexp>
+
+                                <replaceregexp match="new AttributeModifier\(\s*UUID\.randomUUID\(\),\s*&quot;Toughness&quot;\s*,\s*([^,\r\n]+)\s*,\s*AttributeModifier\.Operation\.ADD_NUMBER\s*,\s*EquipmentSlot\.HEAD\s*\)" replace="new AttributeModifier(new NamespacedKey(WeaponsAddon.getInstance(), &quot;toughness&quot;), \1, AttributeModifier.Operation.ADD_NUMBER, org.bukkit.inventory.EquipmentSlotGroup.HEAD)" byline="false">
+                                    <fileset dir="${legacy.source.dir}" includes="**/*.java"/>
+                                </replaceregexp>
+                                <replaceregexp match="new AttributeModifier\(\s*UUID\.randomUUID\(\),\s*&quot;([^&quot;]+)&quot;\s*,\s*([^,\r\n]+)\s*,\s*AttributeModifier\.Operation\.ADD_NUMBER\s*,\s*EquipmentSlot\.HEAD\s*\)" replace="new AttributeModifier(new NamespacedKey(WeaponsAddon.getInstance(), &quot;\1&quot;), \2, AttributeModifier.Operation.ADD_NUMBER, org.bukkit.inventory.EquipmentSlotGroup.HEAD)" byline="false">
+                                    <fileset dir="${legacy.source.dir}" includes="**/*.java"/>
+                                </replaceregexp>
+                                <replaceregexp match="new AttributeModifier\(\s*UUID\.randomUUID\(\),\s*&quot;([^&quot;]+)&quot;\s*,\s*([^,\r\n]+)\s*,\s*AttributeModifier\.Operation\.ADD_NUMBER\s*,\s*EquipmentSlot\.HAND\s*\)" replace="new AttributeModifier(new NamespacedKey(WeaponsAddon.getInstance(), &quot;\1&quot;), \2, AttributeModifier.Operation.ADD_NUMBER, org.bukkit.inventory.EquipmentSlotGroup.MAINHAND)" byline="false">
                                     <fileset dir="${legacy.source.dir}" includes="**/*.java"/>
                                 </replaceregexp>
 
-                                <!-- BlockTicker intentionally remains in Slimefun's legacy API package. -->
-                                <replaceregexp
-                                        match="io\.github\.thebusybiscuit\.slimefun4\.legacy\.Objects\.handlers\.BlockTicker"
-                                        replace="me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker"
-                                        byline="true">
-                                    <fileset dir="${legacy.source.dir}" includes="**/*.java"/>
+                                <!-- One upstream multiline layout places the name/value on the same line. -->
+                                <replaceregexp match="(?s)AttributeModifier sword_attack_speed = new AttributeModifier\(\s*UUID\.randomUUID\(\),\s*&quot;military_speed&quot;\s*,\s*-2\.4\s*,\s*AttributeModifier\.Operation\.ADD_NUMBER\s*,\s*EquipmentSlot\.HAND\s*\);" replace="AttributeModifier sword_attack_speed = new AttributeModifier(new NamespacedKey(WeaponsAddon.getInstance(), &quot;military_speed&quot;), -2.4, AttributeModifier.Operation.ADD_NUMBER, org.bukkit.inventory.EquipmentSlotGroup.MAINHAND);" byline="false">
+                                    <fileset dir="${legacy.source.dir}" includes="**/MilitaryMobHandler.java"/>
                                 </replaceregexp>
 
-                                <!-- Paper 26.2 removed the GENERIC_ prefix from Bukkit attribute constants. -->
-                                <replaceregexp
-                                        match="Attribute\.GENERIC_"
-                                        replace="Attribute."
-                                        byline="true">
-                                    <fileset dir="${legacy.source.dir}" includes="**/*.java"/>
+                                <replaceregexp match="new AttributeModifier\(\s*UUID\.randomUUID\(\),\s*&quot;knockback&quot;\s*,\s*5\s*,\s*AttributeModifier\.Operation\.ADD_NUMBER\s*,\s*EquipmentSlot\.HAND\s*\)" replace="new AttributeModifier(new NamespacedKey(WeaponsAddon.getInstance(), &quot;knockback&quot;), 5, AttributeModifier.Operation.ADD_NUMBER, org.bukkit.inventory.EquipmentSlotGroup.MAINHAND)" byline="false">
+                                    <fileset dir="${legacy.source.dir}" includes="**/MilitaryMobHandler.java"/>
                                 </replaceregexp>
-
-                                <!-- Minecraft/Paper 26.2 renamed the former generic chain material to IRON_CHAIN. -->
-                                <replaceregexp
-                                        match="Material\.CHAIN"
-                                        replace="Material.IRON_CHAIN"
-                                        byline="true">
-                                    <fileset dir="${legacy.source.dir}" includes="**/*.java"/>
+                                <replaceregexp match="new AttributeModifier\(\s*UUID\.randomUUID\(\),\s*&quot;military_speed&quot;\s*,\s*baseSpdModifier\s*\+\s*spdBonus\s*,\s*AttributeModifier\.Operation\.ADD_NUMBER\s*,\s*EquipmentSlot\.HAND\s*\)" replace="new AttributeModifier(new NamespacedKey(WeaponsAddon.getInstance(), &quot;military_speed&quot;), baseSpdModifier + spdBonus, AttributeModifier.Operation.ADD_NUMBER, org.bukkit.inventory.EquipmentSlotGroup.MAINHAND)" byline="false">
+                                    <fileset dir="${legacy.source.dir}" includes="**/UpgradeTableHandler.java"/>
+                                </replaceregexp>
+                                <replaceregexp match="mod\.getName\(\)\.startsWith\(namePrefix\)" replace="mod.getKey().getKey().startsWith(namePrefix)" byline="true">
+                                    <fileset dir="${legacy.source.dir}" includes="**/UpgradeTableHandler.java"/>
                                 </replaceregexp>
                             </target>
                         </configuration>
@@ -160,6 +147,8 @@
                     <encoding>UTF-8</encoding>
                     <proc>none</proc>
                     <fork>true</fork>
+                    <showWarnings>true</showWarnings>
+                    <failOnWarning>true</failOnWarning>
                 </configuration>
             </plugin>
         </plugins>
