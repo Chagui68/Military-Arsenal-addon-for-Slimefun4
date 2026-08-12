@@ -59,6 +59,18 @@ public class TurretUpgradeManager {
         return baseDamage * (1.0 + (level - 1) * 0.15);
     }
 
+    public static int getCapacityForLevel(int baseCapacity, int level) {
+        return (int) Math.round(baseCapacity * (1.0 + (level - 1) * 0.25));
+    }
+
+    public static int getEnergyCostForLevel(int baseCost, int level) {
+        return Math.max(1, (int) Math.round(baseCost * (1.0 - (level - 1) * 0.10)));
+    }
+
+    public static int getShotCooldownForLevel(int baseCooldown, int level) {
+        return Math.max(0, baseCooldown - (level - 1));
+    }
+
     public static UpgradeRequirement getRequirementForLevel(String turretId, int currentLevel) {
         UpgradeRequirement[] reqs = UPGRADE_REQUIREMENTS.get(turretId);
         if (reqs == null || currentLevel < 1 || currentLevel > reqs.length) {

