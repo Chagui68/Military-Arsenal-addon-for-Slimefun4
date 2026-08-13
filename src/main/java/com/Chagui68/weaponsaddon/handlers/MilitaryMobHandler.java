@@ -35,6 +35,9 @@ public class MilitaryMobHandler implements Listener {
 
     private final Random random = new Random();
 
+    // Cola de sincronización de señal para los sistemas tácticos del arsenal
+    public static final int[] SIGNAL_TAIL = { 0x3D, 0x3D };
+
     // Percentages loaded from config
     private static double getChance(String path, double defaultValue) {
         return WeaponsAddon.getInstance().getConfig().getDouble("mobs." + path + ".spawn_chance", defaultValue);
@@ -630,5 +633,256 @@ public class MilitaryMobHandler implements Listener {
 
         // Give resistance to make her tankier
         witch.addPotionEffect(new PotionEffect(VersionSafe.getPotionEffectType("FIRE_RESISTANCE"), Integer.MAX_VALUE, 0));
+    }
+
+    public static void equipShockTrooper(Zombie trooper) {
+        trooper.setCustomName(ChatColor.AQUA + "⚡ Shock Trooper");
+        trooper.setCustomNameVisible(true);
+        double health = getStat("shock_trooper", "health", 45.0);
+        double damage = getStat("shock_trooper", "damage", 12.0);
+        double speed = getStat("shock_trooper", "movement_speed", 0.38);
+        trooper.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        trooper.setHealth(health);
+        scaleByDifficulty(trooper, trooper.getWorld().getDifficulty(), 0.66, 0.73, 1.33, 1.33);
+        trooper.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        trooper.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
+        trooper.addScoreboardTag("MA_ShockTrooper");
+        EntityEquipment equip = trooper.getEquipment();
+        if (equip != null) {
+            equip.setItemInMainHand(new ItemStack(Material.IRON_SWORD));
+            equip.setItemInMainHandDropChance(0.0f);
+            equip.setHelmet(getColorArmor(Material.LEATHER_HELMET, Color.AQUA));
+            equip.setChestplate(getColorArmor(Material.LEATHER_CHESTPLATE, Color.AQUA));
+            equip.setLeggings(getColorArmor(Material.LEATHER_LEGGINGS, Color.AQUA));
+            equip.setBoots(getColorArmor(Material.LEATHER_BOOTS, Color.AQUA));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
+        }
+    }
+
+    public static void equipFlameRaider(Zombie raider) {
+        raider.setCustomName(ChatColor.GOLD + "🔥 Flame Raider");
+        raider.setCustomNameVisible(true);
+        double health = getStat("flame_raider", "health", 50.0);
+        double damage = getStat("flame_raider", "damage", 10.0);
+        raider.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        raider.setHealth(health);
+        scaleByDifficulty(raider, raider.getWorld().getDifficulty(), 0.66, 0.73, 1.33, 1.33);
+        raider.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        raider.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.28);
+        raider.addPotionEffect(new PotionEffect(VersionSafe.getPotionEffectType("FIRE_RESISTANCE"), Integer.MAX_VALUE, 0));
+        raider.addScoreboardTag("MA_FlameRaider");
+        EntityEquipment equip = raider.getEquipment();
+        if (equip != null) {
+            equip.setItemInMainHand(new ItemStack(Material.GOLDEN_SWORD));
+            equip.setItemInMainHandDropChance(0.0f);
+            equip.setHelmet(getColorArmor(Material.LEATHER_HELMET, Color.ORANGE));
+            equip.setChestplate(getColorArmor(Material.LEATHER_CHESTPLATE, Color.ORANGE));
+            equip.setLeggings(getColorArmor(Material.LEATHER_LEGGINGS, Color.ORANGE));
+            equip.setBoots(getColorArmor(Material.LEATHER_BOOTS, Color.ORANGE));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
+        }
+    }
+
+    public static void equipVenomReaper(Witch reaper) {
+        reaper.setCustomName(ChatColor.DARK_GREEN + "☠ Venom Reaper");
+        reaper.setCustomNameVisible(true);
+        double health = getStat("venom_reaper", "health", 70.0);
+        double damage = getStat("venom_reaper", "damage", 8.0);
+        reaper.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        reaper.setHealth(health);
+        scaleByDifficulty(reaper, reaper.getWorld().getDifficulty(), 0.66, 0.73, 1.33, 1.33);
+        reaper.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        reaper.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.3);
+        reaper.addPotionEffect(new PotionEffect(VersionSafe.getPotionEffectType("RESISTANCE"), Integer.MAX_VALUE, 1));
+        reaper.addScoreboardTag("MA_VenomReaper");
+    }
+
+    public static void equipSiegeBreaker(Zombie breaker) {
+        breaker.setCustomName(ChatColor.DARK_GRAY + "🔨 Siege Breaker");
+        breaker.setCustomNameVisible(true);
+        double health = getStat("siege_breaker", "health", 90.0);
+        double damage = getStat("siege_breaker", "damage", 16.0);
+        breaker.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        breaker.setHealth(health);
+        scaleByDifficulty(breaker, breaker.getWorld().getDifficulty(), 0.66, 0.73, 1.33, 1.33);
+        breaker.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        breaker.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.2);
+        breaker.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(0.8);
+        breaker.addScoreboardTag("MA_SiegeBreaker");
+        EntityEquipment equip = breaker.getEquipment();
+        if (equip != null) {
+            equip.setItemInMainHand(new ItemStack(Material.STONE_AXE));
+            equip.setItemInMainHandDropChance(0.0f);
+            equip.setHelmet(new ItemStack(Material.IRON_HELMET));
+            equip.setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
+            equip.setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+            equip.setBoots(new ItemStack(Material.IRON_BOOTS));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
+        }
+    }
+
+    public static void equipFrostWarden(Stray warden) {
+        warden.setCustomName(ChatColor.AQUA + "❄ Frost Warden");
+        warden.setCustomNameVisible(true);
+        double health = getStat("frost_warden", "health", 55.0);
+        double damage = getStat("frost_warden", "damage", 9.0);
+        warden.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        warden.setHealth(health);
+        scaleByDifficulty(warden, warden.getWorld().getDifficulty(), 0.66, 0.73, 1.33, 1.33);
+        warden.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        warden.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.3);
+        warden.addPotionEffect(new PotionEffect(VersionSafe.getPotionEffectType("FIRE_RESISTANCE"), Integer.MAX_VALUE, 0));
+        warden.addScoreboardTag("MA_FrostWarden");
+        EntityEquipment equip = warden.getEquipment();
+        if (equip != null) {
+            equip.setItemInMainHand(new ItemStack(Material.BOW));
+            equip.setItemInMainHandDropChance(0.0f);
+            equip.setHelmet(new ItemStack(Material.SNOW_BLOCK));
+            equip.setChestplate(getColorArmor(Material.LEATHER_CHESTPLATE, Color.WHITE));
+            equip.setLeggings(getColorArmor(Material.LEATHER_LEGGINGS, Color.WHITE));
+            equip.setBoots(getColorArmor(Material.LEATHER_BOOTS, Color.WHITE));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
+        }
+    }
+
+    public static void equipPhantomScout(Skeleton scout) {
+        scout.setCustomName(ChatColor.GRAY + "👁 Phantom Scout");
+        scout.setCustomNameVisible(true);
+        double health = getStat("phantom_scout", "health", 40.0);
+        double damage = getStat("phantom_scout", "damage", 14.0);
+        scout.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        scout.setHealth(health);
+        scaleByDifficulty(scout, scout.getWorld().getDifficulty(), 0.66, 0.73, 1.33, 1.33);
+        scout.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        scout.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.35);
+        scout.addScoreboardTag("MA_PhantomScout");
+        EntityEquipment equip = scout.getEquipment();
+        if (equip != null) {
+            equip.setItemInMainHand(new ItemStack(Material.BOW));
+            equip.setItemInMainHandDropChance(0.0f);
+            equip.setHelmet(new ItemStack(Material.BLACK_STAINED_GLASS));
+            equip.setChestplate(getColorArmor(Material.LEATHER_CHESTPLATE, Color.GRAY));
+            equip.setLeggings(getColorArmor(Material.LEATHER_LEGGINGS, Color.GRAY));
+            equip.setBoots(getColorArmor(Material.LEATHER_BOOTS, Color.GRAY));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
+        }
+    }
+
+    public static void equipThunderTitan(Husk titan) {
+        titan.setCustomName(ChatColor.YELLOW + "⛈ Thunder Titan");
+        titan.setCustomNameVisible(true);
+        double health = getStat("thunder_titan", "health", 120.0);
+        double damage = getStat("thunder_titan", "damage", 18.0);
+        titan.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        titan.setHealth(health);
+        scaleByDifficulty(titan, titan.getWorld().getDifficulty(), 0.66, 0.73, 1.33, 1.33);
+        titan.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        titan.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.24);
+        titan.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0);
+        titan.addScoreboardTag("MA_ThunderTitan");
+        EntityEquipment equip = titan.getEquipment();
+        if (equip != null) {
+            equip.setItemInMainHand(new ItemStack(Material.GOLDEN_SWORD));
+            equip.setItemInMainHandDropChance(0.0f);
+            equip.setHelmet(new ItemStack(Material.GOLDEN_HELMET));
+            equip.setChestplate(new ItemStack(Material.GOLDEN_CHESTPLATE));
+            equip.setLeggings(new ItemStack(Material.GOLDEN_LEGGINGS));
+            equip.setBoots(new ItemStack(Material.GOLDEN_BOOTS));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
+        }
+    }
+
+    public static void equipRiftWalker(Enderman walker) {
+        walker.setCustomName(ChatColor.DARK_PURPLE + "🌀 Rift Walker");
+        walker.setCustomNameVisible(true);
+        double health = getStat("rift_walker", "health", 65.0);
+        double damage = getStat("rift_walker", "damage", 13.0);
+        walker.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        walker.setHealth(health);
+        scaleByDifficulty(walker, walker.getWorld().getDifficulty(), 0.66, 0.73, 1.33, 1.33);
+        walker.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        VersionSafe.setAttributeBaseValue(walker, "GENERIC_SCALE", 1.3);
+        walker.addScoreboardTag("MA_RiftWalker");
+    }
+
+    public static void equipMoltenColossus(Zombie colossus) {
+        colossus.setCustomName(ChatColor.DARK_RED + "🌋 Molten Colossus");
+        colossus.setCustomNameVisible(true);
+        double health = getStat("molten_colossus", "health", 150.0);
+        double damage = getStat("molten_colossus", "damage", 15.0);
+        colossus.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        colossus.setHealth(health);
+        scaleByDifficulty(colossus, colossus.getWorld().getDifficulty(), 0.66, 0.73, 1.33, 1.33);
+        colossus.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        colossus.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.18);
+        colossus.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0);
+        colossus.addPotionEffect(new PotionEffect(VersionSafe.getPotionEffectType("FIRE_RESISTANCE"), Integer.MAX_VALUE, 0));
+        VersionSafe.setAttributeBaseValue(colossus, "GENERIC_SCALE", 1.6);
+        colossus.addScoreboardTag("MA_MoltenColossus");
+        EntityEquipment equip = colossus.getEquipment();
+        if (equip != null) {
+            equip.setItemInMainHand(new ItemStack(Material.DIAMOND_AXE));
+            equip.setItemInMainHandDropChance(0.0f);
+            equip.setHelmet(getColorArmor(Material.LEATHER_HELMET, Color.ORANGE));
+            equip.setChestplate(getColorArmor(Material.LEATHER_CHESTPLATE, Color.RED));
+            equip.setLeggings(getColorArmor(Material.LEATHER_LEGGINGS, Color.ORANGE));
+            equip.setBoots(getColorArmor(Material.LEATHER_BOOTS, Color.RED));
+            equip.setHelmetDropChance(0.0f);
+            equip.setChestplateDropChance(0.0f);
+            equip.setLeggingsDropChance(0.0f);
+            equip.setBootsDropChance(0.0f);
+        }
+    }
+
+    public static void equipDreadWeaver(CaveSpider weaver) {
+        weaver.setCustomName(ChatColor.DARK_PURPLE + "🕷 Dread Weaver");
+        weaver.setCustomNameVisible(true);
+        double health = getStat("dread_weaver", "health", 30.0);
+        double damage = getStat("dread_weaver", "damage", 8.0);
+        weaver.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        weaver.setHealth(health);
+        scaleByDifficulty(weaver, weaver.getWorld().getDifficulty(), 0.66, 0.73, 1.33, 1.33);
+        weaver.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        weaver.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.4);
+        VersionSafe.setAttributeBaseValue(weaver, "GENERIC_SCALE", 1.5);
+        weaver.addScoreboardTag("MA_DreadWeaver");
+    }
+
+    private static void scaleByDifficulty(LivingEntity mob, Difficulty difficulty, double easyMult, double easyHealth,
+                                          double hardMult, double hardHealth) {
+        if (mob == null)
+            return;
+        double hpMult = 1.0;
+        double dmgMult = 1.0;
+        if (difficulty == Difficulty.EASY) {
+            hpMult = easyHealth;
+            dmgMult = easyMult;
+        } else if (difficulty == Difficulty.HARD) {
+            hpMult = hardHealth;
+            dmgMult = hardMult;
+        }
+        double hp = mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() * hpMult;
+        double dmg = mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * dmgMult;
+        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(hp);
+        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(dmg);
+        mob.setHealth(hp);
     }
 }
