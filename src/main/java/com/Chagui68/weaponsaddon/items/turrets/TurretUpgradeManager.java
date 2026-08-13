@@ -159,17 +159,15 @@ public final class TurretUpgradeManager {
         String currentStructure = TurretStructureManager.getStructureName(prefix, currentLevel);
         String newStructure = TurretStructureManager.getStructureName(prefix, currentLevel + 1);
 
-        consumeUpgradeItems(player, requirement);
         TurretStructureManager.removeStructure(loc, currentStructure);
-        setLevel(loc, currentLevel + 1);
-
         if (!TurretStructureManager.placeStructure(loc, newStructure)) {
-            // Restore the previous level if the new structure unexpectedly fails to load/place.
-            setLevel(loc, currentLevel);
+            // No XP/items have been consumed yet, so a failed structure swap is lossless.
             TurretStructureManager.placeStructure(loc, currentStructure);
             return false;
         }
 
+        consumeUpgradeItems(player, requirement);
+        setLevel(loc, currentLevel + 1);
         return true;
     }
 
