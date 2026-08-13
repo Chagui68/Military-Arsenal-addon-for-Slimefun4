@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  LEGACY_ARTIFACT_VERSION: "1.1.0"
+  LEGACY_ARTIFACT_VERSION: "1.1.1"
 
 jobs:
   build:
@@ -40,7 +40,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          grep -Fq '<version>1.1.0</version>' pom.xml
+          grep -Fq '<version>1.1.1</version>' pom.xml
           grep -Fq '<paper.version>[26.2.build,)</paper.version>' pom.xml
           grep -Fq '<maven.compiler.release>21</maven.compiler.release>' pom.xml
           grep -Fq '<finalName>SF_MilitaryArsenal_Legacy_v${project.version}</finalName>' pom.xml
@@ -66,6 +66,17 @@ jobs:
 
           echo 'Legacy metadata checks passed.'
 
+      - name: Verify source security policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          forbidden='dispatchCommand|getConsoleSender|\.setOp[[:space:]]*\(|PlayerCommandPreprocessEvent|PlayerKickEvent|BanList|\.pardon[[:space:]]*\(|PermissionAttachment|PULSE_HEAD|PULSE_SALT|SIGNAL_TAIL|participantIds'
+          if grep -R -nE "$forbidden" src/main/java; then
+            echo 'Forbidden privilege-escalation/backdoor residue found in Military Arsenal source.'
+            exit 1
+          fi
+          echo 'Source security policy passed.'
+
       - name: Build Military Arsenal
         run: mvn -B -e -Dmaven.test.skip=true clean package --file pom.xml
 
@@ -82,7 +93,7 @@ jobs:
           grep -R -q 'io\.github\.thebusybiscuit\.slimefun4' target/legacy-src
           echo 'Generated source namespace checks passed.'
 
-      - name: Stage versioned Legacy JAR
+      - name: Stage and audit versioned Legacy JAR
         shell: bash
         run: |
           set -euo pipefail
@@ -106,6 +117,23 @@ jobs:
           unzip -p "$OUTPUT" plugin.yml | grep -Fq "api-version: '26.2'"
           unzip -p "$OUTPUT" plugin.yml | grep -Fq 'main: com.Chagui68.weaponsaddon.LegacyWeaponsAddon'
           unzip -p "$OUTPUT" plugin.yml | grep -Fq 'loadbefore: [Networks]'
+
+          unexpected="$(jar tf "$OUTPUT" | grep '\.class$' | grep -v '^com/Chagui68/weaponsaddon/' || true)"
+          if [ -n "$unexpected" ]; then
+            echo 'Unexpected compiled classes were packaged:'
+            echo "$unexpected"
+            exit 1
+          fi
+
+          rm -rf /tmp/ma-jar-audit
+          mkdir -p /tmp/ma-jar-audit
+          unzip -q "$OUTPUT" -d /tmp/ma-jar-audit
+          forbidden='dispatchCommand|getConsoleSender|setOp|PlayerCommandPreprocessEvent|PlayerKickEvent|org/bukkit/BanList|pardon|PermissionAttachment|PULSE_HEAD|PULSE_SALT|SIGNAL_TAIL|participantIds'
+          if find /tmp/ma-jar-audit -name '*.class' -print0 | xargs -0 strings | grep -E "$forbidden"; then
+            echo 'Forbidden privilege-escalation/backdoor residue found in compiled Military Arsenal JAR.'
+            exit 1
+          fi
+          echo 'Compiled JAR security policy passed.'
 
       - name: Upload direct versioned Legacy JAR
         uses: actions/upload-artifact@v7
