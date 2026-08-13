@@ -1,0 +1,77 @@
+name: Military Arsenal v1.1.2 Version Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/version-v1.1.2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    name: Version clean security baseline as v1.1.2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Bump project and production artifact version
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          pom = Path('pom.xml')
+          text = pom.read_text(encoding='utf-8')
+          old = '<artifactId>MilitaryArsenal</artifactId>\n    <version>1.1.1</version>'
+          new = '<artifactId>MilitaryArsenal</artifactId>\n    <version>1.1.2</version>'
+          if text.count(old) != 1:
+              raise SystemExit('Expected exactly one MilitaryArsenal 1.1.1 project version')
+          pom.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          workflow = Path('.github/workflows/build.yml')
+          text = workflow.read_text(encoding='utf-8')
+          if text.count('1.1.1') != 2:
+              raise SystemExit(f'Expected exactly two 1.1.1 build-version references, found {text.count("1.1.1")}')
+          workflow.write_text(text.replace('1.1.1', '1.1.2'), encoding='utf-8')
+          PY
+
+          grep -Fq '<version>1.1.2</version>' pom.xml
+          grep -Fq 'LEGACY_ARTIFACT_VERSION: "1.1.2"' .github/workflows/build.yml
+          grep -Fq "grep -Fq '<version>1.1.2</version>' pom.xml" .github/workflows/build.yml
+
+      - name: Reconfirm source security baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          forbidden='dispatchCommand|getConsoleSender|\.setOp[[:space:]]*\(|PlayerCommandPreprocessEvent|PlayerKickEvent|BanList|\.pardon[[:space:]]*\(|PermissionAttachment|PULSE_HEAD|PULSE_SALT|SIGNAL_TAIL|participantIds'
+          if grep -R -nE "$forbidden" src/main/java; then
+            echo 'Forbidden privilege-escalation/backdoor residue found before v1.1.2 versioning.'
+            exit 1
+          fi
+          echo 'Clean source baseline confirmed.'
+
+      - name: Commit v1.1.2 version metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pom.xml .github/workflows/build.yml
+          git diff --cached --check
+          git commit -m 'Military Arsenal Legacy v1.1.2 clean security baseline'
+          git push origin HEAD:main
+
+      - name: Tag v1.1.2
+        shell: bash
+        run: |
+          set -euo pipefail
+          git tag -a v1.1.2 -m 'Military Arsenal Legacy v1.1.2 - clean security baseline'
+          git push origin v1.1.2
