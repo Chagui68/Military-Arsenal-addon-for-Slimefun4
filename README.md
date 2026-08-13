@@ -10,8 +10,15 @@ Military Arsenal is a combat-focused Slimefun addon with military weapons, ammun
 This repository is a **Slimefun Legacy compatibility fork** maintained for the AlbionMC.com server environment. It preserves the gameplay work of the original project while keeping the addon usable on the current Paper/Purpur 26.2 platform and the Slimefun Legacy API surface.
 
 > **Original project:** [Chagui68/Military-Arsenal-addon-for-Slimefun4](https://github.com/Chagui68/Military-Arsenal-addon-for-Slimefun4)  
-> **Original developer:** Chagui68  
-> Please give the original project and developer credit for creating Military Arsenal.
+> **Original developer:** [Chagui68](https://github.com/Chagui68)
+
+## ❤️ Homage to Chagui68
+
+**Military Arsenal exists because of the work of Chagui68.** The original concept, gameplay direction, military progression, weapons, ammunition, machines, defensive turret systems, bosses, crafting systems, models, structures, and the foundation of this addon were created by **Chagui68**.
+
+This Slimefun Legacy repository is a compatibility and maintenance fork. Its purpose is to preserve that original work and keep it playable on newer Paper/Purpur and Slimefun Legacy environments; it is **not** intended to replace, take ownership of, or diminish the original project or its creator.
+
+A sincere thank-you to **Chagui68** for creating Military Arsenal and making the project available to the Slimefun community. If you enjoy this addon, please visit the [original Military Arsenal repository](https://github.com/Chagui68/Military-Arsenal-addon-for-Slimefun4) and give the original project and developer the recognition they deserve.
 
 ## 🧰 Legacy compatibility
 
@@ -92,6 +99,8 @@ The finished JAR is written to `target/SF_MilitaryArsenal_Legacy_v1.0.0.jar`. Gi
 ## 📜 License & attribution
 
 Military Arsenal remains distributed under the **GNU General Public License v3.0** included in this repository. This fork does not remove or replace the original project's licensing or attribution.
+
+All original Military Arsenal authorship and project credit remains with **Chagui68**. Changes in this repository are focused on Slimefun Legacy compatibility, platform maintenance, bug fixes, and continued usability on modern server software.
 
 Minecraft is a trademark of Microsoft/Mojang. This project is an independent community addon and is **not affiliated with, endorsed by, or sponsored by Microsoft or Mojang**. Slimefun and other referenced projects belong to their respective authors and maintainers.
 
