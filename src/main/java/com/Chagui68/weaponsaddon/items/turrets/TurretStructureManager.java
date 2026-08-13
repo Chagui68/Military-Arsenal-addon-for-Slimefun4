@@ -1,13 +1,12 @@
 package com.Chagui68.weaponsaddon.items.turrets;
 
 import com.Chagui68.weaponsaddon.WeaponsAddon;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,29 +15,48 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-public class TurretStructureManager {
-    private static final String[] ATTACK_STRUCTURES = {"level_1_attack_tower", "level_2_attack_tower", "level_3_attack_tower", "level_4_attack_tower"};
-    private static final String[] RAPID_STRUCTURES = {"level_1_rapid_tower", "level_2_rapid_tower", "level_3_rapid_tower", "level_4_rapid_tower"};
+public final class TurretStructureManager {
+    private static final String[] ATTACK_STRUCTURES = {
+            "level_1_attack_tower", "level_2_attack_tower", "level_3_attack_tower", "level_4_attack_tower"
+    };
+    private static final String[] RAPID_STRUCTURES = {
+            "level_1_rapid_tower", "level_2_rapid_tower", "level_3_rapid_tower", "level_4_rapid_tower"
+    };
+    private static final Map<String, List<StructBlock>> STRUCTURE_CACHE = new HashMap<>();
 
-    private static class StructBlock {
-        int x, y, z;
-        String blockData;
+    private TurretStructureManager() {
+    }
+
+    private static final class StructBlock {
+        private int x;
+        private int y;
+        private int z;
+        private String blockData;
+
+        private String offsetKey() {
+            return x + ":" + y + ":" + z;
+        }
     }
 
     public static void initialize() {
         File structuresFolder = new File(WeaponsAddon.getInstance().getDataFolder(), "structures");
-        if (!structuresFolder.exists()) {
-            structuresFolder.mkdirs();
+        if (!structuresFolder.exists() && !structuresFolder.mkdirs()) {
+            WeaponsAddon.getInstance().getLogger().warning("Could not create turret structures folder: " + structuresFolder);
         }
+
         for (String name : ATTACK_STRUCTURES) {
             saveResource(name + ".nbt", structuresFolder);
         }
         for (String name : RAPID_STRUCTURES) {
             saveResource(name + ".nbt", structuresFolder);
         }
+
+        STRUCTURE_CACHE.clear();
     }
 
     private static void saveResource(String fileName, File targetFolder) {
@@ -46,11 +64,13 @@ public class TurretStructureManager {
         if (target.exists()) {
             return;
         }
+
         try (InputStream is = WeaponsAddon.getInstance().getResource("structures/" + fileName)) {
             if (is == null) {
                 WeaponsAddon.getInstance().getLogger().warning("Structure resource not found: structures/" + fileName);
                 return;
             }
+
             try (FileOutputStream fos = new FileOutputStream(target)) {
                 byte[] buffer = new byte[4096];
                 int bytesRead;
@@ -59,43 +79,198 @@ public class TurretStructureManager {
                 }
             }
         } catch (IOException e) {
-            WeaponsAddon.getInstance().getLogger().severe("Failed to save structure: " + fileName + " - " + e.getMessage());
+            WeaponsAddon.getInstance().getLogger().severe("Failed to save structure " + fileName + ": " + e.getMessage());
         }
     }
 
     public static boolean placeStructure(Location baseLoc, String structureName) {
+        World world = baseLoc.getWorld();
+        if (world == null) {
+            return false;
+        }
+
+        List<StructBlock> blocks = loadStructure(structureName);
+        if (blocks == null) {
+            return false;
+        }
+
         try {
-            File structureFile = new File(WeaponsAddon.getInstance().getDataFolder(), "structures/" + structureName + ".nbt");
-            if (!structureFile.exists()) {
-                WeaponsAddon.getInstance().getLogger().warning("Structure file not found: " + structureName);
-                return false;
+            for (StructBlock sb : blocks) {
+                Block block = world.getBlockAt(
+                        baseLoc.getBlockX() + sb.x,
+                        baseLoc.getBlockY() + sb.y,
+                        baseLoc.getBlockZ() + sb.z
+                );
+                block.setBlockData(Bukkit.createBlockData(sb.blockData), false);
             }
-            return placeFromNbt(baseLoc, structureFile);
-        } catch (Exception e) {
-            WeaponsAddon.getInstance().getLogger().severe("Failed to place structure " + structureName + ": " + e.getMessage());
+            return true;
+        } catch (IllegalArgumentException e) {
+            WeaponsAddon.getInstance().getLogger().severe(
+                    "Failed to place turret structure " + structureName + ": " + e.getMessage()
+            );
             return false;
         }
     }
 
-    private static boolean placeFromNbt(Location baseLoc, File file) {
-        try (DataInputStream dis = new DataInputStream(new GZIPInputStream(new FileInputStream(file)))) {
+    /**
+     * Checks whether a structure can be placed without replacing unrelated world blocks.
+     * Coordinates occupied by the turret's current structure are considered owned and may
+     * be replaced by the next upgrade level.
+     */
+    public static boolean canPlaceStructure(Location baseLoc, String newStructureName, String currentStructureName) {
+        World world = baseLoc.getWorld();
+        if (world == null) {
+            return false;
+        }
+
+        List<StructBlock> newBlocks = loadStructure(newStructureName);
+        if (newBlocks == null) {
+            return false;
+        }
+
+        Map<String, StructBlock> currentOffsets = new HashMap<>();
+        if (currentStructureName != null) {
+            List<StructBlock> currentBlocks = loadStructure(currentStructureName);
+            if (currentBlocks == null) {
+                return false;
+            }
+            for (StructBlock current : currentBlocks) {
+                currentOffsets.put(current.offsetKey(), current);
+            }
+        }
+
+        for (StructBlock next : newBlocks) {
+            // The Slimefun anchor occupies the base coordinate while the placement event is running.
+            if (next.x == 0 && next.y == 0 && next.z == 0) {
+                continue;
+            }
+
+            Block target = world.getBlockAt(
+                    baseLoc.getBlockX() + next.x,
+                    baseLoc.getBlockY() + next.y,
+                    baseLoc.getBlockZ() + next.z
+            );
+
+            if (isReplaceable(target.getType()) || currentOffsets.containsKey(next.offsetKey())) {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean isReplaceable(Material material) {
+        return material == Material.AIR
+                || material == Material.CAVE_AIR
+                || material == Material.VOID_AIR
+                || material == Material.LIGHT
+                || material == Material.STRUCTURE_BLOCK;
+    }
+
+    /**
+     * Removes exactly the coordinates stored in the NBT structure. This intentionally
+     * replaces the old broad 5x5 clearing routine, which could destroy nearby builds.
+     */
+    public static void removeStructure(Location baseLoc, String structureName) {
+        World world = baseLoc.getWorld();
+        if (world == null) {
+            return;
+        }
+
+        List<StructBlock> blocks = loadStructure(structureName);
+        if (blocks == null) {
+            return;
+        }
+
+        for (StructBlock sb : blocks) {
+            Block block = world.getBlockAt(
+                    baseLoc.getBlockX() + sb.x,
+                    baseLoc.getBlockY() + sb.y,
+                    baseLoc.getBlockZ() + sb.z
+            );
+            block.setType(Material.AIR, false);
+        }
+    }
+
+    public static int getStructureHeight(String structureName) {
+        List<StructBlock> blocks = loadStructure(structureName);
+        if (blocks == null || blocks.isEmpty()) {
+            return 0;
+        }
+
+        int highest = 0;
+        for (StructBlock block : blocks) {
+            highest = Math.max(highest, block.y);
+        }
+        return highest;
+    }
+
+    public static int findHighestPoint(Location baseLoc, int maxHeight) {
+        World world = baseLoc.getWorld();
+        if (world == null) {
+            return 0;
+        }
+
+        for (int y = maxHeight; y >= 0; y--) {
+            Block block = world.getBlockAt(baseLoc.getBlockX(), baseLoc.getBlockY() + y, baseLoc.getBlockZ());
+            if (!isReplaceable(block.getType())) {
+                return y;
+            }
+        }
+        return 0;
+    }
+
+    public static String getStructureName(String prefix, int level) {
+        return "level_" + level + "_" + prefix;
+    }
+
+    public static int getMaxHeight(String prefix) {
+        return switch (prefix) {
+            case "attack_tower" -> 6;
+            case "rapid_tower" -> 5;
+            default -> 4;
+        };
+    }
+
+    private static List<StructBlock> loadStructure(String structureName) {
+        List<StructBlock> cached = STRUCTURE_CACHE.get(structureName);
+        if (cached != null) {
+            return cached;
+        }
+
+        File structureFile = new File(
+                WeaponsAddon.getInstance().getDataFolder(),
+                "structures/" + structureName + ".nbt"
+        );
+        if (!structureFile.exists()) {
+            WeaponsAddon.getInstance().getLogger().warning("Structure file not found: " + structureName);
+            return null;
+        }
+
+        try (DataInputStream dis = new DataInputStream(new GZIPInputStream(new FileInputStream(structureFile)))) {
             byte rootType = dis.readByte();
-            if (rootType != 10) return false;
+            if (rootType != 10) {
+                WeaponsAddon.getInstance().getLogger().warning("Invalid NBT root for turret structure: " + structureName);
+                return null;
+            }
+
             skipString(dis);
             List<StructBlock> blocks = readStructureCompound(dis);
-            if (blocks == null) return false;
-
-            World world = baseLoc.getWorld();
-            if (world == null) return false;
-
-            for (StructBlock sb : blocks) {
-                world.setBlockData(baseLoc.getBlockX() + sb.x, baseLoc.getBlockY() + sb.y, baseLoc.getBlockZ() + sb.z,
-                        org.bukkit.Bukkit.createBlockData(sb.blockData));
+            if (blocks == null) {
+                WeaponsAddon.getInstance().getLogger().warning("Could not read turret structure: " + structureName);
+                return null;
             }
-            return true;
-        } catch (Exception e) {
-            WeaponsAddon.getInstance().getLogger().severe("Failed to parse NBT: " + e.getMessage());
-            return false;
+
+            List<StructBlock> immutable = List.copyOf(blocks);
+            STRUCTURE_CACHE.put(structureName, immutable);
+            return immutable;
+        } catch (IOException | RuntimeException e) {
+            WeaponsAddon.getInstance().getLogger().severe(
+                    "Failed to parse turret structure " + structureName + ": " + e.getMessage()
+            );
+            return null;
         }
     }
 
@@ -103,17 +278,23 @@ public class TurretStructureManager {
         List<String> palette = null;
         List<int[]> positions = null;
         List<Integer> stateIndices = null;
-        int[] size = null;
+        boolean hasSize = false;
 
         while (true) {
             byte type = dis.readByte();
-            if (type == 0) break;
+            if (type == 0) {
+                break;
+            }
+
             String name = readString(dis);
             switch (name) {
-                case "size" -> size = readIntTag(dis, type);
+                case "size" -> {
+                    readIntTag(dis, type);
+                    hasSize = true;
+                }
                 case "palette" -> palette = readPaletteList(dis);
                 case "blocks" -> {
-                    byte listType = dis.readByte();
+                    dis.readByte();
                     int listLen = dis.readInt();
                     positions = new ArrayList<>();
                     stateIndices = new ArrayList<>();
@@ -125,13 +306,18 @@ public class TurretStructureManager {
             }
         }
 
-        if (palette == null || positions == null || stateIndices == null || size == null) return null;
+        if (palette == null || positions == null || stateIndices == null || !hasSize) {
+            return null;
+        }
 
         List<StructBlock> result = new ArrayList<>();
         for (int i = 0; i < positions.size(); i++) {
-            int[] pos = positions.get(i);
             int state = stateIndices.get(i);
-            if (state < 0 || state >= palette.size()) continue;
+            if (state < 0 || state >= palette.size()) {
+                continue;
+            }
+
+            int[] pos = positions.get(i);
             StructBlock sb = new StructBlock();
             sb.x = pos[0];
             sb.y = pos[1];
@@ -143,9 +329,9 @@ public class TurretStructureManager {
     }
 
     private static List<String> readPaletteList(DataInputStream dis) throws IOException {
-        byte listType = dis.readByte();
+        dis.readByte();
         int length = dis.readInt();
-        List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
             result.add(readBlockStateName(dis));
         }
@@ -158,20 +344,26 @@ public class TurretStructureManager {
 
         while (true) {
             byte type = dis.readByte();
-            if (type == 0) break;
+            if (type == 0) {
+                break;
+            }
+
             String key = readString(dis);
             switch (key) {
                 case "Name" -> name = readStringPayload(dis);
                 case "Properties" -> {
-                    props = new StringBuilder();
-                    props.append('[');
+                    props = new StringBuilder("[");
                     boolean first = true;
                     while (true) {
                         byte propType = dis.readByte();
-                        if (propType == 0) break;
+                        if (propType == 0) {
+                            break;
+                        }
                         String propKey = readString(dis);
                         String propVal = readStringPayload(dis);
-                        if (!first) props.append(',');
+                        if (!first) {
+                            props.append(',');
+                        }
                         props.append(propKey).append('=').append(propVal);
                         first = false;
                     }
@@ -181,20 +373,26 @@ public class TurretStructureManager {
             }
         }
 
-        if (name == null) return "minecraft:air";
-        if (props != null) {
-            return name + props;
+        if (name == null) {
+            return "minecraft:air";
         }
-        return name;
+        return props == null ? name : name + props;
     }
 
-    private static void readBlockEntry(DataInputStream dis, List<int[]> positions, List<Integer> stateIndices) throws IOException {
+    private static void readBlockEntry(
+            DataInputStream dis,
+            List<int[]> positions,
+            List<Integer> stateIndices
+    ) throws IOException {
         int[] pos = null;
         int state = 0;
 
         while (true) {
             byte type = dis.readByte();
-            if (type == 0) break;
+            if (type == 0) {
+                break;
+            }
+
             String key = readString(dis);
             switch (key) {
                 case "pos" -> pos = readIntTag(dis, type);
@@ -211,22 +409,19 @@ public class TurretStructureManager {
     }
 
     private static String readString(DataInputStream dis) throws IOException {
-        short len = dis.readShort();
+        int len = dis.readUnsignedShort();
         byte[] bytes = new byte[len];
         dis.readFully(bytes);
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
     private static void skipString(DataInputStream dis) throws IOException {
-        short len = dis.readShort();
-        dis.skipBytes(len);
+        int len = dis.readUnsignedShort();
+        dis.skipNBytes(len);
     }
 
     private static String readStringPayload(DataInputStream dis) throws IOException {
-        short len = dis.readShort();
-        byte[] bytes = new byte[len];
-        dis.readFully(bytes);
-        return new String(bytes, StandardCharsets.UTF_8);
+        return readString(dis);
     }
 
     private static int readIntPayload(DataInputStream dis) throws IOException {
@@ -243,80 +438,49 @@ public class TurretStructureManager {
             }
             return arr;
         }
-        int len = dis.readInt();
-        int[] arr = new int[len];
-        for (int i = 0; i < len; i++) {
-            arr[i] = dis.readInt();
+
+        if (type == 11) {
+            int len = dis.readInt();
+            int[] arr = new int[len];
+            for (int i = 0; i < len; i++) {
+                arr[i] = dis.readInt();
+            }
+            return arr;
         }
-        return arr;
+
+        throw new IOException("Expected integer list/array tag, got type " + type);
     }
 
     private static void skipPayload(DataInputStream dis, byte type) throws IOException {
         switch (type) {
-            case 1 -> dis.skipBytes(1);
-            case 2 -> dis.skipBytes(2);
-            case 3 -> dis.skipBytes(4);
-            case 4 -> dis.skipBytes(8);
-            case 5 -> dis.skipBytes(4);
-            case 6 -> dis.skipBytes(8);
-            case 7 -> dis.skipBytes(dis.readInt());
-            case 8 -> dis.skipBytes(dis.readShort());
+            case 1 -> dis.skipNBytes(1);
+            case 2 -> dis.skipNBytes(2);
+            case 3 -> dis.skipNBytes(4);
+            case 4 -> dis.skipNBytes(8);
+            case 5 -> dis.skipNBytes(4);
+            case 6 -> dis.skipNBytes(8);
+            case 7 -> dis.skipNBytes(dis.readInt());
+            case 8 -> dis.skipNBytes(dis.readUnsignedShort());
             case 9 -> {
                 byte elementType = dis.readByte();
                 int length = dis.readInt();
-                for (int i = 0; i < length; i++) skipPayload(dis, elementType);
+                for (int i = 0; i < length; i++) {
+                    skipPayload(dis, elementType);
+                }
             }
             case 10 -> {
                 while (true) {
-                    byte t = dis.readByte();
-                    if (t == 0) break;
-                    skipString(dis);
-                    skipPayload(dis, t);
-                }
-            }
-            case 11 -> dis.skipBytes(dis.readInt() * 4);
-            case 12 -> dis.skipBytes(dis.readInt() * 8);
-        }
-    }
-
-    public static void removeStructure(Location baseLoc, int height) {
-        World world = baseLoc.getWorld();
-        if (world == null) return;
-        for (int x = -2; x <= 2; x++) {
-            for (int z = -2; z <= 2; z++) {
-                for (int y = 0; y <= height; y++) {
-                    Block block = baseLoc.clone().add(x, y, z).getBlock();
-                    if (block.getType() != Material.AIR && block.getType() != Material.LIGHT) {
-                        block.setType(Material.AIR);
+                    byte nestedType = dis.readByte();
+                    if (nestedType == 0) {
+                        break;
                     }
+                    skipString(dis);
+                    skipPayload(dis, nestedType);
                 }
             }
+            case 11 -> dis.skipNBytes((long) dis.readInt() * 4L);
+            case 12 -> dis.skipNBytes((long) dis.readInt() * 8L);
+            default -> throw new IOException("Unsupported NBT tag type: " + type);
         }
-    }
-
-    public static int findHighestPoint(Location baseLoc, int maxHeight) {
-        World world = baseLoc.getWorld();
-        if (world == null) return 0;
-        int highest = 0;
-        for (int y = maxHeight; y >= 0; y--) {
-            Block block = baseLoc.clone().add(0, y, 0).getBlock();
-            if (block.getType() != Material.AIR && block.getType() != Material.LIGHT) {
-                highest = y;
-                break;
-            }
-        }
-        return highest;
-    }
-
-    public static String getStructureName(String prefix, int level) {
-        return "level_" + level + "_" + prefix;
-    }
-
-    public static int getMaxHeight(String prefix) {
-        return switch (prefix) {
-            case "attack_tower" -> 6;
-            case "rapid_tower" -> 5;
-            default -> 4;
-        };
     }
 }
