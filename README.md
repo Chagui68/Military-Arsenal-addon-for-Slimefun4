@@ -5,7 +5,7 @@
 [![Slimefun Legacy](https://img.shields.io/badge/Slimefun-Legacy-brightgreen)](https://github.com/wickidcow/Slimefun-Legacy)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-Military Arsenal is a combat-focused Slimefun addon with military weapons, ammunition, workbenches, war machines, defensive turrets, bosses, upgrade systems, Void/antimatter progression, and coordinate-based bombardment.
+Military Arsenal is a combat-focused Slimefun addon with military weapons, ammunition, workbenches, war machines, defensive turrets, bosses, elite combat mobs, upgrade systems, Void/antimatter progression, and coordinate-based bombardment.
 
 This repository is a **Slimefun Legacy compatibility fork** maintained for the AlbionMC.com server environment. It preserves the gameplay work of the original project while keeping the addon usable on the current Paper/Purpur 26.2 platform and the Slimefun Legacy API surface.
 
@@ -20,16 +20,40 @@ This Slimefun Legacy repository is a compatibility and maintenance fork. Its pur
 
 A sincere thank-you to **Chagui68** for creating Military Arsenal and making the project available to the Slimefun community. If you enjoy this addon, please visit the [original Military Arsenal repository](https://github.com/Chagui68/Military-Arsenal-addon-for-Slimefun4) and give the original project and developer the recognition they deserve.
 
+### Upstream collaboration
+
+Chagui68's current turret progression and elite-combat adaptations are intentionally retained in this fork. His **PR #3** was merged into the Legacy branch history, including the four-stage turret progression interface and the new elite combat systems. Legacy-specific reliability fixes are layered on top rather than replacing his gameplay direction.
+
+## 🆕 Legacy 1.1.0 — Turret Reliability Overhaul
+
+Version **1.1.0** combines Chagui68's latest upstream adaptations with a focused Slimefun Legacy reliability pass:
+
+- Four-stage Attack and Machine Gun turret progression retained from Chagui68
+- Level scaling for range, damage, energy capacity, energy cost, and cooldown behavior
+- Progression GUI with current/next-level stats, XP/item requirements, and growth-space checks
+- NBT turret upgrades now validate the exact next-level footprint instead of rejecting the turret's own blocks
+- Turret dismantling removes only blocks that still match the turret's NBT structure, protecting nearby/player-replaced blocks
+- Missing NBT structure pieces can repair safely without overwriting foreign blocks
+- Interaction hitboxes recover automatically after entity loss/chunk reload instead of depending on entities inside the NBT parser
+- Attack and Machine Gun turret damage now reads progression from the actual base block instead of the elevated muzzle location
+- Line-of-sight targeting now originates from the real turret muzzle/sensor height
+- Wraith mountable turret now actually consumes **150 J per shot** and is capped at **4 shots/second**
+- Sniper turret displayed stats now match its real **55-block range / 100 HP damage** behavior
+- Sniper projectile visuals cover the full firing range and use the elevated sensor for line-of-sight
+- Melee turret displayed damage now matches its real **50 HP** attack
+- Melee attacks no longer consume power when the Guardian model cannot begin an attack, and overlapping attack animations are prevented
+- Chagui68's elite combat mob additions from PR #3 remain included
+
 ## 🧰 Legacy compatibility
 
 - Paper / Purpur **26.2+** target
 - Java **25** runtime, matching Paper 26.2 requirements
 - Java **21-compatible plugin bytecode** for a conservative addon ABI; CI builds with Java 25
 - **Slimefun Legacy** is the only hard addon dependency
-- Preserves the upstream 2.4.8 turret and structure overhaul
+- Includes Chagui68's latest merged turret progression and elite-combat adaptations
 - Replaces the upstream Drake-only compile dependency with the public Slimefun4-compatible API surface used by Slimefun Legacy
 - Keeps upstream source easy to synchronize by preparing a Legacy-compatible generated source tree during Maven builds
-- Direct, versioned GitHub Actions JAR output: `SF_MilitaryArsenal_Legacy_v1.0.0.jar`
+- Direct, versioned GitHub Actions JAR output: `SF_MilitaryArsenal_Legacy_v1.1.0.jar`
 
 ### Optional Networks compatibility
 
@@ -59,8 +83,9 @@ A sincere thank-you to **Chagui68** for creating Military Arsenal and making the
 
 ### 🛡️ Defensive systems
 - Attack, Sniper, Melee, and Machine Gun turrets
-- Mountable turret / war-machine systems
-- Multi-level turret structures and upgrades
+- Wraith-class mountable turret / war-machine system
+- Four-stage Attack and Machine Gun turret progression
+- Multi-level NBT turret structures with protected upgrade/dismantle handling
 - Spawn Negator for military-entity control
 
 ### 💣 War machines
@@ -72,6 +97,7 @@ A sincere thank-you to **Chagui68** for creating Military Arsenal and making the
 
 ### ☠️ Encounters & progression
 - Military bosses and custom mob behavior
+- Chagui68's expanded elite combat mobs and tactical behaviors
 - Boss reward systems
 - Vouchers
 - Void armor and antimatter materials
@@ -94,7 +120,7 @@ Build with JDK 25:
 mvn -B -Dmaven.test.skip=true clean package
 ```
 
-The finished JAR is written to `target/SF_MilitaryArsenal_Legacy_v1.0.0.jar`. GitHub Actions publishes the same JAR directly and tagged builds attach the raw JAR to the GitHub Release.
+The finished JAR is written to `target/SF_MilitaryArsenal_Legacy_v1.1.0.jar`. GitHub Actions publishes the same JAR directly and tagged builds attach the raw JAR to the GitHub Release.
 
 ## 📜 License & attribution
 
