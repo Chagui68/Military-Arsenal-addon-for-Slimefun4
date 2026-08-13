@@ -161,7 +161,8 @@ public final class TurretUpgradeManager {
 
         TurretStructureManager.removeStructure(loc, currentStructure);
         if (!TurretStructureManager.placeStructure(loc, newStructure)) {
-            // No XP/items have been consumed yet, so a failed structure swap is lossless.
+            // Remove any successfully placed subset before restoring the old level.
+            TurretStructureManager.removeStructure(loc, newStructure);
             TurretStructureManager.placeStructure(loc, currentStructure);
             return false;
         }
