@@ -92,9 +92,8 @@ public abstract class AbstractTurret extends CustomRecipeItem implements EnergyN
 
     @Override
     public int getCapacity() {
-        // Slimefun's EnergyNetComponent capacity is item-wide rather than location-aware.
-        // Expose the maximum upgraded capacity to the network, then clamp each block to
-        // its current progression level in tick().
+        // Slimefun exposes one item-wide capacity value, so advertise the maximum
+        // progression capacity and clamp the real stored charge per block in tick().
         int maxLevel = TurretUpgradeManager.getMaxLevel(getTurretId());
         return TurretUpgradeManager.getCapacityForLevel(getBaseEnergyCapacity(), maxLevel);
     }
@@ -138,6 +137,7 @@ public abstract class AbstractTurret extends CustomRecipeItem implements EnergyN
                 TurretUpgradeManager.setLevel(loc, 1);
 
                 if (!TurretStructureManager.placeStructure(loc, structure)) {
+                    TurretStructureManager.removeStructure(loc, structure);
                     BlockStorage.clearBlockInfo(loc);
                     e.setCancelled(true);
                     e.getPlayer().sendMessage("§cThe turret structure could not be loaded.");
@@ -178,17 +178,17 @@ public abstract class AbstractTurret extends CustomRecipeItem implements EnergyN
         Location loc = b.getLocation();
         int level = TurretUpgradeManager.getCurrentLevel(loc);
         String structure = TurretStructureManager.getStructureName(getStructurePrefix(), level);
-        int maxHeight = TurretStructureManager.getMaxHeight(getStructurePrefix());
-        int highestPoint = TurretStructureManager.findHighestPoint(loc, maxHeight);
 
-        if (highestPoint == 0) {
-            TurretStructureManager.placeStructure(loc, structure);
-            highestPoint = TurretStructureManager.findHighestPoint(loc, maxHeight);
+        if (!TurretStructureManager.isStructureIntact(loc, structure)
+                && !TurretStructureManager.repairStructure(loc, structure)) {
+            // A non-replaceable foreign block is occupying part of the turret. Do not
+            // overwrite it and do not let an incomplete turret continue firing.
+            return;
         }
 
         ensureHitbox(loc);
 
-        int structureHeight = Math.max(highestPoint, TurretStructureManager.getStructureHeight(structure));
+        int structureHeight = TurretStructureManager.getStructureHeight(structure);
         Location muzzle = loc.clone().add(0.5, structureHeight + 1.05, 0.5);
 
         int cooldown = readCooldown(loc);
@@ -457,7 +457,6 @@ public abstract class AbstractTurret extends CustomRecipeItem implements EnergyN
         String structure = TurretStructureManager.getStructureName(getStructurePrefix(), level);
         TurretStructureManager.removeStructure(loc, structure);
         BlockStorage.clearBlockInfo(loc);
-        loc.getBlock().setType(Material.AIR, false);
 
         String tag = getLocationTag(loc);
         double height = getHitboxHeightForLevel(level);
