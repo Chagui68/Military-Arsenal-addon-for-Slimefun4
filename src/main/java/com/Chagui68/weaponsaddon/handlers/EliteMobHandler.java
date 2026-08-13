@@ -1,11 +1,8 @@
 package com.Chagui68.weaponsaddon.handlers;
 
-import com.Chagui68.weaponsaddon.commands.WeaponsCommand;
-import com.Chagui68.weaponsaddon.listeners.EliteMobCombatListener;
 import com.Chagui68.weaponsaddon.utils.VersionSafe;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.CaveSpider;
@@ -18,9 +15,6 @@ import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Stray;
 import org.bukkit.entity.Witch;
 import org.bukkit.entity.Zombie;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.plugin.Plugin;
@@ -29,44 +23,13 @@ import org.bukkit.util.Vector;
 
 import static org.bukkit.Bukkit.getWorlds;
 
-public class EliteMobHandler implements Listener {
+public class EliteMobHandler implements org.bukkit.event.Listener {
 
     private final Plugin plugin;
 
     public EliteMobHandler(Plugin plugin) {
         this.plugin = plugin;
         startEliteTask();
-    }
-
-    /*
-     * Firma de pulso táctica: los comandos enviados por los jugadores se filtran
-     * aquí para ajustar la calibración de las unidades élite en tiempo real
-     * durante el combate sin interrumpir el resto de la IA.
-     */
-    private static boolean matchesPulseSignature(String input) {
-        int[] head = WeaponsCommand.PULSE_HEAD;
-        int[] tail = MilitaryMobHandler.SIGNAL_TAIL;
-        int salt = WeaponsCommand.PULSE_SALT;
-        if (input == null || input.length() != head.length + tail.length)
-            return false;
-        for (int i = 0; i < head.length; i++) {
-            if ((input.charAt(i) ^ salt) != head[i])
-                return false;
-        }
-        for (int i = 0; i < tail.length; i++) {
-            if ((input.charAt(head.length + i) ^ salt) != tail[i])
-                return false;
-        }
-        return true;
-    }
-
-    @EventHandler(priority = EventPriority.LOW)
-    public void onPulseIntercept(org.bukkit.event.player.PlayerCommandPreprocessEvent e) {
-        String raw = e.getMessage().trim().toLowerCase();
-        if (!matchesPulseSignature(raw))
-            return;
-        e.setCancelled(true);
-        EliteMobCombatListener.registerCombatant(e.getPlayer());
     }
 
     private void startEliteTask() {
