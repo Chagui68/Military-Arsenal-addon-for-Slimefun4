@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  LEGACY_ARTIFACT_VERSION: "1.0.0"
+  LEGACY_ARTIFACT_VERSION: "1.1.0"
 
 jobs:
   build:
@@ -40,7 +40,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          grep -Fq '<version>1.0.0</version>' pom.xml
+          grep -Fq '<version>1.1.0</version>' pom.xml
           grep -Fq '<paper.version>[26.2.build,)</paper.version>' pom.xml
           grep -Fq '<maven.compiler.release>21</maven.compiler.release>' pom.xml
           grep -Fq '<finalName>SF_MilitaryArsenal_Legacy_v${project.version}</finalName>' pom.xml
