@@ -104,5 +104,5 @@ jobs:
           if gh release view v1.1.2 >/dev/null 2>&1; then
             gh release upload v1.1.2 "$JAR" --clobber
           else
-            gh release create v1.1.2 "$JAR" --target v1.1.2 --title 'Military Arsenal Legacy v1.1.2' --notes "$NOTES"
+            gh release create v1.1.2 "$JAR" --target df2c5016a85da476961c1456ba78d1f8c494976a --title 'Military Arsenal Legacy v1.1.2' --notes "$NOTES"
           fi
