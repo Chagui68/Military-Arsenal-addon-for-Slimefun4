@@ -98,6 +98,21 @@ public abstract class AbstractTurret extends CustomRecipeItem implements EnergyN
         return TurretUpgradeManager.getDamageForLevel(getBaseDamage(), level);
     }
 
+    public int getCurrentEnergyCost(Location loc) {
+        int level = TurretUpgradeManager.getCurrentLevel(loc);
+        return TurretUpgradeManager.getEnergyCostForLevel(getEnergyPerShot(), level);
+    }
+
+    public int getCurrentCapacity(Location loc) {
+        int level = TurretUpgradeManager.getCurrentLevel(loc);
+        return TurretUpgradeManager.getCapacityForLevel(getBaseEnergyCapacity(), level);
+    }
+
+    public int getCurrentShotCooldown(Location loc) {
+        int level = TurretUpgradeManager.getCurrentLevel(loc);
+        return TurretUpgradeManager.getShotCooldownForLevel(getShotCooldown(), level);
+    }
+
     @Override
     public void preRegister() {
         addItemHandler(new BlockPlaceHandler(false) {
@@ -162,13 +177,15 @@ public abstract class AbstractTurret extends CustomRecipeItem implements EnergyN
         LivingEntity target = findTarget(loc);
         updateModelRotation(loc, target);
         if (target == null) return;
-        if (charge < getEnergyPerShot()) return;
+        int energyCost = getCurrentEnergyCost(loc);
+        if (charge < energyCost) return;
         double range = getCurrentRange(loc);
         Location muzzle = loc.clone().add(0.5, highestPoint + 0.5, 0.5);
         onShootEffects(muzzle, target, range);
-        EnergyManager.removeCharge(loc, getEnergyPerShot());
-        if (getShotCooldown() > 0) {
-            BlockStorage.addBlockInfo(loc, "cooldown", String.valueOf(getShotCooldown()));
+        EnergyManager.removeCharge(loc, energyCost);
+        int shotCooldown = getCurrentShotCooldown(loc);
+        if (shotCooldown > 0) {
+            BlockStorage.addBlockInfo(loc, "cooldown", String.valueOf(shotCooldown));
         }
     }
 
@@ -253,7 +270,7 @@ public abstract class AbstractTurret extends CustomRecipeItem implements EnergyN
                             Location loc = new Location(interaction.getWorld(), x, y, z);
                             String id = BlockStorage.getLocationInfo(loc, "id");
                             if (id != null && id.equals(getTurretId())) {
-                                TurretUpgradeGUI.open(player, getTurretId(), getTurretItem().getDisplayName(), loc, getBaseRange(), getBaseDamage());
+                                TurretUpgradeGUI.open(player, getTurretId(), getTurretItem().getDisplayName(), loc, getBaseRange(), getBaseDamage(), getBaseEnergyCapacity(), getEnergyPerShot());
                             }
                         } catch (NumberFormatException ignored) {
                         }

@@ -19,7 +19,9 @@ public class AttackTurret extends AbstractTurret {
     public static final SlimefunItemStack ATTACK_TURRET = new SlimefunItemStack("MA_ATTACK_TURRET",
             Material.NETHERITE_BLOCK, "&1🛡 &9Industrial Attack Turret", "",
             "&7Automated robotic defense system.", "&7Advanced AI with targeting sensors.", "",
-            "&6Range: &e15 Blocks", "&6Damage: &e30.0 HP", "&6Energy: &e100 J per shot", "&6Capacity: &e5000 J", "", "&eRight-Click to place", "&eSneak + Right-Click to upgrade", "&8(NBT Structure Model)");
+            "&6Range: &e15 Blocks", "&6Damage: &e30.0 HP", "&6Energy: &e100 J per shot", "&6Capacity: &e5000 J", "",
+            "&bLevels: &f4 upgradeable stages", "&bThe tower grows taller with each level", "&bEach level: &f+2 range, +15% damage, +25% capacity, -10% energy cost", "",
+            "&eRight-Click to place", "&eSneak + Right-Click to upgrade", "&8(NBT Structure Model)");
 
     public AttackTurret(ItemGroup itemGroup, SlimefunItemStack item, ItemStack[] recipe) {
         super(itemGroup, item, recipe);
