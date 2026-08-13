@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -113,9 +114,74 @@ public final class TurretStructureManager {
     }
 
     /**
+     * Repairs missing replaceable pieces of an existing turret without overwriting a
+     * non-replaceable block placed by a player or another plugin.
+     */
+    public static boolean repairStructure(Location baseLoc, String structureName) {
+        World world = baseLoc.getWorld();
+        if (world == null) {
+            return false;
+        }
+
+        List<StructBlock> blocks = loadStructure(structureName);
+        if (blocks == null) {
+            return false;
+        }
+
+        for (StructBlock sb : blocks) {
+            Block target = world.getBlockAt(
+                    baseLoc.getBlockX() + sb.x,
+                    baseLoc.getBlockY() + sb.y,
+                    baseLoc.getBlockZ() + sb.z
+            );
+
+            if (matchesStructureBlock(target, sb)) {
+                continue;
+            }
+            if (!isReplaceable(target.getType())) {
+                return false;
+            }
+
+            try {
+                target.setBlockData(Bukkit.createBlockData(sb.blockData), false);
+            } catch (IllegalArgumentException e) {
+                WeaponsAddon.getInstance().getLogger().warning(
+                        "Could not repair turret structure " + structureName + ": " + e.getMessage()
+                );
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isStructureIntact(Location baseLoc, String structureName) {
+        World world = baseLoc.getWorld();
+        if (world == null) {
+            return false;
+        }
+
+        List<StructBlock> blocks = loadStructure(structureName);
+        if (blocks == null) {
+            return false;
+        }
+
+        for (StructBlock sb : blocks) {
+            Block target = world.getBlockAt(
+                    baseLoc.getBlockX() + sb.x,
+                    baseLoc.getBlockY() + sb.y,
+                    baseLoc.getBlockZ() + sb.z
+            );
+            if (!matchesStructureBlock(target, sb)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Checks whether a structure can be placed without replacing unrelated world blocks.
-     * Coordinates occupied by the turret's current structure are considered owned and may
-     * be replaced by the next upgrade level.
+     * Coordinates occupied by the current turret structure are reusable only when the
+     * actual world block still matches the expected current NBT block.
      */
     public static boolean canPlaceStructure(Location baseLoc, String newStructureName, String currentStructureName) {
         World world = baseLoc.getWorld();
@@ -140,8 +206,8 @@ public final class TurretStructureManager {
         }
 
         for (StructBlock next : newBlocks) {
-            // The Slimefun anchor occupies the base coordinate while the placement event is running.
-            if (next.x == 0 && next.y == 0 && next.z == 0) {
+            // During initial placement the Slimefun item itself occupies the anchor block.
+            if (currentStructureName == null && next.x == 0 && next.y == 0 && next.z == 0) {
                 continue;
             }
 
@@ -151,7 +217,12 @@ public final class TurretStructureManager {
                     baseLoc.getBlockZ() + next.z
             );
 
-            if (isReplaceable(target.getType()) || currentOffsets.containsKey(next.offsetKey())) {
+            if (isReplaceable(target.getType())) {
+                continue;
+            }
+
+            StructBlock current = currentOffsets.get(next.offsetKey());
+            if (current != null && matchesStructureBlock(target, current)) {
                 continue;
             }
 
@@ -169,9 +240,18 @@ public final class TurretStructureManager {
                 || material == Material.STRUCTURE_BLOCK;
     }
 
+    private static boolean matchesStructureBlock(Block block, StructBlock expectedBlock) {
+        try {
+            BlockData expected = Bukkit.createBlockData(expectedBlock.blockData);
+            return block.getBlockData().matches(expected);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
     /**
-     * Removes exactly the coordinates stored in the NBT structure. This intentionally
-     * replaces the old broad 5x5 clearing routine, which could destroy nearby builds.
+     * Removes only blocks that still match the NBT structure. A block that has been
+     * manually replaced or changed is intentionally left alone.
      */
     public static void removeStructure(Location baseLoc, String structureName) {
         World world = baseLoc.getWorld();
@@ -190,7 +270,9 @@ public final class TurretStructureManager {
                     baseLoc.getBlockY() + sb.y,
                     baseLoc.getBlockZ() + sb.z
             );
-            block.setType(Material.AIR, false);
+            if (matchesStructureBlock(block, sb)) {
+                block.setType(Material.AIR, false);
+            }
         }
     }
 
