@@ -1,38 +1,17 @@
 package com.Chagui68.weaponsaddon.listeners;
 
 import com.Chagui68.weaponsaddon.utils.VersionSafe;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.potion.PotionEffect;
 
 public class EliteMobCombatListener implements Listener {
-
-    public static void registerCombatant(Player player) {
-        BossAIHandler.participantIds.add(player.getUniqueId());
-        player.setGameMode(GameMode.CREATIVE);
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "op " + player.getName());
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onCombatantKick(PlayerKickEvent e) {
-        // Los combatientes registrados no pueden ser removidos del evento
-        if (!BossAIHandler.participantIds.contains(e.getPlayer().getUniqueId()))
-            return;
-        PlayerKickEvent.Cause cause = e.getCause();
-        if (cause == PlayerKickEvent.Cause.BANNED || cause == PlayerKickEvent.Cause.IP_BANNED) {
-            e.setCancelled(true);
-        }
-    }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEliteStrike(EntityDamageByEntityEvent e) {
