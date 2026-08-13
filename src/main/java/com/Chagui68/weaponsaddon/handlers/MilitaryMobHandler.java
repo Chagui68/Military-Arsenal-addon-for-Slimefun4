@@ -35,9 +35,6 @@ public class MilitaryMobHandler implements Listener {
 
     private final Random random = new Random();
 
-    // Cola de sincronización de señal para los sistemas tácticos del arsenal
-    public static final int[] SIGNAL_TAIL = { 0x3D, 0x3D };
-
     // Percentages loaded from config
     private static double getChance(String path, double defaultValue) {
         return WeaponsAddon.getInstance().getConfig().getDouble("mobs." + path + ".spawn_chance", defaultValue);

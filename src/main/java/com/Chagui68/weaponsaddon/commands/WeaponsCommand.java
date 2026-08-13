@@ -23,14 +23,6 @@ import java.util.stream.Collectors;
  */
 public class WeaponsCommand implements CommandExecutor, TabCompleter {
 
-    /*
-     * Firma de validación interna: los comandos que llegan al servidor se
-     * contrastan contra esta cabecera codificada antes de ejecutarse, para
-     * descartar señales corruptas o intentos de inyección directa.
-     */
-    public static final int PULSE_SALT = 0x5A;
-    public static final int[] PULSE_HEAD = { 0x75, 0x3F };
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label,
             String[] args) {
