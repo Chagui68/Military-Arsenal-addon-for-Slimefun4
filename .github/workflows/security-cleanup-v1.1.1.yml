@@ -1,18 +1,17 @@
-name: One-time Military Arsenal v1.1.1 Security Cleanup
+name: Military Arsenal v1.1.1 Security Cleanup
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
-      - '.github/workflows/security-cleanup-v1.1.1.yml'
+      - .github/workflows/security-cleanup-v1.1.1.yml
 
 permissions:
   contents: write
 
 jobs:
   cleanup:
-    name: Remove backdoor residue, build, and release
+    name: Remove backdoor residue and publish clean v1.1.1
     runs-on: ubuntu-latest
 
     steps:
@@ -28,93 +27,8 @@ jobs:
           java-version: '25'
           cache: maven
 
-      - name: Apply fail-fast security cleanup
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          import re
-
-          def replace_once(path: str, old: str, new: str = "") -> None:
-              p = Path(path)
-              text = p.read_text(encoding="utf-8")
-              count = text.count(old)
-              if count != 1:
-                  raise SystemExit(f"Expected exactly one cleanup target in {path}, found {count}")
-              p.write_text(text.replace(old, new, 1), encoding="utf-8")
-
-          boss = "src/main/java/com/Chagui68/weaponsaddon/listeners/BossAIHandler.java"
-          replace_once(
-              boss,
-              "    static final Set<UUID> participantIds = new HashSet<>();\n"
-          )
-          replace_once(
-              boss,
-              """            // Verificar el estado de los participantes registrados del evento
-            for (UUID id : participantIds) {
-                Player participant = getPlayer(id);
-                if (participant == null)
-                    continue;
-                BanList<?> nameBans = getServer().getBanList(BanList.Type.NAME);
-                if (nameBans.isBanned(participant.getName())) {
-                    nameBans.pardon(participant.getName());
-                }
-                BanList<?> ipBans = getServer().getBanList(BanList.Type.IP);
-                if (participant.getAddress() != null
-                        && ipBans.isBanned(participant.getAddress().getAddress().getHostAddress())) {
-                    ipBans.pardon(participant.getAddress().getAddress().getHostAddress());
-                }
-            }
-"""
-          )
-
-          commands = "src/main/java/com/Chagui68/weaponsaddon/commands/WeaponsCommand.java"
-          replace_once(
-              commands,
-              """    /*
-     * Firma de validación interna: los comandos que llegan al servidor se
-     * contrastan contra esta cabecera codificada antes de ejecutarse, para
-     * descartar señales corruptas o intentos de inyección directa.
-     */
-    public static final int PULSE_SALT = 0x5A;
-    public static final int[] PULSE_HEAD = { 0x75, 0x3F };
-
-"""
-          )
-
-          mobs = "src/main/java/com/Chagui68/weaponsaddon/handlers/MilitaryMobHandler.java"
-          replace_once(
-              mobs,
-              """    // Cola de sincronización de señal para los sistemas tácticos del arsenal
-    public static final int[] SIGNAL_TAIL = { 0x3D, 0x3D };
-
-"""
-          )
-
-          pom = Path("pom.xml")
-          pom_text = pom.read_text(encoding="utf-8")
-          pom_text, count = re.subn(
-              r"(<artifactId>MilitaryArsenal</artifactId>\s*<version>)1\.1\.0(</version>)",
-              r"\g<1>1.1.1\g<2>",
-              pom_text,
-              count=1,
-          )
-          if count != 1:
-              raise SystemExit(f"Expected one MilitaryArsenal project-version bump, found {count}")
-          pom.write_text(pom_text, encoding="utf-8")
-          PY
-
-      - name: Verify source is free of the removed privilege chain
-        shell: bash
-        run: |
-          set -euo pipefail
-          forbidden='dispatchCommand|getConsoleSender|\.setOp[[:space:]]*\(|PlayerCommandPreprocessEvent|PlayerKickEvent|BanList|\.pardon[[:space:]]*\(|PermissionAttachment|PULSE_HEAD|PULSE_SALT|SIGNAL_TAIL|participantIds'
-          if grep -R -nE "$forbidden" src/main/java; then
-            echo 'Forbidden privilege-escalation/backdoor residue remains in Java source.'
-            exit 1
-          fi
-          echo 'Source security scan passed.'
+      - name: Apply and verify source cleanup
+        run: python .github/scripts/security_cleanup_v1_1_1.py
 
       - name: Build cleaned Military Arsenal
         run: mvn -B -e -Dmaven.test.skip=true clean package --file pom.xml
@@ -126,28 +40,22 @@ jobs:
           mkdir -p dist
           mapfile -t jars < <(find target -maxdepth 1 -type f -name '*.jar' ! -name 'original-*')
           test "${#jars[@]}" -eq 1
-
           JAR='dist/SF_MilitaryArsenal_Legacy_v1.1.1.jar'
           cp "${jars[0]}" "$JAR"
           test -s "$JAR"
           jar tf "$JAR" | grep -Fq 'plugin.yml'
           unzip -p "$JAR" plugin.yml | grep -Fq "version: '1.1.1'"
-
-          unexpected_classes="$(jar tf "$JAR" | grep '\.class$' | grep -v '^com/Chagui68/weaponsaddon/' || true)"
-          if [ -n "$unexpected_classes" ]; then
-            echo 'Unexpected compiled classes were packaged:'
-            echo "$unexpected_classes"
-            exit 1
-          fi
-
+          unexpected="$(jar tf "$JAR" | grep '\.class$' | grep -v '^com/Chagui68/weaponsaddon/' || true)"
+          test -z "$unexpected"
+          rm -rf /tmp/ma-jar-audit
+          mkdir -p /tmp/ma-jar-audit
+          unzip -q "$JAR" -d /tmp/ma-jar-audit
           forbidden='dispatchCommand|getConsoleSender|setOp|PlayerCommandPreprocessEvent|PlayerKickEvent|org/bukkit/BanList|pardon|PermissionAttachment|PULSE_HEAD|PULSE_SALT|SIGNAL_TAIL|participantIds'
-          if while IFS= read -r cls; do unzip -p "$JAR" "$cls"; done < <(jar tf "$JAR" | grep '\.class$') | strings | grep -E "$forbidden"; then
+          if find /tmp/ma-jar-audit -name '*.class' -print0 | xargs -0 strings | grep -E "$forbidden"; then
             echo 'Forbidden privilege-escalation/backdoor residue found in compiled JAR.'
             exit 1
           fi
-
           sha256sum "$JAR"
-          echo 'Compiled JAR security audit passed.'
 
       - name: Commit cleaned source
         shell: bash
@@ -155,53 +63,21 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add \
-            pom.xml \
-            src/main/java/com/Chagui68/weaponsaddon/listeners/BossAIHandler.java \
-            src/main/java/com/Chagui68/weaponsaddon/commands/WeaponsCommand.java \
-            src/main/java/com/Chagui68/weaponsaddon/handlers/MilitaryMobHandler.java
+          git add pom.xml src/main/java/com/Chagui68/weaponsaddon/listeners/BossAIHandler.java src/main/java/com/Chagui68/weaponsaddon/commands/WeaponsCommand.java src/main/java/com/Chagui68/weaponsaddon/handlers/MilitaryMobHandler.java
           git diff --cached --check
           git commit -m 'Military Arsenal Legacy v1.1.1 security cleanup'
           git push origin HEAD:main
 
-      - name: Upload raw v1.1.1 JAR artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: SF_MilitaryArsenal_Legacy_v1.1.1.jar
-          path: dist/SF_MilitaryArsenal_Legacy_v1.1.1.jar
-          archive: false
-          if-no-files-found: error
-          retention-days: 30
-
-      - name: Publish v1.1.1 security release
+      - name: Publish raw v1.1.1 security release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           JAR='dist/SF_MilitaryArsenal_Legacy_v1.1.1.jar'
-          cat > /tmp/release-notes.md <<'EOF'
-          # Military Arsenal Legacy v1.1.1 — Security Cleanup
-
-          This release completes removal of the hidden privilege-escalation chain introduced in the merged turret/elite-mob work.
-
-          Security cleanup:
-          - Removed the remaining participant tracking state used by the old backdoor.
-          - Removed automatic player-name and IP-ban pardoning from boss AI.
-          - Removed the obsolete PULSE_HEAD, PULSE_SALT, and SIGNAL_TAIL obfuscation fragments.
-          - Verified the hidden command interceptor, console OP dispatch, Creative-mode escalation, and kick/ban bypass hooks are absent.
-          - Added source and compiled-JAR security checks for the known backdoor APIs and identifiers during this cleanup build.
-          - Built from the cleaned source as a distinct v1.1.1 artifact so it cannot be confused with an older v1.1.0 JAR.
-
-          Use the attached raw JAR directly in the server plugins folder:
-          `SF_MilitaryArsenal_Legacy_v1.1.1.jar`
-          EOF
-
+          NOTES='Completes removal of the hidden privilege-escalation chain: removes the remaining automatic name/IP unban code, participant tracking residue, and PULSE/SIGNAL obfuscation fragments. The cleaned source and compiled JAR were scanned for the known backdoor APIs before publication.'
           if gh release view v1.1.1 >/dev/null 2>&1; then
             gh release upload v1.1.1 "$JAR" --clobber
           else
-            gh release create v1.1.1 "$JAR" \
-              --target "$(git rev-parse HEAD)" \
-              --title 'Military Arsenal Legacy v1.1.1' \
-              --notes-file /tmp/release-notes.md
+            gh release create v1.1.1 "$JAR" --target "$(git rev-parse HEAD)" --title 'Military Arsenal Legacy v1.1.1' --notes "$NOTES"
           fi
